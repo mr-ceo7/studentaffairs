@@ -17,6 +17,9 @@ import AboutUsPage from './pages/AboutUsPage';
 import ContactPage from './pages/ContactPage';
 import FAQPage from './pages/FAQPage';
 import CatalogPage from './pages/CatalogPage';
+import GpaCalculatorPage from './pages/GpaCalculatorPage';
+import NoticesPage from './pages/NoticesPage';
+import ClearancePage from './pages/ClearancePage';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import Footer from './components/Footer';
@@ -74,6 +77,9 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Dashboard onShowPricing={() => handleShowAuth()} onShowAuth={handleShowAuth} />} />
               <Route path="/catalog" element={<CatalogPage />} />
+              <Route path="/gpa" element={<GpaCalculatorPage />} />
+              <Route path="/notices" element={<NoticesPage />} />
+              <Route path="/clearance" element={<ClearancePage />} />
               <Route path="/about" element={<AboutUsPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/faq" element={<FAQPage />} />

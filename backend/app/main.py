@@ -10,7 +10,7 @@ import os
 
 from app.config import settings
 from app.database import engine, Base, AsyncSessionLocal
-from app.routers import auth, tips, payments, subscriptions, admin, campaigns, internal, tickets
+from app.routers import auth, tips, payments, subscriptions, admin, campaigns, internal, tickets, notices, clearance
 
 
 async def seed_default_data():
@@ -232,12 +232,51 @@ async def seed_default_data():
             await db.commit()
             print("[UoN Clearinghouse] Seeded default ticket data")
 
+        # Seed notices
+        from app.models.notice import Notice
+        result_notices = await db.execute(select(Notice))
+        existing_notices = result_notices.scalars().all()
+        if not existing_notices:
+            default_notices = [
+                Notice(
+                    title="Graduation Clearance Deadline for 2026 Cohort",
+                    category="Graduation",
+                    content="All undergraduate students expecting to graduate in the upcoming December 2026 ceremony must submit all missing marks claims on the clearinghouse by September 30th, 2026. Late claims will not be processed in time for the Senate approval.",
+                    priority="urgent",
+                    target_faculty="All Faculties",
+                    posted_by="Office of the Registrar",
+                    is_pinned=True,
+                ),
+                Notice(
+                    title="Supplementary Examinations Timetable Release",
+                    category="Exam",
+                    content="The supplementary and special examinations timetable for the 2025/2026 academic year has been published. Exams will commence on September 7th, 2026. Please check your assigned rooms and times.",
+                    priority="high",
+                    target_faculty="Faculty of Science & Technology",
+                    posted_by="Dr. Peter Otieno",
+                    is_pinned=False,
+                ),
+                Notice(
+                    title="Missing Marks Processing Guidelines",
+                    category="Missing Marks",
+                    content="Ensure that when submitting a missing mark claim, you attach a scanned copy of your signed exam card, CAT docket, or graded coursework sheet. Failure to attach legible proof will result in immediate rejection by the department.",
+                    priority="normal",
+                    target_faculty="All Faculties",
+                    posted_by="Office of Academic Affairs",
+                    is_pinned=False,
+                )
+            ]
+            for n in default_notices:
+                db.add(n)
+            await db.commit()
+            print("[UoN Clearinghouse] Seeded default noticeboard data")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create tables and seed data on startup."""
     # Import all models to register them with Base
-    from app.models import user, tip, payment, subscription, setting, activity, ad, campaign, ticket, comment  # noqa: F401
+    from app.models import user, tip, payment, subscription, setting, activity, ad, campaign, ticket, comment, notice, clearance  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -275,6 +314,8 @@ app.include_router(admin.router)
 app.include_router(campaigns.router)
 app.include_router(internal.router)
 app.include_router(tickets.router)
+app.include_router(notices.router)
+app.include_router(clearance.router)
 
 os.makedirs("media", exist_ok=True)
 app.mount("/api/media", StaticFiles(directory="media"), name="media")

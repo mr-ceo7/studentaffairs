@@ -7,7 +7,9 @@ import {
   Info, 
   HelpCircle, 
   Headphones, 
-  ClipboardList 
+  ClipboardList,
+  Calculator,
+  Bell
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
@@ -69,6 +71,60 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
                   )}
                   <BookOpen size={18} className={isActive('/catalog') ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors'} />
                   Course Catalog
+                </Link>
+              )}
+
+              {/* GPA Calculator Link */}
+              {user && (
+                <Link 
+                  to="/gpa" 
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-semibold transition-all duration-300 relative group overflow-hidden ${
+                    isActive('/gpa') 
+                      ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                      : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/50 dark:hover:bg-slate-900/50'
+                  }`}
+                >
+                  {isActive('/gpa') && (
+                    <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-700 dark:bg-blue-500 rounded-full" />
+                  )}
+                  <Calculator size={18} className={isActive('/gpa') ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors'} />
+                  GPA Calculator
+                </Link>
+              )}
+
+              {/* Official Bulletins Link */}
+              {user && (
+                <Link 
+                  to="/notices" 
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-semibold transition-all duration-300 relative group overflow-hidden ${
+                    isActive('/notices') 
+                      ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                      : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/50 dark:hover:bg-slate-900/50'
+                  }`}
+                >
+                  {isActive('/notices') && (
+                    <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-700 dark:bg-blue-500 rounded-full" />
+                  )}
+                  <Bell size={18} className={isActive('/notices') ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors'} />
+                  Official Bulletins
+                </Link>
+              )}
+
+              {/* Graduation Clearance Link */}
+              {user && (
+                <Link 
+                  to="/clearance" 
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-semibold transition-all duration-300 relative group overflow-hidden ${
+                    isActive('/clearance') 
+                      ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                      : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/50 dark:hover:bg-slate-900/50'
+                  }`}
+                >
+                  {isActive('/clearance') && (
+                    <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-700 dark:bg-blue-500 rounded-full" />
+                  )}
+                  <GraduationCap size={18} className={isActive('/clearance') ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors'} />
+                  Academic Clearance
                 </Link>
               )}
 
