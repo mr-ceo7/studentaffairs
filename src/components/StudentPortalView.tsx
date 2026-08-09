@@ -207,7 +207,18 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   };
 
   return (
-    <div className="space-y-6 pt-2 text-slate-700 dark:text-slate-300">
+    <div className="space-y-6 text-slate-700 dark:text-slate-300">
+      {/* Welcome Message (above hero) */}
+      <div className="reveal active space-y-1 px-1">
+        <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest block">Student Portal</span>
+        <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">
+          Welcome, {user.username}
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400 text-xs leading-none">
+          Faculty of Science &amp; Technology · Department of Computing &amp; Informatics
+        </p>
+      </div>
+
       {/* ONUSS Claims Hero Carousel */}
       <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-xl aspect-[21/9] sm:aspect-[3/1] group">
         <AnimatePresence mode="wait">
@@ -222,25 +233,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
             <img
               src={HERO_SLIDES[heroSlide].image}
               alt={HERO_SLIDES[heroSlide].title}
-              className="w-full h-full object-cover opacity-60"
+              className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
           </motion.div>
         </AnimatePresence>
-
-        {/* Text Overlay */}
-        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 space-y-1.5 z-10">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600/80 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-widest border border-emerald-400/30">
-            <GraduationCap size={11} />
-            ONUSS Grade Claims Portal
-          </div>
-          <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
-            {HERO_SLIDES[heroSlide].title}
-          </h3>
-          <p className="text-[11px] text-slate-300 leading-relaxed line-clamp-2 max-w-xl">
-            {HERO_SLIDES[heroSlide].subtitle}
-          </p>
-        </div>
 
         {/* Navigation Arrows */}
         <button
@@ -270,58 +266,60 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         </div>
       </div>
 
-      {/* Header Profile Info */}
-      <div className="reveal active flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl shadow-sm">
-        <div className="space-y-1">
-          <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest block">Student Portal</span>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Welcome, {user.username}
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs leading-none">
-            Faculty of Science & Technology · Department of Computing & Informatics
-          </p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <button 
-            onClick={() => setActiveTab('new-claim')}
-            className={`px-4 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-              activeTab === 'new-claim' 
-                ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200/50 dark:border-blue-900/50 text-blue-700 dark:text-blue-400 shadow-sm font-bold' 
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
-            }`}
-          >
-            <PlusCircle size={14} />
-            New Claim Ticket
-          </button>
-          <button 
-            onClick={() => setActiveTab('my-tickets')}
-            className={`px-4 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-              activeTab === 'my-tickets' 
-                ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200/50 dark:border-blue-900/50 text-blue-700 dark:text-blue-400 shadow-sm font-bold' 
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
-            }`}
-          >
-            <ListTodo size={14} />
-            My Tickets ({tickets.length})
-          </button>
-        </div>
+      {/* Tab Buttons (below hero) */}
+      <div className="flex gap-2">
+        <button 
+          onClick={() => setActiveTab('new-claim')}
+          className={`px-4 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+            activeTab === 'new-claim' 
+              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200/50 dark:border-blue-900/50 text-blue-700 dark:text-blue-400 shadow-sm font-bold' 
+              : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+          }`}
+        >
+          <PlusCircle size={14} />
+          New Claim Ticket
+        </button>
+        <button 
+          onClick={() => setActiveTab('my-tickets')}
+          className={`px-4 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+            activeTab === 'my-tickets' 
+              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200/50 dark:border-blue-900/50 text-blue-700 dark:text-blue-400 shadow-sm font-bold' 
+              : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+          }`}
+        >
+          <ListTodo size={14} />
+          My Tickets ({tickets.length})
+        </button>
       </div>
 
       {/* Tab Panels */}
       {activeTab === 'new-claim' ? (
-        <div className="clay-card p-6 bg-white border border-slate-200/60 reveal active max-w-4xl mx-auto space-y-6">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-750 dark:text-blue-400" />
-              File a Missing Mark / Disputed Mark Claim
-            </h2>
-            <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">Submit your exam sheets or CAT dockets for department validation.</p>
+        <div className="clay-card p-5 sm:p-6 bg-white border border-slate-200/60 reveal active max-w-4xl mx-auto space-y-5">
+          {/* Compact Header */}
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-400 flex items-center justify-center border border-blue-500/20 shrink-0">
+                <FileText size={16} />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                  File a Missing / Disputed Mark
+                </h2>
+                <p className="text-slate-400 dark:text-slate-500 text-[10px]">Submit exam sheets or CAT dockets for validation</p>
+              </div>
+            </div>
+            {regNumber && !regError && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-900/50">
+                <CheckSquare size={11} /> {regNumber}
+              </span>
+            )}
           </div>
 
           <form onSubmit={handleSubmitClaim} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Row 1: Reg Number + Unit Code */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                   Registration Number
                 </label>
                 <input
@@ -329,51 +327,56 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   placeholder="e.g. CS/45231/2022"
                   value={regNumber}
                   onChange={(e) => handleRegChange(e.target.value)}
-                  className={`w-full bg-slate-50 dark:bg-slate-900/40 border rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all ${
+                  className={`w-full bg-slate-50 dark:bg-slate-900/40 border rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all ${
                     regError 
                       ? 'border-red-500/50 focus:border-red-500' 
-                      : 'border-slate-200 dark:border-slate-800 focus:border-blue-455 dark:focus:border-blue-500'
+                      : 'border-slate-200 dark:border-slate-800 focus:border-blue-500'
                   }`}
                 />
-                <span className={`text-[9px] mt-1 block ${regError ? 'text-red-500 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
-                  Format: ABC/12345/2022 (Letters, slash, 5 or 6 digits, slash, Year)
-                </span>
+                {regError && (
+                  <span className="text-[9px] text-red-500 font-medium mt-0.5 block">
+                    Format: ABC/12345/2022
+                  </span>
+                )}
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                   Course Unit Code
                 </label>
                 <select
                   value={unitCode}
                   onChange={(e) => setUnitCode(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-450 dark:focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
+                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
                 >
-                  <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">Select Course Unit...</option>
+                  <option value="" className="bg-white dark:bg-slate-950">Select Unit...</option>
                   {UNITS.map(u => (
-                    <option key={u} value={u} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">{u}</option>
+                    <option key={u} value={u} className="bg-white dark:bg-slate-950">{u}</option>
                   ))}
                 </select>
               </div>
+            </div>
 
+            {/* Row 2: Category + Score */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                   Assessment Category
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-450 dark:focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
+                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
                 >
-                  <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">Select Category...</option>
+                  <option value="" className="bg-white dark:bg-slate-950">Select Category...</option>
                   {CATEGORIES.map(c => (
-                    <option key={c} value={c} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">{c}</option>
+                    <option key={c} value={c} className="bg-white dark:bg-slate-950">{c}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                   Claimed Score / Grade
                 </label>
                 <input
@@ -381,69 +384,83 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   placeholder="e.g. 68"
                   value={claimedScore}
                   onChange={(e) => setClaimedScore(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-450 dark:focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
                 />
-                <span className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 block">Specify your score as written on exam sheets or CAT evaluation</span>
               </div>
             </div>
 
+            {/* Proof Upload (compact inline) */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Proof Attachment (PDF or JPEG, max 5MB)
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                Proof Attachment
               </label>
               <div 
                 onClick={handleFileUpload}
-                className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
+                className={`border border-dashed rounded-xl p-3 cursor-pointer transition-all flex items-center gap-3 ${
                   fileName 
-                    ? 'border-blue-300 dark:border-blue-700 bg-blue-50/20 dark:bg-blue-950/20 text-blue-900 dark:text-blue-350' 
-                    : 'border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-50/70 dark:hover:bg-slate-900/60 text-slate-500 dark:text-slate-400'
+                    ? 'border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-950/20' 
+                    : 'border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900/40'
                 }`}
               >
-                <Upload size={24} className={fileName ? 'text-blue-700 dark:text-blue-400 animate-bounce' : 'text-slate-400'} />
-                <span className="text-xs font-semibold">{fileName ? `Attached: ${fileName}` : 'Click to attach stamped exam card, CAT docket, or graded script'}</span>
-                <span className="text-[9px] text-slate-400 dark:text-slate-500">Accepted formats: PDF or JPG, max 5MB. Ensure signatures and dates are visible.</span>
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                  fileName 
+                    ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' 
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                }`}>
+                  <Upload size={16} />
+                </div>
+                <div className="min-w-0">
+                  <span className={`text-xs font-semibold block truncate ${fileName ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                    {fileName ? `✓ ${fileName}` : 'Tap to attach exam card, docket, or script'}
+                  </span>
+                  <span className="text-[9px] text-slate-400 dark:text-slate-500">PDF or JPG, max 5MB</span>
+                </div>
               </div>
             </div>
 
+            {/* Notes (compact) */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Additional Notes / Context (optional)
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                Additional Notes (optional)
               </label>
               <textarea
-                placeholder="Provide details about invigilators, exam rooms, or script codes to assist validation..."
+                placeholder="Invigilator name, exam room, script code..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-                className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-450 dark:focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
+                rows={2}
+                className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
               />
             </div>
 
-            <div className="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-2xl border border-amber-200/50 dark:border-amber-900/50 space-y-2.5">
-              <div className="flex gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <span className="text-[10px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Academic Integrity Disclaimer</span>
+            {/* Disclaimer (compact) */}
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-900/50 space-y-2">
+              <div className="flex gap-2 items-center">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span className="text-[9px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Academic Integrity Disclaimer</span>
               </div>
-              <p className="text-[10.5px] text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                By submitting this claim, I affirm that all supporting files and details represent my own academic work. Submitting falsified documents or grades constitutes academic misconduct under UoN Senate Regulations and will result in disciplinary hearings, suspensions, or expulsion.
+              <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                By submitting, I affirm all details represent my own work. Falsified documents constitute misconduct under UoN Senate Regulations.
               </p>
-              <label className="flex items-start gap-2.5 pt-1.5 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={agree}
                   onChange={(e) => setAgree(e.target.checked)}
-                  className="rounded border-slate-300 dark:border-slate-700 text-blue-700 focus:ring-blue-550 mt-0.5 cursor-pointer w-4 h-4"
+                  className="rounded border-slate-300 dark:border-slate-700 text-blue-700 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
                 />
-                <span className="text-xs text-slate-700 dark:text-slate-300 select-none">I accept and consent to evaluation of this academic claim under UoN integrity bylaws.</span>
+                <span className="text-[10px] text-slate-700 dark:text-slate-300 select-none font-medium">I accept UoN academic integrity bylaws</span>
               </label>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            {/* Submit Row */}
+            <div className="flex items-center gap-3 pt-1">
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-1 shadow-sm cursor-pointer"
+                className="flex-1 sm:flex-none px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all"
               >
-                Submit Grievance Claim
+                <ArrowRight size={14} />
+                {loading ? 'Submitting...' : 'Submit Grievance Claim'}
               </button>
               <button
                 type="button"
@@ -456,9 +473,9 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   setAgree(false);
                   setFileName('');
                 }}
-                className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer"
+                className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer transition-all"
               >
-                Clear Form
+                Clear
               </button>
             </div>
           </form>
