@@ -29,6 +29,9 @@ async def submit_support_message(
     year_of_study = body.year_of_study or (user.year_of_study if user else None)
     semester = body.semester or (user.semester if user else None)
 
+    sender_name = body.sender_name or (user.username if user else None)
+    user_email = body.user_email or (user.email if user else None)
+
     msg = SupportMessage(
         target_recipient=body.target_recipient.lower().strip(),
         category=body.category,
@@ -36,6 +39,8 @@ async def submit_support_message(
         sender_name=sender_name,
         subject=body.subject,
         message=body.message.strip(),
+        attachment_url=body.attachment_url,
+        attachment_name=body.attachment_name,
         reg_number=reg_number,
         campus=campus,
         faculty=faculty,

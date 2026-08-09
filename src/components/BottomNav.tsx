@@ -155,7 +155,7 @@ export default function BottomNav() {
 
       {/* Main Bottom Navigation Bar */}
       <nav 
-        className="md:hidden bg-slate-200/90 dark:bg-slate-950/90 backdrop-blur-md fixed bottom-0 w-full max-w-lg left-1/2 -translate-x-1/2 z-50 rounded-t-[32px] border-t border-slate-300/40 dark:border-slate-800/40 flex justify-around items-center h-22 px-2 pb-safe shadow-lg transition-colors duration-300"
+        className="md:hidden bg-slate-200/90 dark:bg-slate-950/90 backdrop-blur-md fixed bottom-0 w-full max-w-lg left-1/2 -translate-x-1/2 z-[10000] rounded-t-[32px] border-t border-slate-300/40 dark:border-slate-800/40 flex justify-around items-center h-22 px-2 pb-safe shadow-lg transition-colors duration-300"
         style={{ WebkitBackdropFilter: 'blur(30px) saturate(1.5)' }}
       >
         {/* 1. Claims / Dashboard */}

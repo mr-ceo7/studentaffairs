@@ -10,6 +10,8 @@ class SupportMessageCreate(BaseModel):
     sender_name: Optional[str] = None
     subject: Optional[str] = None
     message: str
+    attachment_url: Optional[str] = None
+    attachment_name: Optional[str] = None
     reg_number: Optional[str] = None
     campus: Optional[str] = None
     faculty: Optional[str] = None
@@ -34,6 +36,8 @@ class SupportMessageResponse(BaseModel):
     message: str
     status: str
     reply_notes: Optional[str] = None
+    attachment_url: Optional[str] = None
+    attachment_name: Optional[str] = None
     reg_number: Optional[str] = None
     campus: Optional[str] = None
     faculty: Optional[str] = None

@@ -8,8 +8,12 @@ import {
   CheckSquare, 
   Calendar, 
   ArrowRight,
-  BookOpen
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  GraduationCap
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ticketService, type TicketData, type TicketCreatePayload } from '../services/ticketService';
 import { toast } from 'sonner';
 
@@ -39,10 +43,37 @@ const CATEGORIES = [
   "Fieldwork / Industrial Attachment"
 ];
 
+const HERO_SLIDES = [
+  {
+    image: '/onuss_claims_hero.jpg',
+    title: 'ONUSS Marks Discrepancy & Claims Clearinghouse',
+    subtitle: 'Submit, track, and resolve missing marks and grade disputes through the official ONUSS digital pipeline.',
+  },
+  {
+    image: '/onuss_kaleb_poster.jpg',
+    title: 'Championed by ONUSS Executive Leadership',
+    subtitle: 'Kaleb Wambua & ONUSS Academic Secretaries are dedicated to resolving your grade grievances efficiently.',
+  },
+  {
+    image: '/onuss_poster_banner.jpg',
+    title: 'ONUSS Academic Advocacy & Grade Clearinghouse',
+    subtitle: 'Grade transparency, Senate appeals, and faculty HOD follow-ups for all UoN science students.',
+  },
+];
+
 export default function StudentPortalView({ user, onTicketClick }: StudentPortalProps) {
   const [activeTab, setActiveTab] = useState<'new-claim' | 'my-tickets'>('new-claim');
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [heroSlide, setHeroSlide] = useState(0);
+
+  // Hero carousel auto-play
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Form states
   const [regNumber, setRegNumber] = useState('');
@@ -177,6 +208,68 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
 
   return (
     <div className="space-y-6 pt-2 text-slate-700 dark:text-slate-300">
+      {/* ONUSS Claims Hero Carousel */}
+      <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-xl aspect-[21/9] sm:aspect-[3/1] group">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={heroSlide}
+            initial={{ opacity: 0, scale: 1.03 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0"
+          >
+            <img
+              src={HERO_SLIDES[heroSlide].image}
+              alt={HERO_SLIDES[heroSlide].title}
+              className="w-full h-full object-cover opacity-60"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Text Overlay */}
+        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 space-y-1.5 z-10">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600/80 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-widest border border-emerald-400/30">
+            <GraduationCap size={11} />
+            ONUSS Grade Claims Portal
+          </div>
+          <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
+            {HERO_SLIDES[heroSlide].title}
+          </h3>
+          <p className="text-[11px] text-slate-300 leading-relaxed line-clamp-2 max-w-xl">
+            {HERO_SLIDES[heroSlide].subtitle}
+          </p>
+        </div>
+
+        {/* Navigation Arrows */}
+        <button
+          onClick={() => setHeroSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+        >
+          <ChevronLeft size={14} />
+        </button>
+        <button
+          onClick={() => setHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+        >
+          <ChevronRight size={14} />
+        </button>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-2 right-3 flex gap-1.5 z-20">
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroSlide(i)}
+              className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                i === heroSlide ? 'bg-white w-4' : 'bg-white/40'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
       {/* Header Profile Info */}
       <div className="reveal active flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl shadow-sm">
         <div className="space-y-1">

@@ -10,6 +10,8 @@ export interface SupportMessage {
   message: string;
   status: 'open' | 'resolved';
   reply_notes?: string;
+  attachment_url?: string;
+  attachment_name?: string;
   reg_number?: string;
   campus?: string;
   faculty?: string;
@@ -29,6 +31,8 @@ export const supportService = {
     sender_name?: string;
     subject?: string;
     message: string;
+    attachment_url?: string;
+    attachment_name?: string;
     reg_number?: string;
     campus?: string;
     faculty?: string;

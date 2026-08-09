@@ -16,7 +16,8 @@ import {
   UserCheck,
   Check,
   Building2,
-  GraduationCap
+  GraduationCap,
+  Paperclip
 } from 'lucide-react';
 import { ticketService, type TicketData } from '../services/ticketService';
 import { supportService, type SupportMessage } from '../services/supportService';
@@ -194,7 +195,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
             Clearance &amp; Support Master Board
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs leading-none">
-            Manage academic grievances, view clearance analytics, and respond to developer &amp; UNSA support messages.
+            Manage academic grievances, view clearance analytics, and respond to developer &amp; ONUSS support messages.
           </p>
         </div>
 
@@ -396,7 +397,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                   In-App Support &amp; Academic Advocacy Inbox
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Incoming developer bug reports and UNSA student leaders academic advocacy requests with complete student academic profile metadata.
+                  Incoming developer bug reports and ONUSS student leaders academic advocacy requests with complete student academic profile metadata.
                 </p>
               </div>
 
@@ -407,7 +408,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
               >
                 <option value="all">All Target Channels</option>
                 <option value="developer">Developer Bugs Only</option>
-                <option value="student_leader">Student Leaders (UNSA) Only</option>
+                <option value="student_leader">Student Leaders (ONUSS) Only</option>
               </select>
             </div>
 
@@ -471,7 +472,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                         </span>
                       ) : (
                         <span className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-md font-bold text-[10px] flex items-center gap-1 border border-emerald-500/20">
-                          <UserCheck size={11} /> UNSA STUDENT REPS
+                          <UserCheck size={11} /> ONUSS STUDENT REPS
                         </span>
                       )}
                       <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
@@ -501,6 +502,34 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                       {msg.message}
                     </p>
                   </div>
+
+                  {/* Attached File/Image Preview */}
+                  {msg.attachment_url && (
+                    <div className="p-2.5 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1.5">
+                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                        <Paperclip size={11} className="text-blue-500" />
+                        Attached Evidence / Screenshot
+                      </div>
+                      {msg.attachment_url.startsWith('data:image/') ? (
+                        <div className="space-y-1">
+                          <img 
+                            src={msg.attachment_url} 
+                            alt={msg.attachment_name || 'Attached proof'} 
+                            className="max-h-48 max-w-full rounded-lg object-contain border border-slate-200 dark:border-slate-800 bg-black/20"
+                          />
+                          <span className="text-[10px] text-slate-400 block font-mono">{msg.attachment_name}</span>
+                        </div>
+                      ) : (
+                        <a
+                          href={msg.attachment_url}
+                          download={msg.attachment_name || 'attached_document'}
+                          className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                        >
+                          <Download size={13} /> Download {msg.attachment_name || 'Attached Document'}
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                   {/* Student Academic Metadata Chips */}
                   <div className="p-2.5 bg-white/70 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-800/80 text-[11px] space-y-1">

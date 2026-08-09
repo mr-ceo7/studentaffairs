@@ -22,6 +22,10 @@ class SupportMessage(Base):
     status = Column(String(50), nullable=False, default="open")  # 'open' or 'resolved'
     reply_notes = Column(Text, nullable=True)
 
+    # Optional File/Image Attachment
+    attachment_url = Column(Text, nullable=True)
+    attachment_name = Column(String(255), nullable=True)
+
     # Academic metadata for administrative filtering
     reg_number = Column(String(100), nullable=True)
     campus = Column(String(100), nullable=True)
