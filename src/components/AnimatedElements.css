@@ -1,0 +1,734 @@
+/* ==========================================================================
+   Animated Button (Option A)
+   ========================================================================== */
+.animated-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 28px;
+  border: 4px solid transparent;
+  font-size: 14px;
+  background-color: transparent;
+  border-radius: 100px;
+  font-weight: 600;
+  color: #adff2f; /* greenyellow */
+  box-shadow: 0 0 0 2px #adff2f;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  width: 100%;
+}
+
+.animated-button svg.arr-1,
+.animated-button svg.arr-2 {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  fill: #adff2f;
+  z-index: 9;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.animated-button .arr-1 {
+  right: 16px;
+}
+
+.animated-button .arr-2 {
+  left: -25%;
+}
+
+.animated-button .circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-color: #adff2f;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+.animated-button .text {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-8px);
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.animated-button:hover {
+  box-shadow: 0 0 0 12px transparent;
+  color: #0d1117;
+  border-radius: 12px;
+}
+
+.animated-button:hover .arr-1 {
+  right: -25%;
+}
+
+.animated-button:hover .arr-2 {
+  left: 16px;
+}
+
+.animated-button:hover .text {
+  transform: translateX(8px);
+}
+
+.animated-button:hover svg.arr-1,
+.animated-button:hover svg.arr-2 {
+  fill: #0d1117;
+}
+
+.animated-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 4px #adff2f;
+}
+
+.animated-button:hover .circle {
+  width: 380px;
+  height: 380px;
+  opacity: 1;
+}
+
+.animated-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Animated Checkbox
+   ========================================================================== */
+.animated-checkbox-label {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.animated-checkbox-label input {
+  display: none;
+}
+
+.animated-checkbox-label svg {
+  overflow: visible;
+  transition: transform 0.2s ease;
+}
+
+.animated-checkbox-label:hover svg {
+  transform: scale(1.05);
+}
+
+.animated-checkbox-path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.6);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s ease, stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease;
+  stroke-dasharray: 241 9999999;
+  stroke-dashoffset: 0;
+}
+
+.animated-checkbox-label input:checked ~ svg .animated-checkbox-path {
+  stroke: #818cf8; /* indigo-400 style */
+  stroke-dasharray: 70.5096664428711 9999999;
+  stroke-dashoffset: -262.2723388671875;
+}
+
+/* ==========================================================================
+   Cosmic Toggle Switch
+   ========================================================================== */
+.cosmic-toggle {
+  position: relative;
+  width: 90px;
+  height: 44px;
+  transform-style: preserve-3d;
+  perspective: 500px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.cosmic-toggle .toggle {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.cosmic-toggle .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: linear-gradient(45deg, #0f172a, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  transition: all 0.5s;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 0 15px rgba(0, 0, 0, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.cosmic-toggle .cosmos {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1px 1px at 10% 10%, #fff 100%, transparent),
+    radial-gradient(1px 1px at 25% 45%, #fff 100%, transparent),
+    radial-gradient(2px 2px at 40% 70%, #fff 100%, transparent),
+    radial-gradient(1px 1px at 60% 20%, #fff 100%, transparent),
+    radial-gradient(2px 2px at 80% 50%, #fff 100%, transparent);
+  background-size: 150% 150%;
+  opacity: 0.2;
+  transition: opacity 0.5s;
+}
+
+.cosmic-toggle .toggle-orb {
+  position: absolute;
+  height: 36px;
+  width: 36px;
+  left: 3px;
+  bottom: 3px;
+  background: linear-gradient(145deg, #ff6b6b, #4ecdc4);
+  border-radius: 50%;
+  transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform-style: preserve-3d;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.cosmic-toggle .inner-orb {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff, #e6e6e6);
+  transition: 0.5s;
+  overflow: hidden;
+}
+
+.cosmic-toggle .inner-orb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(0, 0, 0, 0.1) 10deg,
+    transparent 20deg
+  );
+  animation: patternRotate 10s linear infinite;
+}
+
+.cosmic-toggle .ring {
+  position: absolute;
+  inset: -2px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transition: 0.5s;
+}
+
+.cosmic-toggle .toggle:checked + .slider {
+  background: linear-gradient(45deg, #1e1b4b, #312e81);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.cosmic-toggle .toggle:checked + .slider .toggle-orb {
+  transform: translateX(46px) rotate(360deg);
+  background: linear-gradient(145deg, #4ecdc4, #45b7af);
+}
+
+.cosmic-toggle .toggle:checked + .slider .inner-orb {
+  background: linear-gradient(145deg, #45b7af, #3da89f);
+  transform: scale(0.9);
+}
+
+.cosmic-toggle .toggle:checked + .slider .ring {
+  border-color: rgba(78, 205, 196, 0.5);
+  animation: ringPulse 2s infinite;
+}
+
+.cosmic-toggle .energy-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(78, 205, 196, 0.5),
+    transparent
+  );
+  transform-origin: left;
+  opacity: 0;
+  transition: 0.5s;
+}
+
+.cosmic-toggle .energy-line:nth-child(1) {
+  top: 25%;
+  transform: rotate(10deg);
+}
+.cosmic-toggle .energy-line:nth-child(2) {
+  top: 50%;
+  transform: rotate(0deg);
+}
+.cosmic-toggle .energy-line:nth-child(3) {
+  top: 75%;
+  transform: rotate(-10deg);
+}
+
+.cosmic-toggle .toggle:checked + .slider .energy-line {
+  opacity: 1;
+  animation: energyFlow 2s linear infinite;
+}
+
+.cosmic-toggle .particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.cosmic-toggle .particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #4ecdc4;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cosmic-toggle .toggle:checked + .slider .particle {
+  animation: particleBurst 1.2s ease-out infinite;
+}
+
+.cosmic-toggle .particle:nth-child(1) { left: 15%; animation-delay: 0s; --angle: 30deg; }
+.cosmic-toggle .particle:nth-child(2) { left: 35%; animation-delay: 0.2s; --angle: 60deg; }
+.cosmic-toggle .particle:nth-child(3) { left: 55%; animation-delay: 0.4s; --angle: 90deg; }
+.cosmic-toggle .particle:nth-child(4) { left: 75%; animation-delay: 0.6s; --angle: 120deg; }
+.cosmic-toggle .particle:nth-child(5) { left: 25%; animation-delay: 0.8s; --angle: 150deg; }
+.cosmic-toggle .particle:nth-child(6) { left: 65%; animation-delay: 1s; --angle: 180deg; }
+
+@keyframes ringPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes patternRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes energyFlow {
+  0% {
+    transform: scaleX(0) translateX(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleX(1) translateX(40%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scaleX(0) translateX(80%);
+    opacity: 0;
+  }
+}
+
+@keyframes particleBurst {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+        calc(cos(var(--angle)) * 30px),
+        calc(sin(var(--angle)) * 30px)
+      )
+      scale(0);
+    opacity: 0;
+  }
+}
+
+.cosmic-toggle .slider:hover .toggle-orb {
+  filter: brightness(1.2);
+  box-shadow:
+    0 0 15px rgba(78, 205, 196, 0.6),
+    0 0 30px rgba(78, 205, 196, 0.4);
+}
+
+.cosmic-toggle .slider:hover .cosmos {
+  opacity: 0.4;
+  animation: cosmosPan 20s linear infinite;
+}
+
+@keyframes cosmosPan {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
+
+.cosmic-toggle .toggle:active + .slider .toggle-orb {
+  transform: scale(0.95);
+}
+
+.cosmic-toggle:hover .slider {
+  transform: rotateX(8deg) rotateY(8deg);
+}
+
+.cosmic-toggle:hover .toggle-orb {
+  transform: translateZ(5px);
+}
+
+/* ==========================================================================
+   Animated Floating Label Inputs
+   ========================================================================== */
+.animated-input-group {
+  position: relative;
+  margin: 16px 0 24px;
+  width: 100%;
+}
+
+.animated-input-group input,
+.animated-input-group textarea {
+  background-color: transparent !important;
+  border: 0 !important;
+  border-bottom: 2px rgba(255, 255, 255, 0.15) solid !important;
+  display: block;
+  width: 100%;
+  padding: 12px 4px 6px 4px !important;
+  font-size: 14px;
+  color: #fff !important;
+  border-radius: 0 !important;
+  transition: border-bottom-color 0.3s ease;
+}
+
+.animated-input-group input:focus,
+.animated-input-group textarea:focus {
+  outline: 0 !important;
+  border-bottom-color: #818cf8 !important; /* lightblue/indigo-400 */
+}
+
+.animated-input-group label {
+  position: absolute;
+  top: 10px;
+  left: 4px;
+  pointer-events: none;
+  display: flex;
+}
+
+.animated-input-group label span {
+  display: inline-block;
+  font-size: 14px;
+  color: #94a3b8; /* slate-400 */
+  transition: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Float label on focus or when input placeholder is NOT shown (has value) */
+.animated-input-group input:focus + label span,
+.animated-input-group input:not(:placeholder-shown) + label span,
+.animated-input-group textarea:focus + label span,
+.animated-input-group textarea:not(:placeholder-shown) + label span {
+  color: #818cf8;
+  transform: translateY(-24px);
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   Animated Tooltip Container
+   ========================================================================== */
+.animated-tooltip-container {
+  --background: #1e1b4b; /* dark indigo */
+  --color: #e8e8e8;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color);
+  padding: 8px 16px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  height: 38px;
+}
+
+.animated-tooltip-container .text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  transform-origin: -100%;
+  transform: scale(1);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.animated-tooltip-container .bg-hover {
+  position: absolute;
+  top: 0%;
+  left: 100%;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  opacity: 1;
+  background-color: var(--background);
+  z-index: -1;
+  transform: scale(0);
+  transform-origin: 0;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  display: grid;
+  place-items: center;
+}
+
+.animated-tooltip-container .tooltip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  background: var(--background);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  z-index: 50;
+  border-radius: 8px;
+  scale: 0;
+  transform-origin: 50% 100%;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 11px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 8px 15px;
+  white-space: nowrap;
+}
+
+.animated-tooltip-container .tooltip::before {
+  position: absolute;
+  content: "";
+  height: 6px;
+  width: 6px;
+  bottom: -3px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
+  background: var(--background);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.animated-tooltip-container:hover .tooltip {
+  top: -42px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  scale: 1;
+  animation: shake 0.5s ease-in-out both;
+}
+
+.animated-tooltip-container:hover {
+  box-shadow: rgba(99, 102, 241, 0.2) 0 8px 15px;
+  color: white;
+  border-color: #818cf8;
+}
+
+.animated-tooltip-container:hover .bg-hover {
+  transform: scale(1);
+  left: 0;
+}
+
+.animated-tooltip-container:hover .text {
+  opacity: 0;
+  top: 0%;
+  left: 100%;
+  transform: scale(0);
+}
+
+@keyframes shake {
+  0% { rotate: 0; }
+  25% { rotate: 5deg; }
+  50% { rotate: -5deg; }
+  75% { rotate: 2deg; }
+  100% { rotate: 0; }
+}
+
+/* ==========================================================================
+   Animated Social Media Links
+   ========================================================================== */
+.animated-social-container {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.animated-social-container .tooltip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+  border-radius: 12px;
+  background: #18191c;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 2px 2px 2px rgba(0, 0, 0, 0.2),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.05),
+    5px 5px 15px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  width: 130px;
+}
+
+.animated-social-container .profile {
+  background: #1e1f22;
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.animated-social-container:hover .tooltip {
+  top: -100px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.animated-social-container .icon {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  position: relative;
+}
+
+.animated-social-container .layer {
+  width: 44px;
+  height: 44px;
+  transition: transform 0.3s;
+  position: relative;
+}
+
+.animated-social-container .icon:hover .layer {
+  transform: rotate(-35deg) skew(20deg);
+}
+
+.animated-social-container .layer span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+/* Dynamic color assignment via CSS variables for themes */
+.animated-social-container .layer span,
+.animated-social-container .text {
+  color: var(--social-color, #818cf8);
+  border-color: var(--social-color, rgba(255, 255, 255, 0.2));
+}
+
+.animated-social-container .icon:hover .layer span {
+  box-shadow: -1px 1px 3px var(--social-color, #818cf8);
+}
+
+.animated-social-container .icon .text {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  opacity: 0;
+  font-weight: 600;
+  font-size: 10px;
+  transform: translateX(-50%);
+  transition: bottom 0.3s ease, opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+.animated-social-container .icon:hover .text {
+  bottom: -24px;
+  opacity: 1;
+}
+
+.animated-social-container .icon:hover .layer span:nth-child(1) { opacity: 0.15; }
+.animated-social-container .icon:hover .layer span:nth-child(2) { opacity: 0.3; transform: translate(4px, -4px); }
+.animated-social-container .icon:hover .layer span:nth-child(3) { opacity: 0.45; transform: translate(8px, -8px); }
+.animated-social-container .icon:hover .layer span:nth-child(4) { opacity: 0.6; transform: translate(12px, -12px); }
+.animated-social-container .icon:hover .layer span:nth-child(5) { opacity: 1; transform: translate(16px, -16px); }
+
+.animated-social-container .social-svg-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  color: #ffffff !important;
+}
+
+.animated-social-container .social-svg-container svg {
+  color: #ffffff !important;
+  fill: currentColor;
+}
+
+.animated-social-container .user {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.animated-social-container .img-stub {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #1e1f22;
+  flex-shrink: 0;
+}
+
+.animated-social-container .details {
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  text-align: left;
+}
+
+.animated-social-container .name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--social-color, #adff2f);
+}
+
+.animated-social-container .username {
+  font-size: 9px;
+  color: #94a3b8;
+}
+
+.animated-social-container .about {
+  color: #cbd5e1;
+  padding-top: 4px;
+  font-size: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 4px;
+  text-align: left;
+}

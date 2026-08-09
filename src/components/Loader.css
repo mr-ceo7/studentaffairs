@@ -1,0 +1,139 @@
+.custom-loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 100%;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+/* Splash screen overlay */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0e1a;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.custom-loader-absolute {
+  position: absolute;
+}
+
+.custom-loader-inline {
+  display: inline-block;
+  height: auto;
+}
+
+.custom-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.25em auto;
+  transform-origin: center;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.custom-loader-text-left,
+.custom-loader-text-right {
+  width: 180px;
+  max-width: 38%;
+  height: auto;
+  flex-shrink: 1;
+}
+
+.custom-loader-spinner {
+  width: 64px;
+  max-width: 14%;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.custom-loader-spacer {
+  width: 0.5em;
+}
+
+.custom-loader-label {
+  font-size: 0.75rem;
+  color: rgb(148 163 184); /* slate-400 */
+  font-weight: 500;
+}
+
+/* Text stroke animation — same as dash but for text outlines */
+.custom-loader-text {
+  animation: loaderDashArray 2s ease-in-out infinite,
+    loaderDashOffset 2s linear infinite;
+}
+
+.custom-loader-dash {
+  animation: loaderDashArray 2s ease-in-out infinite,
+    loaderDashOffset 2s linear infinite;
+}
+
+.custom-loader-spin {
+  animation: loaderSpinDashArray 2s ease-in-out infinite,
+    loaderSpin 8s ease-in-out infinite,
+    loaderDashOffset 2s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes loaderDashArray {
+  0% {
+    stroke-dasharray: 0 1 359 0;
+  }
+  50% {
+    stroke-dasharray: 0 359 1 0;
+  }
+  100% {
+    stroke-dasharray: 359 1 0 0;
+  }
+}
+
+@keyframes loaderSpinDashArray {
+  0% {
+    stroke-dasharray: 270 90;
+  }
+  50% {
+    stroke-dasharray: 0 360;
+  }
+  100% {
+    stroke-dasharray: 270 90;
+  }
+}
+
+@keyframes loaderDashOffset {
+  0% {
+    stroke-dashoffset: 365;
+  }
+  100% {
+    stroke-dashoffset: 5;
+  }
+}
+
+@keyframes loaderSpin {
+  0% {
+    rotate: 0deg;
+  }
+  12.5%,
+  25% {
+    rotate: 270deg;
+  }
+  37.5%,
+  50% {
+    rotate: 540deg;
+  }
+  62.5%,
+  75% {
+    rotate: 810deg;
+  }
+  87.5%,
+  100% {
+    rotate: 1080deg;
+  }
+}

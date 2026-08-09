@@ -1,0 +1,99 @@
+"""
+Pydantic schemas for authentication endpoints.
+"""
+
+from datetime import datetime
+from typing import Optional, Any
+from pydantic import BaseModel, Field, field_validator
+
+
+# ── Requests ─────────────────────────────────────────────────
+
+class GoogleLoginRequest(BaseModel):
+    id_token: str
+    referred_by_code: Optional[str] = None
+
+class MockSSOLoginRequest(BaseModel):
+    email: str
+    name: str
+    profile_picture: Optional[str] = None
+    role: Optional[str] = None
+
+class PhoneLoginRequest(BaseModel):
+    phone: str
+    name: Optional[str] = None
+    referred_by_code: Optional[str] = None
+
+class PhoneVerifyRequest(BaseModel):
+    phone: str
+    code: str
+    referred_by_code: Optional[str] = None
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+class UpdateFavoritesRequest(BaseModel):
+    favorite_teams: list[str] = Field(default_factory=list)
+
+
+# ── Responses ────────────────────────────────────────────────
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class SubscriptionEntitlementResponse(BaseModel):
+    id: int
+    tier_id: str
+    expires_at: datetime
+    payment_id: Optional[int] = None
+    source: str
+
+    model_config = {"from_attributes": True}
+
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    is_admin: bool
+    is_active: bool
+    subscription_tier: str
+    subscription_expires_at: Optional[datetime] = None
+    subscription_entitlements: list[SubscriptionEntitlementResponse] = Field(default_factory=list)
+    is_subscription_active: bool
+    favorite_teams: list[str] = Field(default_factory=list)
+    country: Optional[str] = None
+    created_at: Optional[datetime] = None
+    profile_picture: Optional[str] = None
+    referral_code: Optional[str] = None
+    referrals_count: int = 0
+    referral_points: int = 0
+    referral_discount_active: bool = False
+    unlocked_tip_ids: Optional[list[int]] = None
+    phone: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+    @field_validator("favorite_teams", mode="before")
+    @classmethod
+    def normalize_favorite_teams(cls, value: Any) -> list[str]:
+        if value is None:
+            return []
+        return value
+
+
+class ActivityRequest(BaseModel):
+    path: str
+    time_spent: int
+    session_id: Optional[str] = None
+
+
+class AdminUserResponse(UserResponse):
+    last_seen: Optional[datetime] = None
+    most_visited_page: Optional[str] = None
+    total_time_spent: int = 0
+    is_online: bool = False
+

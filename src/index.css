@@ -1,0 +1,187 @@
+@import "tailwindcss";
+@import "./components/AnimatedElements.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-surface: #f8fafc;
+  --color-surface-dim: #f1f5f9;
+  --color-on-surface: #0f172a;
+  --color-on-surface-variant: #475569;
+  --color-surface-container: rgba(15, 23, 42, 0.04);
+  --color-surface-container-high: rgba(15, 23, 42, 0.08);
+  --color-primary-fixed: #1e3a8a;
+  --color-primary-fixed-dim: #2563eb;
+  --color-primary-container: rgba(37, 99, 235, 0.08);
+  --color-on-primary: #ffffff;
+  --color-secondary-fixed-dim: #64748b;
+  --color-tertiary-fixed-dim: #d97706;
+  --color-on-tertiary-fixed: #ffffff;
+  --color-error: #dc2626;
+
+  --font-body: ui-sans-serif, system-ui, sans-serif;
+  --font-display: ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark {
+  --color-surface: #0b0f19;
+  --color-surface-dim: #07090e;
+  --color-on-surface: #f1f5f9;
+  --color-on-surface-variant: #94a3b8;
+  --color-surface-container: rgba(255, 255, 255, 0.03);
+  --color-surface-container-high: rgba(255, 255, 255, 0.06);
+  --color-primary-fixed: #3b82f6;
+  --color-primary-fixed-dim: #60a5fa;
+  --color-primary-container: rgba(96, 165, 250, 0.08);
+  --color-on-primary: #0f172a;
+  --color-secondary-fixed-dim: #475569;
+  --color-tertiary-fixed-dim: #f59e0b;
+}
+
+/* ===== Scroll Video Background ===== */
+.scroll-video-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.scroll-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-video--active {
+  opacity: 1;
+}
+
+.scroll-video-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(248, 250, 252, 0.88);
+  background-image: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.94) 0%,
+    rgba(255, 255, 255, 0.80) 30%,
+    rgba(241, 245, 249, 0.85) 60%,
+    rgba(241, 245, 249, 0.96) 100%
+  );
+  pointer-events: none;
+}
+
+.dark .scroll-video-overlay {
+  background-color: rgba(7, 9, 14, 0.92);
+  background-image: linear-gradient(
+    180deg,
+    rgba(7, 9, 14, 0.96) 0%,
+    rgba(11, 15, 25, 0.88) 30%,
+    rgba(7, 9, 14, 0.92) 60%,
+    rgba(2, 4, 8, 0.98) 100%
+  );
+}
+
+@layer utilities {
+  /* ===== Liquid Glass Cards ===== */
+  .clay-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      0 8px 32px rgba(15, 23, 42, 0.04),
+      0 0 0 1px rgba(15, 23, 42, 0.02);
+    border-radius: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark .clay-card {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(0, 0, 0, 0.2);
+  }
+
+  .clay-card:hover {
+    background: rgba(255, 255, 255, 0.90);
+    border-color: rgba(15, 23, 42, 0.15);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 1),
+      0 12px 40px rgba(15, 23, 42, 0.08),
+      0 0 0 1px rgba(15, 23, 42, 0.04);
+  }
+
+  .dark .clay-card:hover {
+    background: rgba(15, 23, 42, 0.75);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.10),
+      0 12px 40px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ===== Liquid Glass Button ===== */
+  .clay-button-primary {
+    background-color: var(--color-primary-fixed-dim);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -4px rgba(37, 99, 235, 0.3);
+    border: none;
+    transition: all 0.2s ease-in-out;
+  }
+  .clay-button-primary:hover {
+    background-color: #1d4ed8;
+  }
+  .clay-button-primary:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3), 0 2px 4px -2px rgba(37, 99, 235, 0.3);
+  }
+
+  /* ===== Liquid Glass Panels ===== */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.50);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+  }
+
+  .dark .glass-panel {
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* ===== Scrollbar ===== */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+}
+
+/* ===== Professional Focus Outlines (Accessibility-friendly) ===== */
+a:focus, button:focus, [role="button"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+a:focus-visible, button:focus-visible, [role="button"]:focus-visible {
+  outline: 2px solid rgba(129, 138, 248, 0.6) !important;
+  outline-offset: 2px;
+}
