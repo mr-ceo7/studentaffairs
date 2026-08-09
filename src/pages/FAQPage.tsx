@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const FAQS = [
@@ -51,31 +51,31 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:py-12 max-w-3xl text-slate-700">
+    <div className="container mx-auto px-4 py-8 sm:py-12 max-w-3xl text-slate-700 dark:text-slate-350">
       <div className="text-center mb-10">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mb-3">
-          <HelpCircle size={28} />
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden border border-slate-205/50 dark:border-slate-800 flex items-center justify-center mb-3">
+          <img src="/uon_crest.jpg" className="w-full h-full object-cover" alt="UoN Crest" />
         </div>
-        <h1 className="text-3xl font-display font-extrabold text-slate-900 mb-2">Frequently Asked Questions</h1>
-        <p className="text-slate-500 text-xs">Everything you need to know about resolving missing grades at UoN.</p>
+        <h1 className="text-3xl font-display font-extrabold text-slate-900 dark:text-slate-100 mb-2">Frequently Asked Questions</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold">Everything you need to know about resolving missing grades at UoN.</p>
       </div>
       
       <div className="space-y-8">
         {FAQS.map((section, sIndex) => (
           <div key={sIndex} className="mb-8">
-            <h2 className="text-sm font-extrabold text-blue-800 uppercase tracking-widest mb-4">{section.category}</h2>
+            <h2 className="text-sm font-extrabold text-blue-800 dark:text-blue-400 uppercase tracking-widest mb-4">{section.category}</h2>
             <div className="space-y-3">
               {section.questions.map((faq, qIndex) => {
                 const id = `${sIndex}-${qIndex}`;
                 const isOpen = openIndex === id;
                 return (
-                  <div key={id} className="border border-slate-200 rounded-xl overflow-hidden bg-white/70 backdrop-blur-md shadow-sm">
+                  <div key={id} className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white/70 dark:bg-slate-900/50 backdrop-blur-md shadow-sm">
                     <button
                       onClick={() => toggle(id)}
-                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors cursor-pointer"
+                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors cursor-pointer"
                     >
-                      <span className="font-bold text-slate-800 text-sm">{faq.q}</span>
-                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+                      <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{faq.q}</span>
+                      <ChevronDown className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
                     <AnimatePresence>
                       {isOpen && (
@@ -85,7 +85,7 @@ export default function FAQPage() {
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <div className="px-6 pb-4 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3 bg-slate-50/30">
+                          <div className="px-6 pb-4 text-xs text-slate-650 dark:text-slate-350 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3 bg-slate-50/30 dark:bg-slate-950/15">
                             {faq.a}
                           </div>
                         </motion.div>
