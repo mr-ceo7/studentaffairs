@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { ticketService, type TicketData } from '../services/ticketService';
 import { toast } from 'sonner';
+import PencilLoader from './PencilLoader';
 
 interface LecturerPortalProps {
   user: any;
@@ -185,9 +186,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
         </div>
 
         {loading ? (
-          <div className="text-center py-20">
-            <span className="text-xs text-slate-550 dark:text-slate-400 font-medium animate-pulse">Loading claims...</span>
-          </div>
+          <PencilLoader message="Loading assigned unit claims..." size="sm" />
         ) : filteredTickets.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">

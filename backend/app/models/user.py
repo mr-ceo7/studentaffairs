@@ -32,6 +32,15 @@ class User(Base):
     favorite_teams = Column(JSON, default=list)
     country = Column(String(2), nullable=True)
 
+    # Student Academic Profile
+    reg_number = Column(String(100), nullable=True)
+    campus = Column(String(100), nullable=True)
+    faculty = Column(String(100), nullable=True)
+    department = Column(String(100), nullable=True)
+    course = Column(String(100), nullable=True)
+    year_of_study = Column(String(20), nullable=True)
+    semester = Column(String(20), nullable=True)
+
     # Single-device session
     session_id = Column(String(100), nullable=True, unique=True, index=True)
 

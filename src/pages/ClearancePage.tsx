@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Award, CheckCircle2, Building2, FileCheck, Printer, AlertCircle } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { clearanceService, type ClearanceRecord } from '../services/clearanceService';
+import PencilLoader from '../components/PencilLoader';
 
 export default function ClearancePage() {
   const { user } = useUser();
@@ -117,7 +118,7 @@ export default function ClearancePage() {
       {/* Progress Card */}
       <div className="clay-card p-6 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-4">
         {loading ? (
-          <div className="text-center py-6 text-xs text-slate-500">Calculating clearance standings...</div>
+          <PencilLoader message="Calculating Senate clearance standings..." size="sm" />
         ) : (
           <>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

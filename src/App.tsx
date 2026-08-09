@@ -23,7 +23,7 @@ import ClearancePage from './pages/ClearancePage';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import Footer from './components/Footer';
-import Loader from './components/Loader';
+import PencilLoader from './components/PencilLoader';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster, toast } from 'sonner';
@@ -132,7 +132,7 @@ export default function App() {
                 pointerEvents: splashFading ? 'none' : 'all',
               }}
             >
-              <Loader size={72} />
+              <PencilLoader message="Initializing UoN Clearinghouse..." size="lg" />
             </div>
           )}
           <div

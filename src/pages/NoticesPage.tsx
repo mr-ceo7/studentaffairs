@@ -3,6 +3,7 @@ import { Bell, Plus, Pin, AlertTriangle, Calendar, Building2, Trash2 } from 'luc
 import { noticeService, type Notice } from '../services/noticeService';
 import { useUser } from '../context/UserContext';
 import { toast } from 'sonner';
+import PencilLoader from '../components/PencilLoader';
 
 export default function NoticesPage() {
   const { user } = useUser();
@@ -127,7 +128,7 @@ export default function NoticesPage() {
       {/* Notices List */}
       <div className="space-y-4">
         {loading ? (
-          <div className="text-center py-16 text-slate-500 dark:text-slate-400 text-xs">Loading notices...</div>
+          <PencilLoader message="Fetching official Senate announcements..." size="sm" />
         ) : notices.length > 0 ? (
           notices.map((notice) => {
             return (

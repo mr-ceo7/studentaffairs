@@ -18,6 +18,13 @@ export interface UserData {
   referrals_count: number;
   referral_points: number;
   unlocked_tip_ids: number[];
+  reg_number?: string;
+  campus?: string;
+  faculty?: string;
+  department?: string;
+  course?: string;
+  year_of_study?: string;
+  semester?: string;
 }
 
 interface UserContextType {

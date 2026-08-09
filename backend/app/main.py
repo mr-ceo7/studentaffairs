@@ -10,7 +10,7 @@ import os
 
 from app.config import settings
 from app.database import engine, Base, AsyncSessionLocal
-from app.routers import auth, tips, payments, subscriptions, admin, campaigns, internal, tickets, notices, clearance
+from app.routers import auth, tips, payments, subscriptions, admin, campaigns, internal, tickets, notices, clearance, support
 
 
 async def seed_default_data():
@@ -271,12 +271,42 @@ async def seed_default_data():
             await db.commit()
             print("[UoN Clearinghouse] Seeded default noticeboard data")
 
+        # Seed support messages
+        from app.models.support import SupportMessage
+        result_sup = await db.execute(select(SupportMessage))
+        existing_sup = result_sup.scalars().all()
+        if not existing_sup:
+            default_sup = [
+                SupportMessage(
+                    target_recipient="developer",
+                    category="UI / Visual Layout Glitch",
+                    user_email="emily.wanjiru@student.uonbi.ac.ke",
+                    sender_name="Emily Wanjiru Kamau",
+                    subject="Dark mode contrast on catalog dropdowns",
+                    message="The lecturer dropdown on the catalog filter has dark text on dark background in dark mode.",
+                    status="open",
+                ),
+                SupportMessage(
+                    target_recipient="student_leader",
+                    category="Missing Mark Delay",
+                    user_email="emily.wanjiru@student.uonbi.ac.ke",
+                    sender_name="Emily Wanjiru Kamau",
+                    subject="ICS 2205 Lab Score Delay Advocacy",
+                    message="Submitted lab sheet 2 weeks ago to the department, seeking student rep assistance for HOD follow-up.",
+                    status="open",
+                )
+            ]
+            for s in default_sup:
+                db.add(s)
+            await db.commit()
+            print("[UoN Clearinghouse] Seeded sample support inbox data")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create tables and seed data on startup."""
     # Import all models to register them with Base
-    from app.models import user, tip, payment, subscription, setting, activity, ad, campaign, ticket, comment, notice, clearance  # noqa: F401
+    from app.models import user, tip, payment, subscription, setting, activity, ad, campaign, ticket, comment, notice, clearance, support  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -316,6 +346,7 @@ app.include_router(internal.router)
 app.include_router(tickets.router)
 app.include_router(notices.router)
 app.include_router(clearance.router)
+app.include_router(support.router)
 
 os.makedirs("media", exist_ok=True)
 app.mount("/api/media", StaticFiles(directory="media"), name="media")

@@ -5,6 +5,16 @@ export interface AuthResponse {
   status: string;
 }
 
+export interface AcademicProfileData {
+  reg_number?: string;
+  campus?: string;
+  faculty?: string;
+  department?: string;
+  course?: string;
+  year_of_study?: string;
+  semester?: string;
+}
+
 export const authService = {
   async googleLogin(idToken: string, referred_by_code?: string): Promise<AuthResponse> {
     const payload: Record<string, string> = { id_token: idToken };
@@ -13,10 +23,19 @@ export const authService = {
     return response.data;
   },
 
-  async mockSSOLogin(email: string, name: string, role?: string, profilePicture?: string): Promise<AuthResponse> {
-    const payload: Record<string, string> = { email, name };
+  async mockSSOLogin(
+    email: string, 
+    name: string, 
+    role?: string, 
+    profilePicture?: string,
+    academicProfile?: AcademicProfileData
+  ): Promise<AuthResponse> {
+    const payload: Record<string, any> = { email, name };
     if (role) payload.role = role;
     if (profilePicture) payload.profile_picture = profilePicture;
+    if (academicProfile) {
+      Object.assign(payload, academicProfile);
+    }
     const response = await apiClient.post<AuthResponse>('/auth/mock-sso', payload);
     return response.data;
   },
@@ -53,6 +72,13 @@ export const authService = {
       referrals_count: (data.referrals_count as number) || 0,
       referral_points: (data.referral_points as number) || 0,
       unlocked_tip_ids: (data.unlocked_tip_ids as number[]) || [],
+      reg_number: data.reg_number as string | undefined,
+      campus: data.campus as string | undefined,
+      faculty: data.faculty as string | undefined,
+      department: data.department as string | undefined,
+      course: data.course as string | undefined,
+      year_of_study: data.year_of_study as string | undefined,
+      semester: data.semester as string | undefined,
     };
   },
 

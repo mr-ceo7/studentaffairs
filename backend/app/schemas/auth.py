@@ -18,6 +18,13 @@ class MockSSOLoginRequest(BaseModel):
     name: str
     profile_picture: Optional[str] = None
     role: Optional[str] = None
+    reg_number: Optional[str] = None
+    campus: Optional[str] = None
+    faculty: Optional[str] = None
+    department: Optional[str] = None
+    course: Optional[str] = None
+    year_of_study: Optional[str] = None
+    semester: Optional[str] = None
 
 class PhoneLoginRequest(BaseModel):
     phone: str
@@ -74,6 +81,13 @@ class UserResponse(BaseModel):
     referral_discount_active: bool = False
     unlocked_tip_ids: Optional[list[int]] = None
     phone: Optional[str] = None
+    reg_number: Optional[str] = None
+    campus: Optional[str] = None
+    faculty: Optional[str] = None
+    department: Optional[str] = None
+    course: Optional[str] = None
+    year_of_study: Optional[str] = None
+    semester: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
