@@ -2,7 +2,7 @@ import sqlite3
 import os
 from datetime import datetime
 
-db_path = os.path.join(os.path.dirname(__file__), 'winvirahisi.db')
+db_path = os.path.join(os.path.dirname(__file__), 'uon_clearinghouse.db')
 
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()

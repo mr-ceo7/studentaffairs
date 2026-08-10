@@ -82,7 +82,8 @@ export default function LoginPage() {
   const [yearOfStudy, setYearOfStudy] = useState('Year 1');
   const [semester, setSemester] = useState('Semester 1');
 
-  // Load Google One Tap
+  // Load Google One Tap (only if a valid client ID is configured)
+  const googleClientId = (import.meta as any).env.VITE_GOOGLE_CLIENT_ID;
   useGoogleOneTapLogin({
     onSuccess: async (credentialResponse) => {
       if (credentialResponse.credential) {
@@ -92,6 +93,7 @@ export default function LoginPage() {
     onError: () => {
       console.log('Google One Tap Login Failed');
     },
+    disabled: !googleClientId,
   });
 
   // Handle Google Login logic
@@ -553,7 +555,7 @@ export default function LoginPage() {
                   <div className="flex items-center justify-center py-2 text-xs font-bold text-blue-700 dark:text-blue-400 gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" /> Verifying Credentials...
                   </div>
-                ) : (
+                ) : googleClientId ? (
                   <GoogleLogin 
                     onSuccess={(credentialResponse) => {
                       if (credentialResponse.credential) {
@@ -568,6 +570,8 @@ export default function LoginPage() {
                     size="large"
                     text="continue_with"
                   />
+                ) : (
+                  <div className="text-xs text-slate-400 dark:text-slate-500 py-2">Google Sign-In is not configured.</div>
                 )}
               </div>
             </div>

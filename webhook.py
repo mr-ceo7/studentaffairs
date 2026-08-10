@@ -7,8 +7,8 @@ import os
 import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-WEBHOOK_SECRET = 'winvirahisi-deploy-secret-2026'
-DEPLOY_SCRIPT = '/var/www/winvirahisi.com/deploy.sh'
+WEBHOOK_SECRET = 'studentaffairs-deploy-secret-2026'
+DEPLOY_SCRIPT = '/var/www/studentsaffairs.com/deploy.sh'
 
 class WebhookHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -20,12 +20,12 @@ class WebhookHandler(BaseHTTPRequestHandler):
             exp = 'sha256=' + hmac.new(WEBHOOK_SECRET.encode(), body, hashlib.sha256).hexdigest()
             
             try:
-                with open('/var/www/winvirahisi.com/webhook_debug.txt', 'w') as f:
+                with open('/var/www/studentsaffairs.com/webhook_debug.txt', 'w') as f:
                     f.write(f"sig: {sig}\n")
                     f.write(f"exp: {exp}\n")
                     f.write(f"body_len: {len(body)}\n")
                     f.write(f"secret: {WEBHOOK_SECRET}\n")
-                with open('/var/www/winvirahisi.com/webhook_body.bin', 'wb') as f:
+                with open('/var/www/studentsaffairs.com/webhook_body.bin', 'wb') as f:
                     f.write(body)
             except Exception as e:
                 print(f"Failed to write debug files: {e}")
@@ -58,5 +58,5 @@ class WebhookHandler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     server = HTTPServer(('127.0.0.1', 9002), WebhookHandler)
-    print('WinviRahisi Webhook listening on port 9002')
+    print('Student Affairs Webhook listening on port 9002')
     server.serve_forever()

@@ -1,5 +1,5 @@
 """
-User ORM model for WinviRahisi.
+User ORM model for Student Affairs.
 """
 
 from datetime import datetime, timezone

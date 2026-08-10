@@ -8,7 +8,7 @@ from app.models.setting import AdminSetting
 router = APIRouter(prefix="/api/internal", tags=["Internal"])
 
 SUPPORT_DEFAULTS = {
-    "SUPPORT_EMAIL": "support@winvirahisi.com",
+    "SUPPORT_EMAIL": "support@studentsaffairs.com",
     "SUPPORT_WHATSAPP": "https://wa.me/254700000000",
     "SUPPORT_WHATSAPP_NUMBER": "+254 700 000 000",
 }

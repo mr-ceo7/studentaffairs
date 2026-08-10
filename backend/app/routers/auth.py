@@ -311,7 +311,7 @@ async def _send_otp_sms(phone: str, code: str, db: AsyncSession):
             return
 
         sms_src = sms_settings.get("SMS_SRC", "ARVOCAP")
-        sms_template = sms_settings.get("SMS_TEMPLATE", "[WinviRahisi] Your verification code is {code}. This code expires in 5 minutes. Do NOT share this code with anyone. Visit {url} to access your account.")
+        sms_template = sms_settings.get("SMS_TEMPLATE", "[Student Affairs] Your verification code is {code}. This code expires in 5 minutes. Do NOT share this code with anyone. Visit {url} to access your account.")
         
         stripped_phone = _normalize_phone_digits_for_sms(phone)
         site_url = settings.FRONTEND_URL.replace("http://", "").replace("https://", "")
@@ -329,11 +329,11 @@ async def _send_otp_sms(phone: str, code: str, db: AsyncSession):
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.post(sms_url, params=params)
             if response.status_code == 200:
-                print(f"[WinviRahisi] SMS sent successfully to {stripped_phone}")
+                print(f"[Student Affairs] SMS sent successfully to {stripped_phone}")
             else:
-                print(f"[WinviRahisi] SMS provider returned status {response.status_code} for {stripped_phone}")
+                print(f"[Student Affairs] SMS provider returned status {response.status_code} for {stripped_phone}")
     except Exception as e:
-        print(f"[WinviRahisi] Failed to send OTP SMS to {phone}: {e}")
+        print(f"[Student Affairs] Failed to send OTP SMS to {phone}: {e}")
 
 @router.post("/phone/request-otp")
 async def request_phone_otp(body: PhoneLoginRequest, db: AsyncSession = Depends(get_db)):

@@ -1,5 +1,5 @@
 """
-Email service — welcome & payment receipt emails rebranded for WinviRahisi.
+Email service — welcome & payment receipt emails rebranded for Student Affairs.
 """
 
 import logging
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def _generate_html_template(title: str, body: str, cta_text: str = None, cta_url: str = None) -> str:
-    """Generates a branded HTML email template for WinviRahisi."""
+    """Generates a branded HTML email template for Student Affairs."""
     cta_html = ""
     if cta_text and cta_url:
         cta_html = f"""
@@ -33,7 +33,7 @@ def _generate_html_template(title: str, body: str, cta_text: str = None, cta_url
             <tr><td align="center">
                 <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="background-color: #1a1a3e; border: 1px solid #2d2d5e; border-radius: 16px; max-width: 600px; width: 100%; margin: 0 auto; overflow: hidden;">
                     <tr><td style="padding: 30px 40px; border-bottom: 1px solid #2d2d5e; text-align: center; background-color: #141432;">
-                        <h1 style="color: #8b5cf6; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">WINVIRAHISI</h1>
+                        <h1 style="color: #8b5cf6; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">STUDENT AFFAIRS</h1>
                         <p style="color: #a1a1aa; margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">GG & Over 2.5 Predictions</p>
                     </td></tr>
                     <tr><td style="padding: 40px;">
@@ -42,7 +42,7 @@ def _generate_html_template(title: str, body: str, cta_text: str = None, cta_url
                         {cta_html}
                     </td></tr>
                     <tr><td style="padding: 30px 40px; background-color: #141432; text-align: center; border-top: 1px solid #2d2d5e;">
-                        <p style="color: #71717a; font-size: 13px; margin: 0;">© 2026 WinviRahisi. All rights reserved.</p>
+                        <p style="color: #71717a; font-size: 13px; margin: 0;">© 2026 Student Affairs. All rights reserved.</p>
                     </td></tr>
                 </table>
             </td></tr>
@@ -93,7 +93,7 @@ async def _send_smtp_email(to_email: str, subject: str, html_content: str):
 
 async def send_payment_receipt_email(email: str, amount: float, method: str, transaction_id: str):
     """Sends a digital receipt."""
-    subject = "WinviRahisi VIP Receipt"
+    subject = "Student Affairs VIP Receipt"
     body = f"""
     <p>Thank you for your purchase. Your transaction has been securely mapped to your account.</p>
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #0f0f23; border-radius: 8px; overflow: hidden;">
@@ -109,11 +109,11 @@ async def send_payment_receipt_email(email: str, amount: float, method: str, tra
 
 async def send_welcome_email(email: str, name: str):
     """Sends a warm onboarding email."""
-    subject = "Welcome to WinviRahisi! ⚽"
+    subject = "Welcome to Student Affairs! ⚽"
     body = f"""
     <p>Hello {name},</p>
-    <p>Welcome to <strong>WinviRahisi</strong> — your specialist platform for GG (Both Teams to Score) and Over 2.5 predictions.</p>
+    <p>Welcome to <strong>Student Affairs</strong> — your specialist platform for GG (Both Teams to Score) and Over 2.5 predictions.</p>
     <p>Our expert analysts deliver high-confidence picks daily. Subscribe to unlock premium predictions and start winning.</p>
     """
-    html_content = _generate_html_template("Welcome to WinviRahisi!", body, "View Today's Tips", settings.FRONTEND_URL)
+    html_content = _generate_html_template("Welcome to Student Affairs!", body, "View Today's Tips", settings.FRONTEND_URL)
     await _send_smtp_email(email, subject, html_content)

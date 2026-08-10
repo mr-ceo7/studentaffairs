@@ -1,1 +1,1 @@
-# WinviRahisi Backend
+# Student Affairs Backend

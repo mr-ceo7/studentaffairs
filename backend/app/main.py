@@ -1,5 +1,5 @@
 """
-WinviRahisi API — FastAPI entry point.
+Student Affairs API — FastAPI entry point.
 """
 
 from fastapi import FastAPI
@@ -49,16 +49,16 @@ async def seed_default_data():
             for tier in tiers:
                 db.add(tier)
             await db.commit()
-            print("[WinviRahisi] Seeded default subscription tiers")
+            print("[Student Affairs] Seeded default subscription tiers")
 
         # Seed admin user if none exists
-        admin_result = await db.execute(select(User).where(User.email == "admin@winvirahisi.com"))
+        admin_result = await db.execute(select(User).where(User.email == "admin@studentsaffairs.com"))
         admin_user = admin_result.scalars().first()
 
         if not admin_user:
             admin_user = User(
                 name="Admin",
-                email="admin@winvirahisi.com",
+                email="admin@studentsaffairs.com",
                 password=hash_password("admin123"),
                 subscription_tier="premium",
                 is_admin=True,
@@ -66,7 +66,7 @@ async def seed_default_data():
             )
             db.add(admin_user)
             await db.commit()
-            print("[WinviRahisi] Seeded default admin: admin@winvirahisi.com / admin123")
+            print("[Student Affairs] Seeded default admin: admin@studentsaffairs.com / admin123")
 
         # Seed or upgrade Kassim admin user
         kassim_result = await db.execute(select(User).where(User.email == "kassimmusa322@gmail.com"))
@@ -83,12 +83,12 @@ async def seed_default_data():
             )
             db.add(kassim_user)
             await db.commit()
-            print("[WinviRahisi] Seeded admin user: kassimmusa322@gmail.com / admin123")
+            print("[Student Affairs] Seeded admin user: kassimmusa322@gmail.com / admin123")
         else:
             if not kassim_user.is_admin:
                 kassim_user.is_admin = True
                 await db.commit()
-                print("[WinviRahisi] Upgraded user to admin: kassimmusa322@gmail.com")
+                print("[Student Affairs] Upgraded user to admin: kassimmusa322@gmail.com")
 
         # Seed student Emily
         emily_result = await db.execute(select(User).where(User.email == "emily.wanjiru@student.uonbi.ac.ke"))
@@ -106,7 +106,7 @@ async def seed_default_data():
             db.add(emily)
             await db.commit()
             await db.refresh(emily)
-            print("[WinviRahisi] Seeded student Emily")
+            print("[Student Affairs] Seeded student Emily")
 
         # Seed lecturer Dr. Peter
         peter_result = await db.execute(select(User).where(User.email == "peter.otieno@uonbi.ac.ke"))
@@ -124,7 +124,7 @@ async def seed_default_data():
             db.add(peter)
             await db.commit()
             await db.refresh(peter)
-            print("[WinviRahisi] Seeded lecturer Dr. Peter")
+            print("[Student Affairs] Seeded lecturer Dr. Peter")
 
         # Seed admin Prof. Kaleb
         kaleb_result = await db.execute(select(User).where(User.email == "kaleb.wambua@uonbi.ac.ke"))
@@ -142,7 +142,7 @@ async def seed_default_data():
             db.add(kaleb)
             await db.commit()
             await db.refresh(kaleb)
-            print("[WinviRahisi] Seeded admin Prof. Kaleb")
+            print("[Student Affairs] Seeded admin Prof. Kaleb")
 
         # Seed tickets if none exist
         from app.models.ticket import Ticket

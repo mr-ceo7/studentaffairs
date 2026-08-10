@@ -127,7 +127,7 @@ export function SettingsTab() {
               <span className="font-bold text-cyan-400">{smsSettings.SMS_SRC || 'SENDER'}</span>
               <span>• just now</span>
             </div>
-            <p>{smsSettings.SMS_TEMPLATE ? smsSettings.SMS_TEMPLATE.replace('{code}', '495810').replace('{url}', 'winvirahisi.co.ke') : '—'}</p>
+            <p>{smsSettings.SMS_TEMPLATE ? smsSettings.SMS_TEMPLATE.replace('{code}', '495810').replace('{url}', 'studentsaffairs.com') : '—'}</p>
           </div>
         </div>
       </div>

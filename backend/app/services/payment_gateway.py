@@ -64,7 +64,7 @@ async def initiate_mpesa_stk(phone: str, amount: float, reference: str) -> dict:
         "PhoneNumber": phone,
         "CallBackURL": f"{settings.MPESA_CALLBACK_URL}?secret={settings.MPESA_CALLBACK_SECRET}" if settings.MPESA_CALLBACK_SECRET else settings.MPESA_CALLBACK_URL,
         "AccountReference": reference,
-        "TransactionDesc": f"WinviRahisi Payment {reference}",
+        "TransactionDesc": f"Student Affairs Payment {reference}",
     }
 
     async with httpx.AsyncClient(timeout=30.0) as client:

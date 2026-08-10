@@ -76,7 +76,7 @@ export default function AdminPage() {
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <p className="text-sm font-bold text-white font-display tracking-wide uppercase">WinviRahisi</p>
+              <p className="text-sm font-bold text-white font-display tracking-wide uppercase">Student Affairs</p>
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Admin Console</p>
             </div>
           )}
@@ -1638,7 +1638,7 @@ function BroadcastTab() {
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-white">{form.title || 'Notification Title'}</p>
             <p className="text-xs text-slate-400 mt-0.5">{form.body || 'Compose details below. Click redirection will follow click URL redirection value...'}</p>
-            <p className="text-[9px] text-slate-500 mt-1 font-semibold uppercase tracking-wider">winvirahisi.com • now</p>
+            <p className="text-[9px] text-slate-500 mt-1 font-semibold uppercase tracking-wider">studentsaffairs.com • now</p>
           </div>
         </div>
       </div>

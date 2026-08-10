@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 export default function ResponsibleGambling() {
   useEffect(() => {
-    document.title = 'Responsible Gambling - WinviRahisi';
+    document.title = 'Responsible Gambling - Student Affairs';
   }, []);
 
   return (
@@ -11,13 +11,13 @@ export default function ResponsibleGambling() {
       
       <div className="space-y-6 text-sm leading-relaxed">
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 mb-8 text-center text-red-400 font-medium">
-          WinviRahisi promotes strictly 18+ betting exclusively. Gambling can be highly addictive. Please play responsibly.
+          Student Affairs promotes strictly 18+ betting exclusively. Gambling can be highly addictive. Please play responsibly.
         </div>
 
         <section>
           <h2 className="text-xl font-bold text-white mb-3">Our Commitment</h2>
           <p>
-            At WinviRahisi, we are dedicated to providing sports intelligence while emphasizing that sports betting is a leisure activity. We encourage all our users to remain analytical, unemotional, and to never wager more than they can afford to lose.
+            At Student Affairs, we are dedicated to providing sports intelligence while emphasizing that sports betting is a leisure activity. We encourage all our users to remain analytical, unemotional, and to never wager more than they can afford to lose.
           </p>
         </section>
 

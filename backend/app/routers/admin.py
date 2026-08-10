@@ -113,7 +113,7 @@ async def dashboard_stats(
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
-    """Aggregated dashboard stats for WinviRahisi styled widgets."""
+    """Aggregated dashboard stats for Student Affairs styled widgets."""
     now = datetime.now(UTC).replace(tzinfo=None)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     yesterday_start = today_start - timedelta(days=1)
@@ -669,7 +669,7 @@ async def approve_payment(payment_id: int, db: AsyncSession = Depends(get_db), a
 SMS_DEFAULTS = {
     "SMS_SRC": "ARVOCAP",
     "SMS_ENABLED": "true",
-    "SMS_TEMPLATE": "[WinviRahisi] Your verification code is {code}. This code expires in 5 minutes. Do NOT share this code with anyone. Visit {url} to access your account.",
+    "SMS_TEMPLATE": "[Student Affairs] Your verification code is {code}. This code expires in 5 minutes. Do NOT share this code with anyone. Visit {url} to access your account.",
 }
 
 SMS_DESCRIPTIONS = {
@@ -764,7 +764,7 @@ async def update_email_settings(body: EmailSettingsUpdate, db: AsyncSession = De
 # ═══════════════════════════════════════════════════════════════
 
 SUPPORT_DEFAULTS = {
-    "SUPPORT_EMAIL": "support@winvirahisi.com",
+    "SUPPORT_EMAIL": "support@studentsaffairs.com",
     "SUPPORT_WHATSAPP": "https://wa.me/254700000000",
     "SUPPORT_WHATSAPP_NUMBER": "+254 700 000 000",
 }
