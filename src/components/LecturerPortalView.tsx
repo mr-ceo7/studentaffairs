@@ -6,9 +6,23 @@ import {
   ArrowRight,
   BookOpen,
   Calendar,
-  AlertCircle
+  AlertCircle,
+  Search,
+  CheckCircle,
+  Clock,
+  User,
+  ExternalLink,
+  ChevronRight,
+  TrendingUp,
+  FileCheck2,
+  X,
+  Eye,
+  Check,
+  RefreshCw,
+  MessageSquare
 } from 'lucide-react';
-import { ticketService, type TicketData } from '../services/ticketService';
+import { motion, AnimatePresence } from 'motion/react';
+import { ticketService, type TicketData, type CommentData } from '../services/ticketService';
 import { toast } from 'sonner';
 import PencilLoader from './PencilLoader';
 
@@ -45,9 +59,23 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters
+  // Search & Filter States
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [activeUnitFilter, setActiveUnitFilter] = useState<string | null>(null);
+
+  // Quick Review Drawer States
+  const [reviewTicketId, setReviewTicketId] = useState<string | null>(null);
+  const [reviewTicket, setReviewTicket] = useState<TicketData | null>(null);
+  const [loadingReview, setLoadingReview] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [verifiedScoreInput, setVerifiedScoreInput] = useState('');
+  const [selectedStatusInput, setSelectedStatusInput] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  // Lightbox State
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
     loadTickets();
@@ -65,6 +93,82 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
       toast.error('Failed to load claims queue');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch full details of ticket for quick drawer review
+  useEffect(() => {
+    if (reviewTicketId) {
+      fetchReviewTicketDetails(reviewTicketId);
+    } else {
+      setReviewTicket(null);
+    }
+  }, [reviewTicketId]);
+
+  const fetchReviewTicketDetails = async (ticketId: string) => {
+    setLoadingReview(true);
+    try {
+      const detail = await ticketService.getTicket(ticketId);
+      setReviewTicket(detail);
+      setVerifiedScoreInput(detail.verified_score !== undefined && detail.verified_score !== null ? String(detail.verified_score) : '');
+      setSelectedStatusInput(detail.status);
+    } catch (err) {
+      toast.error('Failed to load claim details');
+      setReviewTicketId(null);
+    } finally {
+      setLoadingReview(false);
+    }
+  };
+
+  const handleUpdateStatusAndScore = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewTicket) return;
+
+    if (!selectedStatusInput) {
+      toast.error('Please select a target status');
+      return;
+    }
+
+    const numericScore = verifiedScoreInput.trim() !== '' ? Number(verifiedScoreInput) : undefined;
+    if (numericScore !== undefined && (isNaN(numericScore) || numericScore < 0 || numericScore > 100)) {
+      toast.error('Please enter a valid verified score (0-100)');
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      await ticketService.updateTicketStatus(
+        reviewTicket.ticket_id,
+        selectedStatusInput,
+        numericScore,
+        newComment.trim() !== '' ? newComment.trim() : undefined
+      );
+
+      toast.success('Grievance ticket updated successfully!');
+      setNewComment('');
+      
+      // Reload main table & update local drawer content
+      await loadTickets();
+      await fetchReviewTicketDetails(reviewTicket.ticket_id);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to update claim');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const handleAddDrawerComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewTicket || !newComment.trim()) return;
+
+    try {
+      await ticketService.addComment(reviewTicket.ticket_id, newComment.trim());
+      setNewComment('');
+      toast.success('Comment added');
+      // Reload drawer details to show the new comment
+      fetchReviewTicketDetails(reviewTicket.ticket_id);
+    } catch (err) {
+      toast.error('Failed to add comment');
     }
   };
 
@@ -96,19 +200,38 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
     ).length;
   };
 
-  // Apply frontend filters
+  // Apply search query and filters
   const filteredTickets = tickets.filter(t => {
+    const matchesSearch = 
+      t.ticket_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.reg_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.student_name && t.student_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      t.unit_code.toLowerCase().includes(searchQuery.toLowerCase());
+      
     const matchesType = !selectedType || t.assessment_category === selectedType;
     const matchesStatus = !selectedStatus || t.status === selectedStatus;
-    return matchesType && matchesStatus;
+    const matchesUnit = !activeUnitFilter || t.unit_code === activeUnitFilter;
+
+    return matchesSearch && matchesType && matchesStatus && matchesUnit;
   });
 
+  // Calculate stats for overview cards
+  const totalAssignedClaims = tickets.length;
+  const pendingReviewCount = tickets.filter(t => t.status === 'Submitted to Department/Lecturer').length;
+  const underProcessingCount = tickets.filter(t => t.status === 'Under Departmental Processing').length;
+  const completedClaims = tickets.filter(t => t.status === 'Verified on SMS' || t.status === 'Cleared for SMS Update').length;
+  
+  const resolutionRate = totalAssignedClaims > 0 
+    ? Math.round((completedClaims / totalAssignedClaims) * 100) 
+    : 0;
+
   return (
-    <div className="space-y-6 pt-2 text-slate-700 dark:text-slate-300">
+    <div className="space-y-6 pt-2 text-slate-700 dark:text-slate-300 relative overflow-x-hidden">
+      
       {/* Header Profile Info */}
       <div className="reveal active flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl shadow-sm">
         <div className="space-y-1">
-          <span className="text-[10px] font-bold text-green-700 dark:text-green-400 uppercase tracking-widest block">Lecturer Portal</span>
+          <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest block">Lecturer Portal</span>
           <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">
             {user.username} — Claims Queue
           </h1>
@@ -118,49 +241,158 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
         </div>
         <button 
           onClick={loadTickets}
-          className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-750 dark:text-slate-250 rounded-xl text-xs font-semibold cursor-pointer transition-all shrink-0"
+          className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold cursor-pointer transition-all shrink-0 flex items-center gap-1.5"
         >
+          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
           Refresh Queue
         </button>
       </div>
 
-      {/* Unit Cards Summary */}
+      {/* Analytics & Metrics Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {ASSIGNED_UNITS.map(unit => {
-          const openClaims = getOpenCount(unit);
-          return (
-            <div key={unit} className="clay-card p-4 flex flex-col justify-between">
-              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-                {unit.split(' — ')[0]}
-              </span>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{openClaims}</span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-450 font-medium">Open Claim{openClaims !== 1 ? 's' : ''}</span>
-              </div>
-              <span className="text-[9px] text-slate-500 dark:text-slate-400 truncate block mt-2" title={unit.split(' — ')[1]}>
-                {unit.split(' — ')[1]}
+        <div className="clay-card p-4 flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Resolution Rate</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{resolutionRate}%</span>
+              <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-0.5">
+                <TrendingUp size={10} /> completed
               </span>
             </div>
-          );
-        })}
+          </div>
+          <div className="w-10 h-10 rounded-full border-4 border-slate-100 dark:border-slate-800 flex items-center justify-center relative">
+            <div className="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-pulse" style={{ clipPath: `polygon(0 0, 100% 0, 100% ${resolutionRate}%, 0 ${resolutionRate}%)` }} />
+            <FileCheck2 size={16} className="text-emerald-500" />
+          </div>
+        </div>
+
+        <div className="clay-card p-4 flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">New Submissions</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{pendingReviewCount}</span>
+              <span className="text-[10px] text-blue-500 font-semibold">needs review</span>
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-555 dark:text-blue-400 flex items-center justify-center">
+            <Clock size={18} />
+          </div>
+        </div>
+
+        <div className="clay-card p-4 flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Under Review</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{underProcessingCount}</span>
+              <span className="text-[10px] text-amber-500 font-semibold">in progress</span>
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-555 dark:text-amber-400 flex items-center justify-center">
+            <FolderOpen size={18} />
+          </div>
+        </div>
+
+        <div className="clay-card p-4 flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Completed</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{completedClaims}</span>
+              <span className="text-[10px] text-slate-500">claims resolved</span>
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-650 dark:text-emerald-400 flex items-center justify-center">
+            <CheckCircle size={18} />
+          </div>
+        </div>
+      </div>
+
+      {/* Unit Cards Summary & Clickable Quick Filter */}
+      <div>
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+            Filter Queue by Assigned Unit Code
+          </span>
+          {activeUnitFilter && (
+            <button 
+              onClick={() => setActiveUnitFilter(null)}
+              className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
+            >
+              Clear Unit Filter <X size={10} />
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {ASSIGNED_UNITS.map(unit => {
+            const openClaims = getOpenCount(unit);
+            const isActive = activeUnitFilter === unit;
+            return (
+              <motion.div 
+                key={unit} 
+                whileHover={{ y: -3 }}
+                onClick={() => setActiveUnitFilter(isActive ? null : unit)}
+                className={`clay-card p-4 flex flex-col justify-between cursor-pointer transition-all relative overflow-hidden border ${
+                  isActive 
+                    ? 'border-blue-500 dark:border-blue-600 ring-2 ring-blue-500/20 bg-blue-50/10 dark:bg-blue-950/10' 
+                    : 'border-slate-200/60 dark:border-slate-800/80 hover:border-slate-350 dark:hover:border-slate-700'
+                }`}
+              >
+                <div className="flex justify-between items-start">
+                  <span className="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    {unit.split(' — ')[0]}
+                  </span>
+                  {isActive && <CheckCircle size={12} className="text-blue-500" />}
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{openClaims}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-450 font-medium">Open Claim{openClaims !== 1 ? 's' : ''}</span>
+                </div>
+                <span className="text-[9px] text-slate-500 dark:text-slate-400 truncate block mt-2" title={unit.split(' — ')[1]}>
+                  {unit.split(' — ')[1]}
+                </span>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Filter and Queue Table */}
       <div className="clay-card p-6 reveal active space-y-4">
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        
+        {/* Top Control Bar */}
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <FolderOpen className="w-5 h-5 text-blue-750 dark:text-blue-400" />
+            <FolderOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             Clearance Queue
           </h2>
           
-          {/* Filters Bar */}
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 md:flex-initial md:w-60">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={13} />
+              <input
+                type="text"
+                placeholder="Search Reg No., Name, Unit..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-850 focus:border-blue-500 focus:outline-none rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-850 dark:text-slate-200 transition-all"
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-800"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            {/* Assessment Category Filter */}
             <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-850">
               <Filter size={12} className="text-slate-400" />
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="bg-transparent text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs text-slate-700 dark:text-slate-350 font-semibold focus:outline-none cursor-pointer"
               >
                 <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">All Categories</option>
                 {CATEGORIES.map(c => (
@@ -169,12 +401,13 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
               </select>
             </div>
 
+            {/* Workflow Status Filter */}
             <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-850">
               <Layers size={12} className="text-slate-400" />
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="bg-transparent text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs text-slate-700 dark:text-slate-350 font-semibold focus:outline-none cursor-pointer"
               >
                 <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">All Statuses</option>
                 {STATUSES.map(s => (
@@ -185,6 +418,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
           </div>
         </div>
 
+        {/* Clearance Data Table */}
         {loading ? (
           <PencilLoader message="Loading assigned unit claims..." size="sm" />
         ) : filteredTickets.length > 0 ? (
@@ -200,38 +434,50 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                   <th className="py-3 px-4 text-center">Verified</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Updated</th>
-                  <th className="py-3 px-4 text-center">Action</th>
+                  <th className="py-3 px-4 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                 {filteredTickets.map(t => (
-                  <tr key={t.ticket_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors">
+                  <tr key={t.ticket_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/15 transition-colors">
                     <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">{t.ticket_id}</td>
-                    <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-300">{t.reg_number}</td>
-                    <td className="py-3.5 px-4 text-slate-650 dark:text-slate-400">{t.student_name}</td>
+                    <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">{t.reg_number}</td>
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 font-medium">{t.student_name || 'Anonymous'}</td>
                     <td className="py-3.5 px-4">
-                      <span className="font-semibold text-slate-700 dark:text-slate-300">{t.unit_code.split(' — ')[0]}</span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">{t.unit_code.split(' — ')[1]}</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{t.unit_code.split(' — ')[0]}</span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5 truncate max-w-[150px]">{t.unit_code.split(' — ')[1]}</span>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-semibold text-slate-700 dark:text-slate-300">{t.claimed_score}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-blue-800 dark:text-blue-400">{t.verified_score !== null && t.verified_score !== undefined ? t.verified_score : '—'}</td>
+                    <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-slate-150">{t.claimed_score}</td>
+                    <td className="py-3.5 px-4 text-center font-black text-blue-700 dark:text-blue-450">{t.verified_score !== null && t.verified_score !== undefined ? t.verified_score : '—'}</td>
                     <td className="py-3.5 px-4">
                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold border uppercase tracking-wide inline-block ${getStatusBadge(t.status)}`}>
                         {t.status}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1.5 border-none">
-                      <Calendar size={12} />
-                      {new Date(t.updated_at).toLocaleDateString()}
+                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar size={12} />
+                        {new Date(t.updated_at).toLocaleDateString()}
+                      </div>
                     </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => onTicketClick(t.ticket_id)}
-                        className="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold text-[10px] transition-all cursor-pointer flex items-center gap-1 mx-auto shadow-sm"
-                      >
-                        Review
-                        <ArrowRight size={10} />
-                      </button>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => setReviewTicketId(t.ticket_id)}
+                          className="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/25 border border-blue-500/20 text-blue-700 dark:text-blue-400 rounded-lg font-bold text-[10px] transition-all cursor-pointer flex items-center gap-1 shadow-sm"
+                          title="Quick Verify in Drawer"
+                        >
+                          <Eye size={11} />
+                          Quick Review
+                        </button>
+                        <button
+                          onClick={() => onTicketClick(t.ticket_id)}
+                          className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 rounded-lg transition-all cursor-pointer"
+                          title="Open Inspection Board"
+                        >
+                          <ExternalLink size={11} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -242,10 +488,320 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
           <div className="text-center py-16 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-slate-100 dark:border-slate-800">
             <AlertCircle size={40} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
             <h3 className="font-bold text-slate-700 dark:text-slate-350 text-sm">Clear Queue</h3>
-            <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">No claims match the selected filters or assigned units.</p>
+            <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">No claims match the selected filters or search queries.</p>
           </div>
         )}
       </div>
+
+      {/* QUICK REVIEW SLIDE-OUT DRAWER */}
+      <AnimatePresence>
+        {reviewTicketId && (
+          <>
+            {/* Overlay backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setReviewTicketId(null)}
+              className="fixed inset-0 bg-black z-40 backdrop-blur-xs"
+            />
+
+            {/* Sliding Drawer Container */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+              className="fixed inset-y-0 right-0 w-full sm:max-w-lg bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800/80 shadow-2xl z-50 flex flex-col text-xs text-slate-700 dark:text-slate-300"
+            >
+              {/* Drawer Header */}
+              <div className="p-5 border-b border-slate-100 dark:border-slate-850 flex items-center justify-between bg-slate-50/60 dark:bg-slate-900/40">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                    <FileCheck2 size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                      Grievance Claim {reviewTicketId}
+                    </h3>
+                    <p className="text-[10px] text-slate-450 dark:text-slate-550 font-medium">Quick inspection & marks approval board</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setReviewTicketId(null)}
+                  className="p-1.5 rounded-lg hover:bg-slate-150 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-slate-750 dark:hover:text-slate-200"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              {/* Drawer Body Scroll */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
+                {loadingReview ? (
+                  <div className="h-64 flex items-center justify-center">
+                    <PencilLoader message="Fetching ticket records..." size="sm" />
+                  </div>
+                ) : reviewTicket ? (
+                  <>
+                    {/* Student Metadata Card */}
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 space-y-2.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center font-extrabold text-xs uppercase">
+                          {reviewTicket.student_name ? reviewTicket.student_name.slice(0, 2).toUpperCase() : 'ST'}
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                            {reviewTicket.student_name || 'Anonymous Student'}
+                          </h4>
+                          <span className="text-[10px] text-slate-450 dark:text-slate-500 font-mono font-bold block">
+                            Reg No: {reviewTicket.reg_number}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-[10px] font-medium text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
+                        <div>
+                          <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Faculty</span>
+                          <span className="truncate block font-bold text-slate-700 dark:text-slate-350">{reviewTicket.faculty.replace('Faculty of ', '')}</span>
+                        </div>
+                        <div>
+                          <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Department</span>
+                          <span className="truncate block font-bold text-slate-700 dark:text-slate-350">{reviewTicket.department}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Claim Details Card */}
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                        Claim Discrepancy Details
+                      </h4>
+                      <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-xs space-y-3">
+                        <div>
+                          <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Course Unit</span>
+                          <span className="font-extrabold text-slate-800 dark:text-slate-250 block mt-0.5">{reviewTicket.unit_code}</span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 border-t border-slate-100 dark:border-slate-850 pt-2.5">
+                          <div>
+                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Category</span>
+                            <span className="font-semibold text-slate-700 dark:text-slate-350 text-[10px] block mt-0.5 truncate" title={reviewTicket.assessment_category}>
+                              {reviewTicket.assessment_category.replace('End of Semester ', '')}
+                            </span>
+                          </div>
+                          <div className="text-center">
+                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Claimed Score</span>
+                            <span className="font-black text-slate-800 dark:text-slate-200 text-sm block mt-0.5">{reviewTicket.claimed_score}</span>
+                          </div>
+                          <div className="text-center">
+                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Verified Score</span>
+                            <span className="font-black text-blue-700 dark:text-blue-400 text-sm block mt-0.5">
+                              {reviewTicket.verified_score !== null && reviewTicket.verified_score !== undefined ? reviewTicket.verified_score : '—'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {reviewTicket.additional_notes && (
+                          <div className="border-t border-slate-100 dark:border-slate-850 pt-2.5">
+                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Student Notes</span>
+                            <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-900 italic">
+                              "{reviewTicket.additional_notes}"
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Proof Attachment Preview */}
+                        {reviewTicket.proof_attachment && (
+                          <div className="border-t border-slate-100 dark:border-slate-850 pt-2.5">
+                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Evidence Proof / Script Sheet</span>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              {reviewTicket.proof_attachment.split(',').map((url, index) => {
+                                const filename = url.split('/').pop() || 'proof_document';
+                                const isImage = /\.(jpg|jpeg|png|webp)$/i.test(url) || url.startsWith('data:image/');
+                                
+                                return (
+                                  <div key={index} className="flex flex-col bg-slate-50 dark:bg-slate-950 p-2 rounded-xl border border-slate-100 dark:border-slate-850 items-center justify-center relative w-full">
+                                    {isImage ? (
+                                      <div className="relative group cursor-zoom-in w-full flex flex-col items-center">
+                                        <img 
+                                          src={url} 
+                                          alt={`Proof ${index}`} 
+                                          onClick={() => setLightboxUrl(url)}
+                                          className="max-h-36 rounded-lg object-contain border border-slate-200/50 dark:border-slate-800 bg-white dark:bg-black/25 w-full"
+                                        />
+                                        <span className="text-[8px] text-slate-400 block mt-1 truncate max-w-full font-mono">{filename}</span>
+                                      </div>
+                                    ) : (
+                                      <a 
+                                        href={url} 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        className="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline py-1 flex items-center gap-1"
+                                      >
+                                        <FolderOpen size={11} /> Download {filename}
+                                      </a>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Timeline & Student-Lecturer Comments */}
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-550 uppercase tracking-wider flex items-center gap-1.5">
+                        <MessageSquare size={12} /> Discussion History ({reviewTicket.comments?.length || 0})
+                      </h4>
+                      
+                      <div className="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                        {reviewTicket.comments && reviewTicket.comments.length > 0 ? (
+                          reviewTicket.comments.map((comment: CommentData) => {
+                            const isMe = comment.author_name === user.username;
+                            return (
+                              <div 
+                                key={comment.id} 
+                                className={`flex flex-col max-w-[85%] rounded-2xl p-3 space-y-1 ${
+                                  isMe 
+                                    ? 'bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 ml-auto items-end rounded-tr-none' 
+                                    : 'bg-slate-50 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 mr-auto items-start rounded-tl-none'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 text-[8px] font-bold text-slate-400 dark:text-slate-500">
+                                  <span>{comment.author_name} ({comment.author_role})</span>
+                                  <span>•</span>
+                                  <span>{new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <p className="text-[11px] leading-relaxed text-slate-750 dark:text-slate-300">{comment.message}</p>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-6 bg-slate-50/20 dark:bg-slate-900/10 rounded-xl border border-slate-100 dark:border-slate-850 text-slate-400 italic text-[10px]">
+                            No comments listed. Send a feedback message below.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Action form */}
+                    <form onSubmit={handleUpdateStatusAndScore} className="space-y-3 border-t border-slate-100 dark:border-slate-850 pt-4">
+                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-550 uppercase tracking-wider">
+                        Update Claim & Verify Mark
+                      </h4>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                            Verified Score
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            placeholder="verified marks..."
+                            value={verifiedScoreInput}
+                            onChange={(e) => setVerifiedScoreInput(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-850 dark:text-slate-150 focus:outline-none focus:border-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                            Workflow Status
+                          </label>
+                          <select
+                            value={selectedStatusInput}
+                            onChange={(e) => setSelectedStatusInput(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer"
+                          >
+                            <option value="Submitted to Department/Lecturer">Submitted to Dept/Lecturer</option>
+                            <option value="Under Departmental Processing">Under Dept Processing</option>
+                            <option value="Awaiting Student Response">Awaiting Student Response</option>
+                            <option value="Rejected — Insufficient Proof">Rejected — Insufficient Proof</option>
+                            <option value="Cleared for SMS Update">Cleared for SMS Update</option>
+                            <option value="Verified on SMS">Verified on SMS</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Comment textarea */}
+                      <div>
+                        <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Comment / Resolution Notes
+                        </label>
+                        <textarea
+                          placeholder="Type details for the student, lecturer logs, or reason for rejection/approval..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          rows={3}
+                          className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
+                        />
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleAddDrawerComment}
+                          disabled={!newComment.trim()}
+                          className="px-4 py-2 border border-slate-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-all cursor-pointer disabled:opacity-50 text-[10px]"
+                        >
+                          Send Message Only
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={submittingReview}
+                          className="flex-1 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl transition-all cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-sm text-[10px]"
+                        >
+                          {submittingReview ? 'Updating...' : 'Submit Resolution'}
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                ) : null}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* LIGHTBOX FOR PREVIEWING ATTACHMENTS */}
+      <AnimatePresence>
+        {lightboxUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4"
+          >
+            <button
+              onClick={() => setLightboxUrl(null)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-slate-850 hover:bg-slate-800 text-white cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <div className="max-w-4xl max-h-[85vh] overflow-hidden flex items-center justify-center">
+              <img 
+                src={lightboxUrl} 
+                className="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-slate-800" 
+                alt="Document Full Proof" 
+              />
+            </div>
+            <a 
+              href={lightboxUrl} 
+              download="student_script_proof.png" 
+              className="mt-4 px-4 py-2 bg-blue-650 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all"
+            >
+              <FolderOpen size={13} /> Open Image In New Tab
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

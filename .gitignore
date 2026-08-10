@@ -19,5 +19,6 @@ env/
 # Database
 backend/uon_clearinghouse.db
 backend/winvirahisi.db
+backend/bettertips.db
 .vercel
 .env*.local
