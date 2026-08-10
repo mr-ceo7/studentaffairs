@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   PlusCircle, 
   ListTodo, 
@@ -11,7 +11,8 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
-  GraduationCap
+  GraduationCap,
+  ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ticketService, type TicketData, type TicketCreatePayload } from '../services/ticketService';
@@ -78,6 +79,35 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   // Form states — auto-fill from user profile
   const [regNumber, setRegNumber] = useState(user.reg_number || '');
   const [unitCode, setUnitCode] = useState('');
+  const [unitSearch, setUnitSearch] = useState('');
+  const [debouncedUnitSearch, setDebouncedUnitSearch] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const unitRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedUnitSearch(unitSearch);
+    }, 200);
+    return () => clearTimeout(handler);
+  }, [unitSearch]);
+
+  useEffect(() => {
+    if (!unitCode) {
+      setUnitSearch('');
+    } else {
+      setUnitSearch(unitCode);
+    }
+  }, [unitCode]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (unitRef.current && !unitRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const [category, setCategory] = useState('');
   const [claimedScore, setClaimedScore] = useState('');
   const [notes, setNotes] = useState('');
@@ -419,16 +449,61 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                       Course Unit Code
                     </label>
-                    <select
-                      value={unitCode}
-                      onChange={(e) => setUnitCode(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
-                    >
-                      <option value="" className="bg-white dark:bg-slate-950">Select Unit...</option>
-                      {UNITS.map(u => (
-                        <option key={u} value={u} className="bg-white dark:bg-slate-950">{u}</option>
-                      ))}
-                    </select>
+                    <div ref={unitRef} className="relative">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Search or select course unit..."
+                          value={unitSearch}
+                          onChange={(e) => {
+                            setUnitSearch(e.target.value);
+                            setIsDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsDropdownOpen(true)}
+                          className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none transition-all pr-8"
+                        />
+                        <div 
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-slate-400 dark:text-slate-500"
+                        >
+                          <ChevronDown size={14} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                        </div>
+                      </div>
+
+                      <AnimatePresence>
+                        {isDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 5 }}
+                            transition={{ duration: 0.12 }}
+                            className="absolute z-30 w-full mt-1.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl rounded-xl overflow-hidden max-h-[160px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 custom-scrollbar"
+                          >
+                            {UNITS.filter(u => u.toLowerCase().includes(debouncedUnitSearch.toLowerCase())).length > 0 ? (
+                              UNITS.filter(u => u.toLowerCase().includes(debouncedUnitSearch.toLowerCase())).map(u => (
+                                <div
+                                  key={u}
+                                  onClick={() => {
+                                    setUnitCode(u);
+                                    setUnitSearch(u);
+                                    setIsDropdownOpen(false);
+                                  }}
+                                  className={`p-2.5 text-xs text-left cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/80 font-medium ${
+                                    unitCode === u ? 'bg-blue-50/40 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 font-bold' : 'text-slate-700 dark:text-slate-300'
+                                  }`}
+                                >
+                                  {u}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="p-3 text-xs text-slate-400 dark:text-slate-500 italic text-center">
+                                No matching units found
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </motion.div>
               )}
