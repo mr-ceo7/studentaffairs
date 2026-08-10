@@ -142,33 +142,44 @@ export default function App() {
     return () => { clearTimeout(fadeTimer); clearTimeout(removeTimer); };
   }, []);
 
-  return (
-    <GoogleOAuthProvider clientId={(import.meta as any).env.VITE_GOOGLE_CLIENT_ID || ""}>
-      <BrowserRouter>
-        <UserProvider>
-          {splashVisible && (
-            <div
-              className="splash-screen"
-              style={{
-                opacity: splashFading ? 0 : 1,
-                pointerEvents: splashFading ? 'none' : 'all',
-              }}
-            >
-              <PencilLoader message="Initializing UoN Clearinghouse..." size="lg" />
-            </div>
-          )}
+  const googleClientId = (import.meta as any).env.VITE_GOOGLE_CLIENT_ID;
+
+  const appTree = (
+    <BrowserRouter>
+      <UserProvider>
+        {splashVisible && (
           <div
+            className="splash-screen"
             style={{
-              opacity: splashFading ? 1 : 0,
-              transition: 'opacity 0.5s ease-in-out',
+              opacity: splashFading ? 0 : 1,
+              pointerEvents: splashFading ? 'none' : 'all',
             }}
           >
-            <AppContent />
+            <PencilLoader message="Initializing UoN Clearinghouse..." size="lg" />
           </div>
-          <Toaster position="top-right" richColors />
-        </UserProvider>
-      </BrowserRouter>
-    </GoogleOAuthProvider>
+        )}
+        <div
+          style={{
+            opacity: splashFading ? 1 : 0,
+            transition: 'opacity 0.5s ease-in-out',
+          }}
+        >
+          <AppContent />
+        </div>
+        <Toaster position="top-right" richColors />
+      </UserProvider>
+    </BrowserRouter>
   );
+
+  // Only wrap with GoogleOAuthProvider when a valid client ID is configured
+  if (googleClientId) {
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        {appTree}
+      </GoogleOAuthProvider>
+    );
+  }
+
+  return appTree;
 }
 

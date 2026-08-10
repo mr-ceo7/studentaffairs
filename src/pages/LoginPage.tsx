@@ -50,6 +50,21 @@ const FACULTIES = [
   "Faculty of Veterinary Medicine"
 ];
 
+// Separate component so useGoogleOneTapLogin hook is only called when GoogleOAuthProvider exists
+function GoogleOneTapWrapper({ onSuccess }: { onSuccess: (idToken: string) => Promise<void> }) {
+  useGoogleOneTapLogin({
+    onSuccess: async (credentialResponse) => {
+      if (credentialResponse.credential) {
+        await onSuccess(credentialResponse.credential);
+      }
+    },
+    onError: () => {
+      console.log('Google One Tap Login Failed');
+    },
+  });
+  return null;
+}
+
 export default function LoginPage() {
   const { user, refreshUser } = useUser();
   const { theme, toggleTheme } = useTheme();
@@ -82,19 +97,8 @@ export default function LoginPage() {
   const [yearOfStudy, setYearOfStudy] = useState('Year 1');
   const [semester, setSemester] = useState('Semester 1');
 
-  // Load Google One Tap (only if a valid client ID is configured)
+  // Google One Tap is handled by GoogleOneTapWrapper rendered below (only when provider is available)
   const googleClientId = (import.meta as any).env.VITE_GOOGLE_CLIENT_ID;
-  useGoogleOneTapLogin({
-    onSuccess: async (credentialResponse) => {
-      if (credentialResponse.credential) {
-        await handleGoogleLoginSuccess(credentialResponse.credential);
-      }
-    },
-    onError: () => {
-      console.log('Google One Tap Login Failed');
-    },
-    disabled: !googleClientId,
-  });
 
   // Handle Google Login logic
   const handleGoogleLoginSuccess = async (idToken: string) => {
