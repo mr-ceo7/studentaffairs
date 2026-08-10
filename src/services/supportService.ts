@@ -45,6 +45,11 @@ export const supportService = {
     return res.data;
   },
 
+  async getStudentMessages(): Promise<SupportMessage[]> {
+    const res = await apiClient.get<SupportMessage[]>('/support/student');
+    return res.data;
+  },
+
   async getInboxMessages(target?: string, statusFilter?: string): Promise<SupportMessage[]> {
     const params = new URLSearchParams();
     if (target) params.append('target', target);
@@ -58,6 +63,11 @@ export const supportService = {
       status: statusVal,
       reply_notes: replyNotes,
     });
+    return res.data;
+  },
+
+  async replyToMessage(id: number, message: string): Promise<SupportMessage> {
+    const res = await apiClient.post<SupportMessage>(`/support/${id}/reply`, { message });
     return res.data;
   },
 };

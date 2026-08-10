@@ -56,6 +56,21 @@ async def submit_support_message(
     return msg
 
 
+@router.get("/student", response_model=List[SupportMessageResponse])
+async def list_student_support_messages(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    query = (
+        select(SupportMessage)
+        .where(SupportMessage.user_email == user.email)
+        .order_by(SupportMessage.created_at.desc())
+    )
+    result = await db.execute(query)
+    return result.scalars().all()
+
+
+
 @router.get("", response_model=List[SupportMessageResponse])
 async def list_support_messages(
     target: Optional[str] = None,
@@ -110,3 +125,41 @@ async def update_support_message(
     await db.commit()
     await db.refresh(msg)
     return msg
+
+
+from pydantic import BaseModel
+from datetime import datetime, timezone
+UTC = timezone.utc
+
+class StudentReply(BaseModel):
+    message: str
+
+@router.post("/{id}/reply", response_model=SupportMessageResponse)
+async def reply_to_support_message(
+    id: int,
+    body: StudentReply,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    result = await db.execute(select(SupportMessage).where(SupportMessage.id == id))
+    msg = result.scalars().first()
+    if not msg:
+        raise HTTPException(
+            status_code=404,
+            detail="Support message not found.",
+        )
+    if msg.user_email != user.email:
+        raise HTTPException(
+            status_code=403,
+            detail="You can only reply to your own support messages.",
+        )
+
+    # Append reply to message
+    timestamp = datetime.now(UTC).strftime("%d/%m/%Y %H:%M")
+    msg.message = f"{msg.message}\n\n[Student {timestamp}]: {body.message.strip()}"
+    msg.status = "open"  # Re-open the ticket if it was resolved
+    
+    await db.commit()
+    await db.refresh(msg)
+    return msg
+

@@ -62,7 +62,7 @@ const HERO_SLIDES = [
 ];
 
 export default function StudentPortalView({ user, onTicketClick }: StudentPortalProps) {
-  const [activeTab, setActiveTab] = useState<'new-claim' | 'my-tickets'>('new-claim');
+  const [activeTab, setActiveTab] = useState<'new-claim' | 'my-tickets'>('my-tickets');
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState(false);
   const [heroSlide, setHeroSlide] = useState(0);
@@ -75,8 +75,8 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
     return () => clearInterval(timer);
   }, []);
 
-  // Form states
-  const [regNumber, setRegNumber] = useState('');
+  // Form states — auto-fill from user profile
+  const [regNumber, setRegNumber] = useState(user.reg_number || '');
   const [unitCode, setUnitCode] = useState('');
   const [category, setCategory] = useState('');
   const [claimedScore, setClaimedScore] = useState('');
@@ -86,6 +86,50 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   
   // RegEx validation helper
   const [regError, setRegError] = useState(false);
+
+  // Multi-step form step state
+  const [formStep, setFormStep] = useState(1);
+
+  // Expanded ticket card state
+  const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
+
+  // Step validation and transition handlers
+  const handleNextStep = () => {
+    if (formStep === 1) {
+      if (!regNumber || regError) {
+        toast.error('Please enter a valid Registration Number in the format ABC/12345/2022');
+        return;
+      }
+      if (!unitCode) {
+        toast.error('Please select a course unit.');
+        return;
+      }
+      setFormStep(2);
+    } else if (formStep === 2) {
+      if (!category) {
+        toast.error('Please select an assessment category.');
+        return;
+      }
+      if (!claimedScore || isNaN(Number(claimedScore))) {
+        toast.error('Please enter a valid claimed score.');
+        return;
+      }
+      setFormStep(3);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (formStep > 1) {
+      setFormStep((prev) => prev - 1);
+    }
+  };
+
+  // Auto-fill reg number from profile when user data loads
+  useEffect(() => {
+    if (user.reg_number && !regNumber) {
+      setRegNumber(user.reg_number);
+    }
+  }, [user.reg_number]);
 
   useEffect(() => {
     loadTickets();
@@ -156,8 +200,8 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
     try {
       const payload: TicketCreatePayload = {
         reg_number: regNumber,
-        faculty: "Faculty of Science & Technology",
-        department: "Computing & Informatics",
+        faculty: user.faculty || 'Faculty of Science & Technology',
+        department: user.department || 'Computing & Informatics',
         unit_code: unitCode,
         assessment_category: category,
         claimed_score: Number(claimedScore),
@@ -168,14 +212,15 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       await ticketService.createTicket(payload);
       toast.success('Grievance ticket created successfully!');
       
-      // Reset form
-      setRegNumber('');
+      // Reset form — keep reg number from profile
+      setRegNumber(user.reg_number || '');
       setUnitCode('');
       setCategory('');
       setClaimedScore('');
       setNotes('');
       setAgree(false);
       setFileName('');
+      setFormStep(1);
       
       // Load and redirect
       setActiveTab('my-tickets');
@@ -215,7 +260,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
           Welcome, {user.username}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-xs leading-none">
-          Faculty of Science &amp; Technology · Department of Computing &amp; Informatics
+          {user.faculty || 'Faculty of Science & Technology'} · {user.department || 'Department of Computing & Informatics'}
         </p>
       </div>
 
@@ -315,165 +360,241 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
             )}
           </div>
 
-          <form onSubmit={handleSubmitClaim} className="space-y-4">
-            {/* Row 1: Reg Number + Unit Code */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  Registration Number
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. CS/45231/2022"
-                  value={regNumber}
-                  onChange={(e) => handleRegChange(e.target.value)}
-                  className={`w-full bg-slate-50 dark:bg-slate-900/40 border rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all ${
-                    regError 
-                      ? 'border-red-500/50 focus:border-red-500' 
-                      : 'border-slate-200 dark:border-slate-800 focus:border-blue-500'
-                  }`}
-                />
-                {regError && (
-                  <span className="text-[9px] text-red-500 font-medium mt-0.5 block">
-                    Format: ABC/12345/2022
+
+          {/* Step Progress Indicator */}
+          <div className="flex items-center justify-between px-1 py-1.5 max-w-md mx-auto border-b border-slate-50 dark:border-slate-850 pb-3">
+            {[1, 2, 3].map((step) => (
+              <React.Fragment key={step}>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (step < formStep) {
+                        setFormStep(step);
+                      } else if (step === 2 && formStep === 1) {
+                        handleNextStep();
+                      } else if (step === 3 && formStep === 2) {
+                        handleNextStep();
+                      }
+                    }}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold transition-all cursor-pointer ${
+                      formStep === step
+                        ? 'bg-blue-600 text-white ring-4 ring-blue-500/10'
+                        : formStep > step
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    {formStep > step ? '✓' : step}
+                  </button>
+                  <span className={`text-[10px] uppercase font-bold tracking-wider hidden sm:inline ${
+                    formStep === step
+                      ? 'text-slate-800 dark:text-slate-250 font-extrabold'
+                      : 'text-slate-400 dark:text-slate-550'
+                  }`}>
+                    {step === 1 ? 'Academic' : step === 2 ? 'Grievance' : 'Submit'}
                   </span>
+                </div>
+                {step < 3 && (
+                  <div className={`flex-1 h-0.5 mx-2 rounded-full ${
+                    formStep > step ? 'bg-emerald-500' : 'bg-slate-150 dark:bg-slate-800'
+                  }`} />
                 )}
-              </div>
+              </React.Fragment>
+            ))}
+          </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  Course Unit Code
-                </label>
-                <select
-                  value={unitCode}
-                  onChange={(e) => setUnitCode(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
+          <form onSubmit={handleSubmitClaim} className="space-y-4">
+            <AnimatePresence mode="wait">
+              {formStep === 1 && (
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-4"
                 >
-                  <option value="" className="bg-white dark:bg-slate-950">Select Unit...</option>
-                  {UNITS.map(u => (
-                    <option key={u} value={u} className="bg-white dark:bg-slate-950">{u}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      Course Unit Code
+                    </label>
+                    <select
+                      value={unitCode}
+                      onChange={(e) => setUnitCode(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
+                    >
+                      <option value="" className="bg-white dark:bg-slate-950">Select Unit...</option>
+                      {UNITS.map(u => (
+                        <option key={u} value={u} className="bg-white dark:bg-slate-950">{u}</option>
+                      ))}
+                    </select>
+                  </div>
+                </motion.div>
+              )}
 
-            {/* Row 2: Category + Score */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  Assessment Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
+              {formStep === 2 && (
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-4"
                 >
-                  <option value="" className="bg-white dark:bg-slate-950">Select Category...</option>
-                  {CATEGORIES.map(c => (
-                    <option key={c} value={c} className="bg-white dark:bg-slate-950">{c}</option>
-                  ))}
-                </select>
-              </div>
+                  {/* Row 2: Category + Score */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        Assessment Category
+                      </label>
+                      <select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer transition-all"
+                      >
+                        <option value="" className="bg-white dark:bg-slate-950">Select Category...</option>
+                        {CATEGORIES.map(c => (
+                          <option key={c} value={c} className="bg-white dark:bg-slate-950">{c}</option>
+                        ))}
+                      </select>
+                    </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  Claimed Score / Grade
-                </label>
-                <input
-                  type="number"
-                  placeholder="e.g. 68"
-                  value={claimedScore}
-                  onChange={(e) => setClaimedScore(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                />
-              </div>
-            </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        Claimed Score / Grade
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 68"
+                        value={claimedScore}
+                        onChange={(e) => setClaimedScore(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                      />
+                    </div>
+                  </div>
 
-            {/* Proof Upload (compact inline) */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Proof Attachment
-              </label>
-              <div 
-                onClick={handleFileUpload}
-                className={`border border-dashed rounded-xl p-3 cursor-pointer transition-all flex items-center gap-3 ${
-                  fileName 
-                    ? 'border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-950/20' 
-                    : 'border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900/40'
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                  fileName 
-                    ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' 
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
-                }`}>
-                  <Upload size={16} />
-                </div>
-                <div className="min-w-0">
-                  <span className={`text-xs font-semibold block truncate ${fileName ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
-                    {fileName ? `✓ ${fileName}` : 'Tap to attach exam card, docket, or script'}
-                  </span>
-                  <span className="text-[9px] text-slate-400 dark:text-slate-500">PDF or JPG, max 5MB</span>
-                </div>
-              </div>
-            </div>
+                  {/* Notes (compact) */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      Additional Notes (optional)
+                    </label>
+                    <textarea
+                      placeholder="Invigilator name, exam room, script code..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      rows={2}
+                      className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
+                    />
+                  </div>
+                </motion.div>
+              )}
 
-            {/* Notes (compact) */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Additional Notes (optional)
-              </label>
-              <textarea
-                placeholder="Invigilator name, exam room, script code..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={2}
-                className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
-              />
-            </div>
+              {formStep === 3 && (
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-4"
+                >
+                  {/* Proof Upload (compact inline) */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      Proof Attachment
+                    </label>
+                    <div 
+                      onClick={handleFileUpload}
+                      className={`border border-dashed rounded-xl p-3 cursor-pointer transition-all flex items-center gap-3 ${
+                        fileName 
+                          ? 'border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-950/20' 
+                          : 'border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900/40'
+                      }`}
+                    >
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                        fileName 
+                          ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' 
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                      }`}>
+                        <Upload size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className={`text-xs font-semibold block truncate ${fileName ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                          {fileName ? `✓ ${fileName}` : 'Tap to attach exam card, docket, or script'}
+                        </span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500">PDF or JPG, max 5MB</span>
+                      </div>
+                    </div>
+                  </div>
 
-            {/* Disclaimer (compact) */}
-            <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-900/50 space-y-2">
-              <div className="flex gap-2 items-center">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span className="text-[9px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Academic Integrity Disclaimer</span>
-              </div>
-              <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                By submitting, I affirm all details represent my own work. Falsified documents constitute misconduct under UoN Senate Regulations.
-              </p>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agree}
-                  onChange={(e) => setAgree(e.target.checked)}
-                  className="rounded border-slate-300 dark:border-slate-700 text-blue-700 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
-                />
-                <span className="text-[10px] text-slate-700 dark:text-slate-300 select-none font-medium">I accept UoN academic integrity bylaws</span>
-              </label>
-            </div>
+                  {/* Disclaimer (compact) */}
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-900/50 space-y-2">
+                    <div className="flex gap-2 items-center">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <span className="text-[9px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Academic Integrity Disclaimer</span>
+                    </div>
+                    <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                      By submitting, I affirm all details represent my own work. Falsified documents constitute misconduct under UoN Senate Regulations.
+                    </p>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agree}
+                        onChange={(e) => setAgree(e.target.checked)}
+                        className="rounded border-slate-300 dark:border-slate-700 text-blue-700 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                      />
+                      <span className="text-[10px] text-slate-700 dark:text-slate-300 select-none font-medium">I accept UoN academic integrity bylaws</span>
+                    </label>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Submit Row */}
-            <div className="flex items-center gap-3 pt-1">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 sm:flex-none px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all"
-              >
-                <ArrowRight size={14} />
-                {loading ? 'Submitting...' : 'Submit Grievance Claim'}
-              </button>
+            {/* Submit / Navigation Row */}
+            <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+              {formStep > 1 && (
+                <button
+                  type="button"
+                  onClick={handlePrevStep}
+                  className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer transition-all flex items-center gap-1.5"
+                >
+                  <ChevronLeft size={14} /> Back
+                </button>
+              )}
+              
+              {formStep < 3 ? (
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  className="flex-1 sm:flex-none sm:ml-auto px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all"
+                >
+                  Next <ChevronRight size={14} />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 sm:flex-none sm:ml-auto px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all"
+                >
+                  <ArrowRight size={14} />
+                  {loading ? 'Submitting...' : 'Submit Grievance Claim'}
+                </button>
+              )}
+              
               <button
                 type="button"
                 onClick={() => {
-                  setRegNumber('');
+                  setRegNumber(user.reg_number || '');
                   setUnitCode('');
                   setCategory('');
                   setClaimedScore('');
                   setNotes('');
                   setAgree(false);
                   setFileName('');
+                  setFormStep(1);
                 }}
-                className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer transition-all"
+                className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer transition-all"
               >
                 Clear
               </button>
@@ -481,72 +602,130 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
           </form>
         </div>
       ) : (
-        <div className="clay-card p-6 bg-white border border-slate-200/60 reveal active space-y-4">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
+        <div className="reveal active space-y-4">
+          {/* Section Header (No Parent Card background) */}
+          <div className="flex justify-between items-center px-1">
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <ListTodo className="w-5 h-5 text-blue-750 dark:text-blue-400" />
+              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <ListTodo className="w-5 h-5 text-blue-700 dark:text-blue-400" />
                 Active Grievance Tickets
               </h2>
-              <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">Review the clearance timeline of your marks.</p>
+              <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">Review the clearance timeline of your marks.</p>
             </div>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">{tickets.length} Total</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 px-3 py-1 rounded-full shadow-sm whitespace-nowrap shrink-0">{tickets.length} Total</span>
           </div>
 
           {tickets.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-550 text-[10px] font-bold uppercase tracking-wider">
-                    <th className="py-3 px-4">Ticket ID</th>
-                    <th className="py-3 px-4">Unit Code</th>
-                    <th className="py-3 px-4">Assessment</th>
-                    <th className="py-3 px-4 text-center">Claimed</th>
-                    <th className="py-3 px-4 text-center">Verified</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Last Updated</th>
-                    <th className="py-3 px-4 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-                  {tickets.map(t => (
-                    <tr key={t.ticket_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">{t.ticket_id}</td>
-                      <td className="py-3.5 px-4">
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">{t.unit_code.split(' — ')[0]}</span>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">{t.unit_code.split(' — ')[1]}</span>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-650 dark:text-slate-400">{t.assessment_category}</td>
-                      <td className="py-3.5 px-4 text-center font-semibold text-slate-700 dark:text-slate-300">{t.claimed_score}</td>
-                      <td className="py-3.5 px-4 text-center font-bold text-blue-800 dark:text-blue-400">{t.verified_score !== null && t.verified_score !== undefined ? t.verified_score : '—'}</td>
-                      <td className="py-3.5 px-4">
-                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold border uppercase tracking-wide inline-block ${getStatusBadge(t.status)}`}>
-                          {t.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1.5 border-none">
-                        <Calendar size={12} />
-                        {new Date(t.updated_at).toLocaleDateString()}
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <button
-                          onClick={() => onTicketClick(t.ticket_id)}
-                          className="px-3 py-1.5 bg-white dark:bg-slate-900 hover:bg-blue-50 dark:hover:bg-blue-950/20 text-blue-700 dark:text-blue-400 border border-slate-200 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-800 rounded-lg font-semibold text-[10px] transition-all cursor-pointer flex items-center gap-1 mx-auto"
+            <div className="space-y-2.5">
+              {tickets.map(t => {
+                const isExpanded = expandedTicketId === t.ticket_id;
+                return (
+                  <div 
+                    key={t.ticket_id} 
+                    className={`rounded-2xl p-4 sm:p-5 bg-white dark:bg-slate-900 border transition-all duration-200 shadow-sm flex flex-col gap-3 cursor-pointer ${
+                      isExpanded 
+                        ? 'border-blue-500/50 dark:border-blue-800 ring-2 ring-blue-500/5' 
+                        : 'border-slate-200/60 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700'
+                    }`}
+                    onClick={() => setExpandedTicketId(isExpanded ? null : t.ticket_id)}
+                  >
+                    {/* Top Row: Ticket ID badge & Date */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono font-extrabold text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/80 px-2.5 py-0.5 rounded-lg shrink-0">
+                        {t.ticket_id}
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-550">
+                        {new Date(t.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    {/* Main Title: Course Unit Code & Title */}
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">
+                        {t.unit_code}
+                      </h3>
+                      {/* Subtitle: Student Name (Reg No) · Assessment Category */}
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                        {user.username} ({regNumber}) · {t.assessment_category}
+                      </p>
+                    </div>
+
+                    {/* Divider line */}
+                    <div className="border-t border-slate-100 dark:border-slate-800/80 my-0.5" />
+
+                    {/* Bottom Metrics Row */}
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-655 dark:text-slate-400">
+                        <span>Claimed: <strong className="text-amber-600 dark:text-amber-500 font-extrabold">{t.claimed_score}%</strong></span>
+                        <span className="text-slate-200 dark:text-slate-750">|</span>
+                        <span>Verified: <strong className={t.verified_score !== null && t.verified_score !== undefined ? 'text-emerald-600 dark:text-emerald-450 font-extrabold' : 'text-slate-400 dark:text-slate-500 font-extrabold'}>
+                          {t.verified_score !== null && t.verified_score !== undefined ? `${t.verified_score}%` : 'Pending'}
+                        </strong></span>
+                      </div>
+
+                      {/* Status Text on right */}
+                      <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
+                        t.status.toLowerCase().includes('clear') || t.status.toLowerCase().includes('sms')
+                          ? 'text-emerald-600 dark:text-emerald-450'
+                          : t.status.toLowerCase().includes('reject')
+                            ? 'text-red-650 dark:text-red-400'
+                            : 'text-blue-700 dark:text-blue-400'
+                      }`}>
+                        {t.status.toUpperCase()}
+                      </span>
+                    </div>
+
+                    {/* Expanded Section (Notes & Action Button) */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.18 }}
+                          onClick={(e) => e.stopPropagation()} // Prevent closing card when clicking inside expand area
+                          className="overflow-hidden mt-1 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-3"
                         >
-                          View Thread
-                          <ArrowRight size={10} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          {t.additional_notes ? (
+                            <div className="bg-slate-50/50 dark:bg-slate-955/30 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-850/80 text-xs">
+                              <span className="block text-[8px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider mb-1">Additional Notes / Context</span>
+                              <p className="text-slate-600 dark:text-slate-400 italic leading-relaxed">{t.additional_notes}</p>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-400 dark:text-slate-550 italic">No additional notes provided.</p>
+                          )}
+
+                          <div className="flex items-center justify-between gap-3 pt-1">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-550">
+                              Last action: {new Date(t.updated_at).toLocaleDateString()}
+                            </span>
+                            <button
+                              onClick={() => onTicketClick(t.ticket_id)}
+                              className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] rounded-lg shadow-sm hover:scale-[1.02] active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                            >
+                              View Thread
+                              <ArrowRight size={10} />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
           ) : (
-            <div className="text-center py-16 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-slate-100 dark:border-slate-800">
+            <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm">
               <BookOpen size={40} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
               <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm">No Active Tickets</h3>
               <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">Submit a new claim to start tracking missing marks.</p>
+              <button
+                onClick={() => setActiveTab('new-claim')}
+                className="mt-3 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 mx-auto transition-all cursor-pointer shadow-sm"
+              >
+                <PlusCircle size={14} />
+                File New Claim
+              </button>
             </div>
           )}
         </div>

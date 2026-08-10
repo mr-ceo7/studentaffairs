@@ -17,74 +17,49 @@ export default function Footer() {
   };
 
   return (
-    <footer className="w-full bg-slate-50/50 border-t border-slate-200/60 backdrop-blur-md px-6 pt-10 pb-28 md:pb-10 mt-8 rounded-t-3xl overflow-hidden relative shrink-0">
+    <footer className="w-full bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-200/60 dark:border-slate-800/60 backdrop-blur-md px-6 pt-6 pb-24 md:pb-6 mt-8 rounded-t-2xl overflow-hidden relative shrink-0">
       {/* Background Glow */}
       <div className="absolute top-0 left-1/3 w-60 h-60 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div className="space-y-4">
-            <Link to="/" onClick={scrollLink('/')} className="flex items-center gap-2 group">
-              <GraduationCap className="w-6 h-6 text-blue-700 group-hover:scale-110 transition-transform" />
-              <span className="text-lg font-display font-bold tracking-tight text-slate-800">
-                <span className="text-blue-700">UoN</span> Clearinghouse
+      <div className="max-w-6xl mx-auto space-y-5 relative z-10">
+        {/* Main Footer Row */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-slate-200/60 dark:border-slate-800/60">
+          {/* Left: Brand & Power Info */}
+          <div className="space-y-1.5 text-center md:text-left">
+            <Link to="/" onClick={scrollLink('/')} className="flex items-center justify-center md:justify-start gap-2 group">
+              <div className="w-6 h-6 rounded-md bg-white overflow-hidden border border-slate-200/50 dark:border-slate-800 shadow-sm shrink-0 group-hover:scale-105 transition-all">
+                <img src="/uon_crest.jpg" className="w-full h-full object-cover" alt="UoN Crest" />
+              </div>
+              <span className="font-display font-extrabold text-sm tracking-tight text-slate-850 dark:text-slate-100 group-hover:text-blue-900 dark:group-hover:text-blue-400 transition-colors">
+                <span className="text-blue-700 dark:text-blue-400 font-extrabold">Students</span> Affairs
               </span>
             </Link>
-            <p className="text-xs text-slate-500 leading-relaxed max-w-xs">
-              Automated Missing Marks & Academic Grievance Clearinghouse. Connecting students, lecturers, and Head of Departments to resolve results-based disputes.
+            <p className="text-[10px] text-slate-550 dark:text-slate-400 leading-none">
+              Automated Missing Marks & Academic Grievance Clearinghouse
+            </p>
+            <p className="text-[9px] font-bold text-slate-450 dark:text-slate-500 pt-0.5 leading-none">
+              Powered by <a href="https://galvaniytechnologies.xn--jhb4c.com/" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-extrabold">Galvaniy Technologies</a>
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Resources</h4>
-            <ul className="space-y-2.5 text-xs">
-              {[
-                { to: '/', label: 'Clearance Gateway' },
-                { to: '/faq', label: 'Portal FAQs & Help' },
-                { to: '/about', label: 'About the Initiative' },
-                { to: '/contact', label: 'Academic Support Desk' },
-              ].map(({ to, label }) => (
-                <li key={label}>
-                  <Link to={to} onClick={scrollLink(to)} className="text-slate-600 hover:text-blue-700 transition-colors flex items-center gap-1 group">
-                    <ArrowRight size={10} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* UoN Official */}
-          <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">University Links</h4>
-            <p className="text-xs text-slate-500 mb-3 leading-relaxed">
-              Access the main portal and student management systems.
-            </p>
-            <ul className="space-y-2 text-xs font-semibold">
-              <li>
-                <a href="https://www.uonbi.ac.ke" target="_blank" rel="noreferrer" className="text-blue-700 hover:underline">
-                  UoN Main Website
-                </a>
-              </li>
-              <li>
-                <a href="https://smis.uonbi.ac.ke" target="_blank" rel="noreferrer" className="text-blue-700 hover:underline">
-                  Student Management System (SMIS)
-                </a>
-              </li>
-            </ul>
+          {/* Right: Quick Links in Horizontal list */}
+          <div className="flex flex-wrap justify-center md:justify-end gap-x-5 gap-y-2 text-xs font-semibold">
+            <Link to="/" onClick={scrollLink('/')} className="text-slate-600 dark:text-slate-400 hover:text-blue-755 dark:hover:text-blue-400 transition-colors">Clearance Gateway</Link>
+            <Link to="/faq" onClick={scrollLink('/faq')} className="text-slate-600 dark:text-slate-400 hover:text-blue-755 dark:hover:text-blue-400 transition-colors">Portal FAQs</Link>
+            <Link to="/about" onClick={scrollLink('/about')} className="text-slate-600 dark:text-slate-400 hover:text-blue-755 dark:hover:text-blue-400 transition-colors">About Us</Link>
+            <Link to="/contact" onClick={scrollLink('/contact')} className="text-slate-600 dark:text-slate-400 hover:text-blue-755 dark:hover:text-blue-400 transition-colors">Support Desk</Link>
+            <a href="https://smis.uonbi.ac.ke" target="_blank" rel="noreferrer" className="text-slate-600 dark:text-slate-400 hover:text-blue-755 dark:hover:text-blue-400 transition-colors">UoN SMIS</a>
           </div>
         </div>
 
-        <div className="border-t border-slate-200/60 pt-6 flex flex-col items-center justify-between gap-4 md:flex-row">
-          <p className="text-[10px] text-slate-400 text-center md:text-left leading-normal">
-            © {new Date().getFullYear()} University of Nairobi. Office of Academic Affairs. <br className="md:hidden" />
-            All rights reserved.
+        {/* Bottom copyright & legal */}
+        <div className="flex flex-col items-center justify-between gap-3 md:flex-row text-[10px] text-slate-450 dark:text-slate-500">
+          <p className="text-center md:text-left leading-normal">
+            © {new Date().getFullYear()} University of Nairobi. Office of Academic Affairs. All rights reserved.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-            <Link to="/privacy" onClick={scrollLink('/privacy')} className="text-[11px] font-medium text-slate-500 hover:text-blue-700 transition-colors">Privacy Policy</Link>
-            <Link to="/terms" onClick={scrollLink('/terms')} className="text-[11px] font-medium text-slate-500 hover:text-blue-700 transition-colors">Terms of Service</Link>
+          <div className="flex justify-center gap-4 font-semibold">
+            <Link to="/privacy" onClick={scrollLink('/privacy')} className="text-slate-500 dark:text-slate-400 hover:text-blue-755 dark:hover:text-blue-400 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" onClick={scrollLink('/terms')} className="text-slate-500 dark:text-slate-400 hover:text-blue-755 dark:hover:text-blue-400 transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
