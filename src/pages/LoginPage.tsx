@@ -468,60 +468,14 @@ export default function LoginPage() {
         </div>
 
         {/* Center: High fidelity visual mockup and feature list */}
-        <div className="relative z-10 my-auto max-w-lg space-y-12">
+        <div className="relative z-10 mt-12 mb-auto max-w-lg space-y-12">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-extrabold uppercase tracking-wider">
-              <Sparkles size={12} /> University of Nairobi SSO
-            </div>
             <h2 className="text-3xl font-extrabold tracking-tight text-white leading-tight font-display">
               Academic Missing Marks &amp; Grievance Clearinghouse
             </h2>
             <p className="text-slate-400 text-sm leading-relaxed">
               A modern, unified portal designed to streamline academic claims, grades verification, and student clearance processes at the University of Nairobi.
             </p>
-          </div>
-
-          {/* Interactive Mockup Card representing a clearance status */}
-          <div className="clay-card !bg-slate-950/40 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-4 relative overflow-hidden backdrop-blur-md">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[40px] pointer-events-none" />
-            
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs uppercase">
-                  EW
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-200">Emily Wanjiru Kamau</h4>
-                  <span className="text-[10px] text-slate-500">Student · F17/141029/2022</span>
-                </div>
-              </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-extrabold uppercase">
-                Active
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-[10px] text-slate-400 font-medium">
-                <span>Verification Claim: CSC 312 Database Systems</span>
-                <span className="text-blue-400 font-semibold">90% Progress</span>
-              </div>
-              
-              {/* Fake Progress Steps */}
-              <div className="space-y-2 pt-1">
-                <div className="flex items-center gap-2 text-[10px] text-emerald-400 font-bold">
-                  <CheckCircle2 size={12} className="shrink-0" />
-                  <span>Claim Submitted by Student</span>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-emerald-400 font-bold">
-                  <CheckCircle2 size={12} className="shrink-0" />
-                  <span>Marks verified by Department Lecturer</span>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-blue-400 font-bold">
-                  <Loader2 size={12} className="animate-spin shrink-0" />
-                  <span>Awaiting HOD / Registrar Clearance Signature</span>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Quick key highlights */}
