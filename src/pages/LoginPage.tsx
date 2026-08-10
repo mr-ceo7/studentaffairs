@@ -555,15 +555,6 @@ export default function LoginPage() {
                 <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">University of Nairobi</span>
               </div>
             </div>
-            
-            <div className="pt-2">
-              <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                Single Sign-On (SSO)
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                Access your grades and clearance status instantly.
-              </p>
-            </div>
           </div>
 
           {error && (
@@ -574,33 +565,41 @@ export default function LoginPage() {
           )}
 
           {/* Primary Action: Google SSO Button container */}
-          <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-900/60 flex flex-col items-center justify-center space-y-4">
-            <div className="text-center space-y-1">
-              <span className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">Continue with your University Google Account</span>
-              <span className="block text-[9px] text-slate-400 dark:text-slate-550 leading-normal">Allows quick one-tap login for verified domains.</span>
-            </div>
+          <div className="relative pt-28 lg:pt-48">
+            {/* Kaleb Cutout (Peaking from behind the card, pointing down) */}
+            <img 
+              src="/kaleb_pointing_down.png" 
+              className="absolute left-1/2 -translate-x-1/2 -top-[30px] lg:-top-[15px] w-[150px] lg:w-[220px] h-[200px] lg:h-[293px] object-contain pointer-events-none z-0 select-none drop-shadow-[0_-5px_8px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_-5px_8px_rgba(0,0,0,0.4)]" 
+              alt="Kaleb Wambua"
+            />
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-900/60 flex flex-col items-center justify-center space-y-4 relative z-10">
+              <div className="text-center space-y-1">
+                <span className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">Continue with your University Google Account</span>
+                <span className="block text-[9px] text-slate-400 dark:text-slate-550 leading-normal">Allows quick one-tap login for verified domains.</span>
+              </div>
 
-            <div className="w-full flex justify-center pt-2">
-              {loading ? (
-                <div className="flex items-center justify-center py-2 text-xs font-bold text-blue-700 dark:text-blue-400 gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Verifying Credentials...
-                </div>
-              ) : (
-                <GoogleLogin 
-                  onSuccess={(credentialResponse) => {
-                    if (credentialResponse.credential) {
-                      handleGoogleLoginSuccess(credentialResponse.credential);
-                    }
-                  }}
-                  onError={() => {
-                    setError('Google SSO Sign-In Failed. Please try again.');
-                  }}
-                  shape="rectangular"
-                  theme={theme === 'dark' ? 'filled_black' : 'outline'}
-                  size="large"
-                  text="continue_with"
-                />
-              )}
+              <div className="w-full flex justify-center pt-2">
+                {loading ? (
+                  <div className="flex items-center justify-center py-2 text-xs font-bold text-blue-700 dark:text-blue-400 gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Verifying Credentials...
+                  </div>
+                ) : (
+                  <GoogleLogin 
+                    onSuccess={(credentialResponse) => {
+                      if (credentialResponse.credential) {
+                        handleGoogleLoginSuccess(credentialResponse.credential);
+                      }
+                    }}
+                    onError={() => {
+                      setError('Google SSO Sign-In Failed. Please try again.');
+                    }}
+                    shape="rectangular"
+                    theme={theme === 'dark' ? 'filled_black' : 'outline'}
+                    size="large"
+                    text="continue_with"
+                  />
+                )}
+              </div>
             </div>
           </div>
 
