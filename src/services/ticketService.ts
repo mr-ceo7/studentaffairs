@@ -77,4 +77,17 @@ export const ticketService = {
     const response = await apiClient.post<CommentData>(`/tickets/${ticketId}/comments`, payload);
     return response.data;
   },
+
+  async uploadFiles(files: FileList | File[]): Promise<{ url: string; name: string }[]> {
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    const response = await apiClient.post<{ urls: string[]; files: { url: string; name: string }[] }>('/tickets/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.files;
+  },
 };

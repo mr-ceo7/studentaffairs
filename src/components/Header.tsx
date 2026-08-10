@@ -159,6 +159,7 @@ export default function Header({ onShowAuth }: HeaderProps) {
     } else {
       toast.info(`Checking updates for Ticket ${notif.meta}`);
       window.location.hash = `#tickets`;
+      window.dispatchEvent(new CustomEvent('navigate:tickets'));
     }
   };
 

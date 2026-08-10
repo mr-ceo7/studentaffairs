@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Calculator, Plus, Trash2, Sparkles, Award, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calculator, Plus, Trash2, Sparkles, Award } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CourseEntry {
   id: string;
@@ -9,6 +10,21 @@ interface CourseEntry {
   score: number;
   isMissing: boolean;
 }
+
+const HERO_SLIDES = [
+  {
+    image: '/gpa_planning_slide.jpg',
+    category: 'Academic Planning',
+    title: 'GPA & Missing Marks Calculator',
+    subtitle: 'Calculate your cumulative weighted average and simulate the degree boost once your missing marks are cleared.',
+  },
+  {
+    image: '/onuss_advocacy_slide.jpg',
+    category: 'Student Advocacy',
+    title: 'Clearing missing marks with ONUSS',
+    subtitle: 'ONUSS Student Leaders and HODs working in partnerships to fast-track script retrievals and grade changes.',
+  }
+];
 
 const DEFAULT_COURSES: CourseEntry[] = [
   { id: '1', code: 'ICS 2101', name: 'Data Structures & Algorithms', units: 3, score: 68, isMissing: false },
@@ -68,19 +84,57 @@ export default function GpaCalculatorPage() {
   const currentClass = getClassification(currentAverage);
   const simClass = getClassification(simAverage);
 
+  const [heroSlide, setHeroSlide] = useState(0);
+
+  // Hero carousel auto-play
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 6500);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl text-slate-700 dark:text-slate-350 space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl shadow-sm">
-        <div className="space-y-1">
-          <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest block">Academic Planning</span>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">
-            GPA &amp; Missing Marks Recovery Calculator
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs leading-none">
-            Calculate your cumulative weighted average and simulate the degree boost once your missing marks are cleared.
-          </p>
+      {/* Hero Carousel */}
+      <div className="relative h-64 sm:h-72 w-full overflow-hidden rounded-3xl border border-slate-200/60 dark:border-slate-800/60 bg-slate-950 shadow-sm shrink-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={heroSlide}
+            initial={{ opacity: 0, x: 25 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -25 }}
+            transition={{ duration: 0.4, ease: 'easeInOut' }}
+            className="absolute inset-0 w-full h-full flex flex-col justify-end p-6 md:p-8 bg-cover bg-center select-none"
+            style={{ backgroundImage: `linear-gradient(to top, rgba(2, 6, 23, 0.95) 20%, rgba(2, 6, 23, 0.6) 60%, rgba(2, 6, 23, 0.1) 100%), url(${HERO_SLIDES[heroSlide].image})` }}
+          >
+            <div className="max-w-2xl space-y-2 text-left">
+              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">
+                {HERO_SLIDES[heroSlide].category}
+              </span>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white leading-tight font-display">
+                {HERO_SLIDES[heroSlide].title}
+              </h1>
+              <p className="text-slate-300 text-xs md:text-sm font-medium leading-relaxed max-w-xl">
+                {HERO_SLIDES[heroSlide].subtitle}
+              </p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-6 right-6 flex gap-1.5 z-10">
+          {HERO_SLIDES.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setHeroSlide(idx)}
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                heroSlide === idx ? 'w-6 bg-blue-500' : 'w-1.5 bg-white/40 hover:bg-white/70'
+              }`}
+              title={`Slide ${idx + 1}`}
+            />
+          ))}
         </div>
       </div>
 
@@ -125,9 +179,9 @@ export default function GpaCalculatorPage() {
         </div>
       </div>
 
-      {/* Courses Table */}
-      <div className="clay-card p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+      {/* Courses List Layout (No Parent Card background) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
             <Calculator className="w-4 h-4 text-blue-700 dark:text-blue-400" />
             Enrolled Academic Units
@@ -144,74 +198,82 @@ export default function GpaCalculatorPage() {
           {courses.map((course) => (
             <div
               key={course.id}
-              className={`p-4 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors ${
+              className={`p-3 sm:p-4 rounded-2xl border flex flex-col gap-3 transition-all duration-200 shadow-sm ${
                 course.isMissing
                   ? 'bg-amber-50/50 dark:bg-amber-950/10 border-amber-250/30 dark:border-amber-900/30'
-                  : 'bg-slate-50/50 dark:bg-slate-900/20 border-slate-200/40 dark:border-slate-800/40'
+                  : 'bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800/60 hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+              {/* Row 1: Code & Name (Side-by-side on all screens) */}
+              <div className="flex items-center gap-2 flex-1 min-w-0">
                 <input
                   type="text"
                   value={course.code}
                   onChange={(e) => updateCourse(course.id, 'code', e.target.value)}
-                  className="w-24 px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-slate-200 font-mono uppercase font-bold text-xs focus:outline-none focus:border-blue-400/50 text-center"
+                  className="w-20 px-2 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-200 font-mono uppercase font-bold text-xs focus:outline-none focus:border-blue-400/50 text-center h-8 rounded-xl shrink-0"
                 />
                 <input
                   type="text"
                   value={course.name}
                   onChange={(e) => updateCourse(course.id, 'name', e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-400/50"
+                  className="flex-1 px-3 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-400/50 h-8 rounded-xl min-w-0"
                 />
               </div>
 
-              <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="text-[10px] uppercase font-bold">Units:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="6"
-                    value={course.units}
-                    onChange={(e) => updateCourse(course.id, 'units', Number(e.target.value))}
-                    className="w-12 px-2 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-slate-200 font-bold text-center text-xs focus:outline-none focus:border-blue-400/50"
-                  />
+              {/* Row 2: Settings & Actions (Compact row) */}
+              <div className="flex items-center gap-4 flex-wrap justify-between text-xs pt-1.5 border-t border-slate-100/50 dark:border-slate-800/30">
+                {/* Left: Input settings */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                    <span className="text-[9px] uppercase font-extrabold tracking-wider">Units</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="6"
+                      value={course.units}
+                      onChange={(e) => updateCourse(course.id, 'units', Number(e.target.value))}
+                      className="w-10 px-1 py-0.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-bold text-center text-xs focus:outline-none focus:border-blue-400/50 h-7"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                    <span className="text-[9px] uppercase font-extrabold tracking-wider">Score (%)</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      disabled={course.isMissing}
+                      value={course.isMissing ? simulatedScore : course.score}
+                      onChange={(e) => updateCourse(course.id, 'score', Number(e.target.value))}
+                      className={`w-12 px-1 py-0.5 rounded-lg bg-white dark:bg-slate-950 border font-bold text-center text-xs focus:outline-none focus:border-blue-400/50 h-7 ${
+                        course.isMissing 
+                          ? 'text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-900/50' 
+                          : 'text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800'
+                      }`}
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="text-[10px] uppercase font-bold">Score (%):</span>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    disabled={course.isMissing}
-                    value={course.isMissing ? simulatedScore : course.score}
-                    onChange={(e) => updateCourse(course.id, 'score', Number(e.target.value))}
-                    className={`w-16 px-2 py-1.5 rounded-lg bg-white dark:bg-slate-950 border font-bold text-center text-xs focus:outline-none focus:border-blue-400/50 ${
-                      course.isMissing 
-                        ? 'text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-900/50' 
-                        : 'text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-850'
-                    }`}
-                  />
+                {/* Right: Toggle & Remove */}
+                <div className="flex items-center gap-3 ml-auto sm:ml-0">
+                  <label className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold cursor-pointer select-none text-[10px] uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      checked={course.isMissing}
+                      onChange={(e) => updateCourse(course.id, 'isMissing', e.target.checked)}
+                      className="rounded border-amber-300 text-blue-700 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                    />
+                    Missing
+                  </label>
+
+                  <button
+                    onClick={() => removeCourse(course.id)}
+                    className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer shrink-0"
+                    title="Remove Course"
+                  >
+                    <Trash2 size={13} />
+                  </button>
                 </div>
-
-                <label className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-bold cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={course.isMissing}
-                    onChange={(e) => updateCourse(course.id, 'isMissing', e.target.checked)}
-                    className="rounded border-amber-300 text-blue-700 focus:ring-blue-500 cursor-pointer w-4 h-4"
-                  />
-                  Missing Mark
-                </label>
-
-                <button
-                  onClick={() => removeCourse(course.id)}
-                  className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 p-2 hover:bg-slate-100 dark:hover:bg-slate-905 rounded-xl transition-all cursor-pointer"
-                  title="Remove Course"
-                >
-                  <Trash2 size={14} />
-                </button>
               </div>
             </div>
           ))}

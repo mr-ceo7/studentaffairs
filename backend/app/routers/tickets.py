@@ -1,9 +1,12 @@
 import random
+import os
+import uuid
+import shutil
 from typing import List, Optional
 from datetime import datetime, timezone
 UTC = timezone.utc
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
@@ -20,6 +23,83 @@ from app.schemas.ticket import (
 )
 
 router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
+
+
+ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx", ".heic"}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB per file
+MAX_TOTAL_FILES = 5
+
+@router.post("/upload")
+async def upload_proof_attachments(
+    files: List[UploadFile] = File(...),
+    user: User = Depends(get_current_user)
+):
+    """
+    Robust, public multi-file upload endpoint for students and staff.
+    Limits size, extension, counts, and streams in chunks to prevent server crashes/OOM.
+    """
+    if len(files) > MAX_TOTAL_FILES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"You can only upload a maximum of {MAX_TOTAL_FILES} files at once."
+        )
+
+    uploaded_urls = []
+    uploaded_files = []
+    os.makedirs("media/uploads", exist_ok=True)
+
+    for file in files:
+        # Validate extension
+        filename = file.filename or "file"
+        file_extension = os.path.splitext(filename)[1].lower()
+        if file_extension not in ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File extension {file_extension} is not allowed. Allowed types: PDF, PNG, JPG, JPEG, DOC, DOCX, HEIC."
+            )
+
+        # Generate a safe, unique name
+        safe_name = f"{uuid.uuid4().hex}{file_extension}"
+        file_path = os.path.join("media/uploads", safe_name)
+
+        # Stream file in chunks to prevent memory crash (robust)
+        bytes_written = 0
+        try:
+            with open(file_path, "wb") as buffer:
+                chunk_size = 512 * 1024  # 512 KB chunks
+                while True:
+                    chunk = await file.read(chunk_size)
+                    if not chunk:
+                        break
+                    
+                    bytes_written += len(chunk)
+                    if bytes_written > MAX_FILE_SIZE:
+                        # Clean up file on overflow
+                        buffer.close()
+                        os.remove(file_path)
+                        raise HTTPException(
+                            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                            detail=f"File {filename} exceeds the maximum size limit of 10MB."
+                        )
+                    buffer.write(chunk)
+        except Exception as e:
+            if not isinstance(e, HTTPException):
+                # Clean up file if anything failed
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to process upload: {str(e)}"
+                )
+            raise e
+
+        uploaded_urls.append(f"/api/media/uploads/{safe_name}")
+        uploaded_files.append({
+            "url": f"/api/media/uploads/{safe_name}",
+            "name": filename
+        })
+
+    return {"urls": uploaded_urls, "files": uploaded_files}
 
 
 @router.post("", response_model=TicketResponse, status_code=201)

@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   GraduationCap,
-  ChevronDown
+  ChevronDown,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ticketService, type TicketData, type TicketCreatePayload } from '../services/ticketService';
@@ -76,6 +77,25 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
     return () => clearInterval(timer);
   }, []);
 
+  // Listen to hash changes and navigation events to switch tabs automatically (e.g. from header notifications click)
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#tickets') {
+        setActiveTab('my-tickets');
+      }
+    };
+    const handleNavigateTickets = () => {
+      setActiveTab('my-tickets');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('navigate:tickets', handleNavigateTickets);
+    handleHashChange();
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('navigate:tickets', handleNavigateTickets);
+    };
+  }, []);
+
   // Form states — auto-fill from user profile
   const [regNumber, setRegNumber] = useState(user.reg_number || '');
   const [unitCode, setUnitCode] = useState('');
@@ -112,7 +132,9 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   const [claimedScore, setClaimedScore] = useState('');
   const [notes, setNotes] = useState('');
   const [agree, setAgree] = useState(false);
-  const [fileName, setFileName] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<{ url: string; name: string }[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // RegEx validation helper
   const [regError, setRegError] = useState(false);
@@ -130,10 +152,14 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         toast.error('Please enter a valid Registration Number in the format ABC/12345/2022');
         return;
       }
-      if (!unitCode) {
-        toast.error('Please select a course unit.');
+      
+      const selectedUnit = unitSearch.trim();
+      if (!selectedUnit) {
+        toast.error('Please select or type a course unit.');
         return;
       }
+      
+      setUnitCode(selectedUnit);
       setFormStep(2);
     } else if (formStep === 2) {
       if (!category) {
@@ -185,17 +211,50 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const incomingFiles = Array.from(files) as File[];
+    const duplicates = incomingFiles.filter(f => 
+      uploadedFiles.some(uploaded => uploaded.name === f.name)
+    );
+
+    let filesToUpload = incomingFiles;
+    if (duplicates.length > 0) {
+      toast.warning(`Skipped duplicate file(s): ${duplicates.map(d => d.name).join(', ')}`);
+      filesToUpload = incomingFiles.filter(f => 
+        !uploadedFiles.some(uploaded => uploaded.name === f.name)
+      );
+      if (filesToUpload.length === 0) {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+    }
+
+    if (uploadedFiles.length + filesToUpload.length > 5) {
+      toast.error('You can only upload up to 5 total files.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const filesData = await ticketService.uploadFiles(filesToUpload);
+      setUploadedFiles((prev) => [...prev, ...filesData]);
+      toast.success(`Successfully uploaded ${filesToUpload.length} document(s).`);
+    } catch (err: any) {
+      console.error(err);
+      const errMsg = err?.response?.data?.detail || 'Failed to upload files. Please try again.';
+      toast.error(errMsg);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleFileUpload = () => {
-    // Mimic file upload for high-fidelity interactive flow
-    const fileOptions = [
-      'exam_slip_stamped.pdf', 
-      'cat_sheet_docket_scan.jpeg', 
-      'lab_attendance_pg1.pdf', 
-      'attachment_evaluation_form.pdf'
-    ];
-    const randomFile = fileOptions[Math.floor(Math.random() * fileOptions.length)];
-    setFileName(randomFile);
-    toast.success(`Attached proof document: ${randomFile}`);
+    fileInputRef.current?.click();
   };
 
   const handleSubmitClaim = async (e: React.FormEvent) => {
@@ -205,8 +264,9 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       toast.error('Please enter a valid Registration Number in the format ABC/12345/2022');
       return;
     }
-    if (!unitCode) {
-      toast.error('Please select a course unit.');
+    const finalUnitCode = unitCode.trim() || unitSearch.trim();
+    if (!finalUnitCode) {
+      toast.error('Please select or type a course unit.');
       return;
     }
     if (!category) {
@@ -215,10 +275,6 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
     }
     if (!claimedScore || isNaN(Number(claimedScore))) {
       toast.error('Please enter a valid claimed score.');
-      return;
-    }
-    if (!fileName) {
-      toast.error('Please attach a proof document (exam slip, docket, or sheet).');
       return;
     }
     if (!agree) {
@@ -232,10 +288,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         reg_number: regNumber,
         faculty: user.faculty || 'Faculty of Science & Technology',
         department: user.department || 'Computing & Informatics',
-        unit_code: unitCode,
+        unit_code: finalUnitCode,
         assessment_category: category,
         claimed_score: Number(claimedScore),
-        proof_attachment: fileName,
+        proof_attachment: uploadedFiles.map(f => f.url).join(',') || undefined,
         additional_notes: notes
       };
       
@@ -249,7 +305,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       setClaimedScore('');
       setNotes('');
       setAgree(false);
-      setFileName('');
+      setUploadedFiles([]);
       setFormStep(1);
       
       // Load and redirect
@@ -579,27 +635,64 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                       Proof Attachment
                     </label>
-                    <div 
-                      onClick={handleFileUpload}
-                      className={`border border-dashed rounded-xl p-3 cursor-pointer transition-all flex items-center gap-3 ${
-                        fileName 
-                          ? 'border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-950/20' 
-                          : 'border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900/40'
-                      }`}
-                    >
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                        fileName 
-                          ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' 
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
-                      }`}>
-                        <Upload size={16} />
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        multiple
+                        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.heic"
+                        className="hidden"
+                      />
+
+                      <div 
+                        onClick={handleFileUpload}
+                        className={`border border-dashed rounded-xl p-3 cursor-pointer transition-all flex items-center gap-3 ${
+                          uploadedFiles.length > 0
+                            ? 'border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-950/20' 
+                            : 'border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900/40'
+                        }`}
+                      >
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                          uploadedFiles.length > 0
+                            ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' 
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                        }`}>
+                          <Upload size={16} className={isUploading ? 'animate-bounce' : ''} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className={`text-xs font-semibold block truncate ${uploadedFiles.length > 0 ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                            {isUploading 
+                              ? 'Uploading documents...' 
+                              : uploadedFiles.length > 0 
+                                ? `✓ ${uploadedFiles.length} file(s) attached` 
+                                : 'Tap to attach supporting documents (Optional)'}
+                          </span>
+                          <span className="text-[9px] text-slate-400 dark:text-slate-550">PDF, Word (DOC, DOCX), or images (PNG, JPG, HEIC) up to 10MB</span>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <span className={`text-xs font-semibold block truncate ${fileName ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
-                          {fileName ? `✓ ${fileName}` : 'Tap to attach exam card, docket, or script'}
-                        </span>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500">PDF or JPG, max 5MB</span>
-                      </div>
+
+                      {uploadedFiles.length > 0 && (
+                        <div className="space-y-1.5 mt-2">
+                          {uploadedFiles.map((f, idx) => {
+                            return (
+                              <div key={idx} className="flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/60 px-3 py-1.5 rounded-xl text-[10px] font-semibold">
+                                <span className="truncate text-slate-750 dark:text-slate-350 max-w-[85%]">{f.name}</span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setUploadedFiles(prev => prev.filter((_, i) => i !== idx));
+                                  }}
+                                  className="p-1 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer"
+                                >
+                                  <X size={11} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -642,7 +735,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 <button
                   type="button"
                   onClick={handleNextStep}
-                  className="flex-1 sm:flex-none sm:ml-auto px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all"
+                  className="flex-1 sm:flex-none ml-auto px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all"
                 >
                   Next <ChevronRight size={14} />
                 </button>
@@ -650,10 +743,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 sm:flex-none sm:ml-auto px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all"
+                  className="flex-1 sm:flex-none ml-auto px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all whitespace-nowrap"
                 >
                   <ArrowRight size={14} />
-                  {loading ? 'Submitting...' : 'Submit Grievance Claim'}
+                  {loading ? 'Submitting...' : 'Submit'}
                 </button>
               )}
               
@@ -666,7 +759,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   setClaimedScore('');
                   setNotes('');
                   setAgree(false);
-                  setFileName('');
+                  setUploadedFiles([]);
                   setFormStep(1);
                 }}
                 className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer transition-all"
