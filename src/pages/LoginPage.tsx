@@ -191,6 +191,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 font-body transition-colors duration-300 relative overflow-hidden w-full">
+      {googleClientId && <GoogleOneTapWrapper onSuccess={handleGoogleLoginSuccess} />}
       {/* Background patterns */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000003_1px,transparent_1px),linear-gradient(to_bottom,#00000003_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff02_1px,transparent_1px),linear-gradient(to_bottom,#ffffff02_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
       
