@@ -432,13 +432,24 @@ export default function LoginPage() {
       </AnimatePresence>
 
       {/* Left side: Premium split visual showcase */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white flex-col justify-between p-12 relative overflow-hidden border-r border-slate-800">
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-950 text-white flex-col justify-between p-12 relative overflow-hidden border-r border-slate-800">
+        {/* Background Image of UoN Campus */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/uon_campus.jpg" 
+            className="w-full h-full object-cover opacity-65 dark:opacity-55 brightness-95 grayscale-[10%] contrast-[1.05]" 
+            alt="UoN Campus"
+          />
+          {/* Vignette & dark color tint overlay to ensure text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-955/75 via-slate-900/50 to-slate-955/80" />
+        </div>
+
         {/* Subtle glowing gradients on left side */}
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
+        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
         
         {/* Grid overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none z-0" />
 
         {/* Top bar */}
         <div className="relative z-10 flex items-center justify-between">
