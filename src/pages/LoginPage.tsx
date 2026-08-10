@@ -572,6 +572,11 @@ export default function LoginPage() {
               className="absolute left-1/2 -translate-x-1/2 -top-[30px] lg:-top-[15px] w-[150px] lg:w-[220px] h-[200px] lg:h-[293px] object-contain pointer-events-none z-0 select-none drop-shadow-[0_-5px_8px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_-5px_8px_rgba(0,0,0,0.4)]" 
               alt="Kaleb Wambua"
             />
+            {/* Handwritten Sign In Text */}
+            <div className="absolute left-[calc(50%+40px)] lg:left-[calc(50%+60px)] top-[-10px] lg:top-[15px] z-20 text-blue-500 dark:text-blue-400 rotate-6 select-none font-bold" style={{ fontFamily: '"Caveat", cursive' }}>
+              <span className="block text-2xl lg:text-3xl tracking-wide whitespace-nowrap drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">Sign In here!</span>
+              <span className="block text-sm lg:text-base text-slate-400 dark:text-slate-500 -mt-1 lg:-mt-2 whitespace-nowrap">Access your grades instantly</span>
+            </div>
             <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-900/60 flex flex-col items-center justify-center space-y-4 relative z-10">
               <div className="text-center space-y-1">
                 <span className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">Continue with your University Google Account</span>
