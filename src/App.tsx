@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserProvider } from './context/UserContext';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
@@ -24,29 +24,41 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import Footer from './components/Footer';
 import PencilLoader from './components/PencilLoader';
+import LoginPage from './pages/LoginPage';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster, toast } from 'sonner';
 
 import { usePageTracking } from './hooks/usePageTracking';
-import { useSearchParams } from 'react-router-dom';
 import { useUser } from './context/UserContext';
 
 function AppContent() {
   usePageTracking();
-  const { refreshUser } = useUser();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { user, loading, refreshUser } = useUser();
+  const [searchParams] = useSearchParams();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [prefillEmail, setPrefillEmail] = useState<string | undefined>(undefined);
   const [prefillRole, setPrefillRole] = useState<'student' | 'lecturer' | 'admin' | undefined>(undefined);
   
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Redirect to /login if the user is not logged in and attempts to access protected routes
+  useEffect(() => {
+    if (!loading && !user) {
+      const publicRoutes = ['/login', '/privacy', '/terms'];
+      if (!publicRoutes.includes(location.pathname)) {
+        navigate('/login', { replace: true });
+      }
+    }
+  }, [user, loading, location.pathname, navigate]);
 
   const handleShowAuth = (email?: string, role?: 'student' | 'lecturer' | 'admin') => {
-    setPrefillEmail(email);
-    setPrefillRole(role);
-    setShowAuth(true);
+    const params = new URLSearchParams();
+    if (email) params.set('email', email);
+    if (role) params.set('role', role);
+    navigate(`/login?${params.toString()}`);
   };
 
   const handleCloseAuth = () => {
@@ -55,7 +67,17 @@ function AppContent() {
     setPrefillRole(undefined);
   };
 
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isLoginRoute = location.pathname === '/login';
+
+  if (isLoginRoute) {
+    return (
+      <div className="w-full min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-transparent text-on-surface min-h-screen font-body selection:bg-blue-500/30 selection:text-slate-900 flex justify-center relative overflow-hidden">
@@ -99,7 +121,7 @@ function AppContent() {
       {/* Floating Support Button */}
       <FloatingSupportButton />
 
-      {/* SSO Auth Modal */}
+      {/* SSO Auth Modal (kept as fallback for any legacy actions, but normally unused) */}
       <AuthModal 
         isOpen={showAuth} 
         onClose={handleCloseAuth} 

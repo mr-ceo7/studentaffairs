@@ -90,4 +90,44 @@ export const authService = {
     }
     window.dispatchEvent(new Event('auth:unauthorized'));
   },
+
+  async updateProfile(profileData: Partial<UserData>): Promise<UserData> {
+    const payload = {
+      name: profileData.username,
+      reg_number: profileData.reg_number,
+      campus: profileData.campus,
+      faculty: profileData.faculty,
+      department: profileData.department,
+      course: profileData.course,
+      year_of_study: profileData.year_of_study,
+      semester: profileData.semester,
+    };
+    const response = await apiClient.put<Record<string, unknown>>('/auth/me/profile', payload);
+    const data = response.data;
+    return {
+      id: String(data.id),
+      username: data.name as string,
+      email: data.email as string,
+      createdAt: data.created_at as string,
+      is_admin: data.is_admin as boolean,
+      subscription: {
+        tier: (data.subscription_tier as string) || 'free',
+        expiresAt: (data.subscription_expires_at as string) || '',
+      },
+      subscription_entitlements: (data.subscription_entitlements as Array<Record<string, unknown>>) || [],
+      favorite_teams: (data.favorite_teams as string[]) || [],
+      profile_picture: data.profile_picture as string | undefined,
+      referral_code: data.referral_code as string | undefined,
+      referrals_count: (data.referrals_count as number) || 0,
+      referral_points: (data.referral_points as number) || 0,
+      unlocked_tip_ids: (data.unlocked_tip_ids as number[]) || [],
+      reg_number: data.reg_number as string | undefined,
+      campus: data.campus as string | undefined,
+      faculty: data.faculty as string | undefined,
+      department: data.department as string | undefined,
+      course: data.course as string | undefined,
+      year_of_study: data.year_of_study as string | undefined,
+      semester: data.semester as string | undefined,
+    };
+  },
 };

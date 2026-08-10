@@ -17,7 +17,7 @@ from app.database import AsyncSessionLocal
 from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.models.user import User, UserSession
 from app.config import settings
-from app.schemas.auth import GoogleLoginRequest, PhoneLoginRequest, PhoneVerifyRequest, UpdateFavoritesRequest, UserResponse, ActivityRequest, MockSSOLoginRequest
+from app.schemas.auth import GoogleLoginRequest, PhoneLoginRequest, PhoneVerifyRequest, UpdateFavoritesRequest, UserResponse, ActivityRequest, MockSSOLoginRequest, UpdateProfileRequest
 from app.models.activity import UserActivity, AnonymousVisitor, AnonymousActivity
 from app.security import hash_password, create_access_token, create_refresh_token, decode_token
 from app.services.email_service import send_welcome_email
@@ -478,6 +478,22 @@ async def me(user: User = Depends(get_current_user)):
 @router.put("/me/favorites", response_model=UserResponse)
 async def update_favorites(body: UpdateFavoritesRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     user.favorite_teams = body.favorite_teams
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.put("/me/profile", response_model=UserResponse)
+async def update_profile(body: UpdateProfileRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if body.name is not None: user.name = body.name
+    if body.reg_number is not None: user.reg_number = body.reg_number
+    if body.campus is not None: user.campus = body.campus
+    if body.faculty is not None: user.faculty = body.faculty
+    if body.department is not None: user.department = body.department
+    if body.course is not None: user.course = body.course
+    if body.year_of_study is not None: user.year_of_study = body.year_of_study
+    if body.semester is not None: user.semester = body.semester
     db.add(user)
     await db.commit()
     await db.refresh(user)

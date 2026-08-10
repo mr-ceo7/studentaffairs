@@ -11,7 +11,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check local storage first
+    // Check local storage first (manual override)
     const saved = localStorage.getItem('uon_portal_theme');
     if (saved === 'light' || saved === 'dark') {
       return saved;
@@ -23,11 +23,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return 'light';
   });
 
+  // Toggle dark class on root document
   useEffect(() => {
-    // Sync localStorage
-    localStorage.setItem('uon_portal_theme', theme);
-
-    // Toggle the .dark class on the root html element
     const root = window.document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
@@ -36,8 +33,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [theme]);
 
+  // Dynamically listen to system preference changes if no manual override is active
+  useEffect(() => {
+    if (localStorage.getItem('uon_portal_theme') !== null) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Re-check just in case manual selection happened in the meantime
+      if (localStorage.getItem('uon_portal_theme') === null) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    setTheme(prev => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('uon_portal_theme', next);
+      return next;
+    });
   };
 
   return (

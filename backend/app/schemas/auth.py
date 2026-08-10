@@ -42,6 +42,16 @@ class RefreshRequest(BaseModel):
 class UpdateFavoritesRequest(BaseModel):
     favorite_teams: list[str] = Field(default_factory=list)
 
+class UpdateProfileRequest(BaseModel):
+    name: Optional[str] = None
+    reg_number: Optional[str] = None
+    campus: Optional[str] = None
+    faculty: Optional[str] = None
+    department: Optional[str] = None
+    course: Optional[str] = None
+    year_of_study: Optional[str] = None
+    semester: Optional[str] = None
+
 
 # ── Responses ────────────────────────────────────────────────
 
