@@ -143,7 +143,7 @@ export default function App() {
   }, []);
 
   return (
-    <GoogleOAuthProvider clientId={(import.meta as any).env.VITE_GOOGLE_CLIENT_ID || "109477160307-hdt1pm60t5tp70rpj0j71odd1hvf1ol2.apps.googleusercontent.com"}>
+    <GoogleOAuthProvider clientId={(import.meta as any).env.VITE_GOOGLE_CLIENT_ID || ""}>
       <BrowserRouter>
         <UserProvider>
           {splashVisible && (
