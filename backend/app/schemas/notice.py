@@ -10,6 +10,7 @@ class NoticeCreate(BaseModel):
     priority: Optional[str] = "normal"
     target_faculty: Optional[str] = "All Faculties"
     is_pinned: Optional[bool] = False
+    image_url: Optional[str] = None
 
 
 class NoticeResponse(BaseModel):
@@ -21,6 +22,7 @@ class NoticeResponse(BaseModel):
     target_faculty: str
     posted_by: str
     is_pinned: bool
+    image_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

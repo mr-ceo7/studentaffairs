@@ -16,7 +16,6 @@ async def get_notices(
     category: Optional[str] = None,
     faculty: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
 ):
     query = select(Notice)
     
@@ -53,6 +52,7 @@ async def create_notice(
         priority=body.priority,
         target_faculty=body.target_faculty,
         is_pinned=body.is_pinned,
+        image_url=body.image_url,
         posted_by=user.name,
     )
     

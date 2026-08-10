@@ -246,6 +246,7 @@ async def seed_default_data():
                     target_faculty="All Faculties",
                     posted_by="Office of the Registrar",
                     is_pinned=True,
+                    image_url="/graduation_deadline.jpg",
                 ),
                 Notice(
                     title="Supplementary Examinations Timetable Release",
@@ -255,6 +256,7 @@ async def seed_default_data():
                     target_faculty="Faculty of Science & Technology",
                     posted_by="Dr. Peter Otieno",
                     is_pinned=False,
+                    image_url="/exam_timetable.jpg",
                 ),
                 Notice(
                     title="Missing Marks Processing Guidelines",
@@ -264,6 +266,7 @@ async def seed_default_data():
                     target_faculty="All Faculties",
                     posted_by="Office of Academic Affairs",
                     is_pinned=False,
+                    image_url="/marks_guidelines.jpg",
                 )
             ]
             for n in default_notices:

@@ -522,8 +522,19 @@ async def track_activity(
         if not visitor:
             visitor = AnonymousVisitor(session_id=body.session_id)
             db.add(visitor)
-            await db.commit()
-            await db.refresh(visitor)
+            try:
+                await db.commit()
+                await db.refresh(visitor)
+            except Exception:
+                await db.rollback()
+                res = await db.execute(select(AnonymousVisitor).where(AnonymousVisitor.session_id == body.session_id))
+                visitor = res.scalar_one_or_none()
+                if not visitor:
+                    body.session_id = str(uuid.uuid4())
+                    visitor = AnonymousVisitor(session_id=body.session_id)
+                    db.add(visitor)
+                    await db.commit()
+                    await db.refresh(visitor)
             
         visitor.last_seen = datetime.now(UTC).replace(tzinfo=None)
         db.add(visitor)

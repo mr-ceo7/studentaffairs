@@ -9,6 +9,7 @@ export interface Notice {
   target_faculty: string;
   posted_by: string;
   is_pinned: boolean;
+  image_url?: string;
   created_at?: string;
 }
 
@@ -28,6 +29,7 @@ export const noticeService = {
     priority?: string;
     target_faculty?: string;
     is_pinned?: boolean;
+    image_url?: string;
   }): Promise<Notice> {
     const res = await apiClient.post<Notice>('/notices', data);
     return res.data;

@@ -20,6 +20,7 @@ class Notice(Base):
     target_faculty = Column(String(255), nullable=False, default="All Faculties")
     posted_by = Column(String(255), nullable=False)
     is_pinned = Column(Boolean, nullable=False, default=False)
+    image_url = Column(String(500), nullable=True)
 
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
     updated_at = Column(
