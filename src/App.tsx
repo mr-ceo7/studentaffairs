@@ -27,6 +27,7 @@ import Footer from './components/Footer';
 import PencilLoader from './components/PencilLoader';
 import './components/Loader.css';
 import LoginPage from './pages/LoginPage';
+import TicketDetailsPage from './pages/TicketDetailsPage';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster, toast } from 'sonner';
@@ -110,6 +111,7 @@ function AppContent() {
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/clearance/ticket/:ticketId" element={<TicketDetailsPage />} />
               {/* Fallback redirecting paths */}
               <Route path="/*" element={<Dashboard onShowPricing={() => handleShowAuth()} onShowAuth={handleShowAuth} />} />
             </Routes>

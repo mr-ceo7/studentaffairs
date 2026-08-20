@@ -15,6 +15,7 @@ class CommentResponse(BaseModel):
     author_role: str
     message: str
     proof_attachment: Optional[str] = None
+    is_read: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -53,6 +54,7 @@ class TicketResponse(BaseModel):
     student_id: int
     student_name: Optional[str] = None
     lecturer_id: Optional[int] = None
+    is_read_by_lecturer: bool = False
     created_at: datetime
     updated_at: datetime
     comments: List[CommentResponse] = Field(default_factory=list)

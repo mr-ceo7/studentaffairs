@@ -26,6 +26,7 @@ import { ticketService, type TicketData, type CommentData } from '../services/ti
 import { API_BASE_URL } from '../services/apiClient';
 import { toast } from 'sonner';
 import PencilLoader from './PencilLoader';
+import { useNavigate } from 'react-router-dom';
 
 interface LecturerPortalProps {
   user: any;
@@ -57,6 +58,7 @@ const STATUSES = [
 ];
 
 export default function LecturerPortalView({ user, onTicketClick }: LecturerPortalProps) {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -717,7 +719,12 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                         }`}
                       >
                         <td className="py-3 px-2.5 font-bold text-slate-900 dark:text-slate-100">
-                          {t.ticket_id}
+                          <div className="flex items-center gap-1.5">
+                            {!t.is_read_by_lecturer && (
+                              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" title="New Activity / Unread" />
+                            )}
+                            <span>{t.ticket_id}</span>
+                          </div>
                         </td>
                         <td className="py-3 px-2.5 text-slate-600 dark:text-slate-400 font-medium">
                           {t.reg_number}
@@ -751,13 +758,9 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                         <td className="py-3 px-2.5 text-center">
                           <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                             <button
-                              onClick={() => setReviewTicketId(t.ticket_id)}
-                              className={`p-1.5 border rounded-lg transition-all cursor-pointer ${
-                                reviewTicketId === t.ticket_id 
-                                  ? 'bg-blue-600 border-blue-600 text-white shadow-xs' 
-                                  : 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300'
-                              }`}
-                              title="Open Inspection Board"
+                              onClick={() => navigate(`/clearance/ticket/${t.ticket_id}`)}
+                              className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 rounded-lg transition-all cursor-pointer"
+                              title="Open Full Workspace"
                             >
                               <ExternalLink size={11} />
                             </button>

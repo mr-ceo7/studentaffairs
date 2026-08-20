@@ -31,6 +31,7 @@ type SupportMessage = any;
 import { API_BASE_URL } from '../services/apiClient';
 import { toast } from 'sonner';
 import PencilLoader from './PencilLoader';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminPortalProps {
   user: any;
@@ -70,6 +71,7 @@ const STATUS_CLASS: Record<string, string> = {
 };
 
 export default function AdminPortalView({ user, onTicketClick }: AdminPortalProps) {
+  const navigate = useNavigate();
   const [activeTab] = useState<'clearance'>('clearance');
 
   // Clearance Tickets
@@ -489,7 +491,14 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                       {filteredTickets.map(t => (
                         <tr key={t.ticket_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/15 transition-colors">
-                          <td className="py-3.5 px-4 font-bold text-slate-850 dark:text-slate-200">{t.ticket_id}</td>
+                          <td className="py-3.5 px-4 font-bold text-slate-850 dark:text-slate-200">
+                            <div className="flex items-center gap-1.5">
+                              {!t.is_read_by_lecturer && (
+                                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" title="New Activity / Unread" />
+                              )}
+                              <span>{t.ticket_id}</span>
+                            </div>
+                          </td>
                           <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">{t.reg_number}</td>
                           <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 truncate max-w-[120px]" title={t.faculty}>{t.faculty.replace('Faculty of ', '')}</td>
                           <td className="py-3.5 px-4">
@@ -520,9 +529,9 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                                 Quick Review
                               </button>
                               <button
-                                onClick={() => onTicketClick(t.ticket_id)}
-                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-305 rounded-lg transition-all cursor-pointer"
-                                title="Open Inspection Board"
+                                onClick={() => navigate(`/clearance/ticket/${t.ticket_id}`)}
+                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 rounded-lg transition-all cursor-pointer"
+                                title="Open Full Workspace"
                               >
                                 <ArrowRight size={11} />
                               </button>

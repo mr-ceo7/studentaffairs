@@ -4,7 +4,7 @@ Ticket ORM model for Student Claims (Missing Marks & Academic Grievance).
 
 from datetime import datetime, timezone
 UTC = timezone.utc
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -29,6 +29,7 @@ class Ticket(Base):
     )
     proof_attachment = Column(String(255), nullable=True)
     additional_notes = Column(Text, nullable=True)
+    is_read_by_lecturer = Column(Boolean, default=False)
 
     # Relationships
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)

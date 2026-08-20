@@ -7,6 +7,7 @@ export interface CommentData {
   author_role: 'student' | 'lecturer' | 'admin';
   message: string;
   proof_attachment?: string;
+  is_read?: boolean;
   created_at: string;
 }
 
@@ -26,6 +27,7 @@ export interface TicketData {
   student_id: number;
   student_name?: string;
   lecturer_id?: number;
+  is_read_by_lecturer?: boolean;
   created_at: string;
   updated_at: string;
   comments: CommentData[];

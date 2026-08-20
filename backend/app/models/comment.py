@@ -4,7 +4,7 @@ Comment ORM model for Claim feedback threads.
 
 from datetime import datetime, timezone
 UTC = timezone.utc
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -19,6 +19,7 @@ class Comment(Base):
     author_role = Column(String(50), nullable=False)  # 'student', 'lecturer', 'admin'
     message = Column(Text, nullable=False)
     proof_attachment = Column(String(255), nullable=True)
+    is_read = Column(Boolean, default=False)
 
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 

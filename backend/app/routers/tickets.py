@@ -211,6 +211,29 @@ async def get_ticket(
     student = student_result.scalar_one_or_none()
     ticket.student_name = student.name if student else "Unknown Student"
 
+    # Mark comments as read & update ticket read receipts
+    from sqlalchemy import update
+    if user.email.endswith("@student.uonbi.ac.ke"):
+        # Student is reading: mark lecturer/admin comments as read
+        await db.execute(
+            update(Comment)
+            .where(Comment.ticket_id == ticket.id)
+            .where(Comment.author_role != "student")
+            .values(is_read=True)
+        )
+    else:
+        # Lecturer/Admin is reading: mark student comments as read and ticket as read by lecturer
+        await db.execute(
+            update(Comment)
+            .where(Comment.ticket_id == ticket.id)
+            .where(Comment.author_role == "student")
+            .values(is_read=True)
+        )
+        ticket.is_read_by_lecturer = True
+    
+    await db.commit()
+    await db.refresh(ticket)
+
     return ticket
 
 
@@ -243,6 +266,7 @@ async def update_ticket_status(
 
     ticket.updated_at = datetime.now(UTC).replace(tzinfo=None)
 
+    ticket.is_read_by_lecturer = True
     db.add(ticket)
 
     # Add comments if any
@@ -311,6 +335,10 @@ async def add_comment(
     )
 
     ticket.updated_at = datetime.now(UTC).replace(tzinfo=None)
+    if role == "student":
+        ticket.is_read_by_lecturer = False
+    else:
+        ticket.is_read_by_lecturer = True
     db.add(ticket)
     db.add(comment)
 
