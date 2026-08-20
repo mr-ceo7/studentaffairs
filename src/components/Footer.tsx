@@ -37,7 +37,7 @@ export default function Footer() {
             <p className="text-[10px] text-slate-550 dark:text-slate-400 leading-none">
               Automated Missing Marks & Academic Grievance Clearinghouse
             </p>
-            <p className="text-[9px] font-bold text-slate-450 dark:text-slate-500 pt-0.5 leading-none">
+            <p className="text-[9px] font-bold text-slate-550 dark:text-slate-400 pt-0.5 leading-none">
               Powered by <a href="https://galvaniytechnologies.xn--jhb4c.com/" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline font-extrabold">Galvaniy Technologies</a>
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom copyright & legal */}
-        <div className="flex flex-col items-center justify-between gap-3 md:flex-row text-[10px] text-slate-450 dark:text-slate-500">
+        <div className="flex flex-col items-center justify-between gap-3 md:flex-row text-[10px] text-slate-550 dark:text-slate-400">
           <p className="text-center md:text-left leading-normal">
             © {new Date().getFullYear()} University of Nairobi. Office of Academic Affairs. All rights reserved.
           </p>

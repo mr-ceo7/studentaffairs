@@ -571,7 +571,7 @@ export default function ContactPage() {
                         <Paperclip size={12} className="text-blue-400" />
                         Attach Proof / Screenshot (Optional)
                       </span>
-                      <span className="text-[9px] text-slate-500 font-normal">Images (PNG/JPG) or PDF up to 5MB</span>
+                      <span className="text-[9px] text-slate-400 font-normal">Images (PNG/JPG) or PDF up to 5MB</span>
                     </label>
 
                     {attachmentUrl ? (

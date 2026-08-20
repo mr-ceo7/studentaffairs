@@ -331,7 +331,7 @@ export default function Header({ onShowAuth }: HeaderProps) {
                               <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                                 {n.body}
                               </p>
-                              <span className="block text-[8px] text-slate-400 dark:text-slate-550 pt-0.5">
+                              <span className="block text-[8px] text-slate-500 dark:text-slate-400 pt-0.5">
                                 {new Date(n.time).toLocaleString()}
                               </span>
                             </div>
@@ -339,7 +339,7 @@ export default function Header({ onShowAuth }: HeaderProps) {
                         );
                       })
                     ) : (
-                      <div className="py-8 px-4 text-center text-slate-400 dark:text-slate-550 space-y-1">
+                      <div className="py-8 px-4 text-center text-slate-550 dark:text-slate-400 space-y-1">
                         <CheckSquare className="w-6 h-6 mx-auto text-slate-350 dark:text-slate-700" />
                         <p className="text-[10.5px] font-bold">You are all caught up</p>
                         <p className="text-[9.5px]">No updates or notifications at the moment.</p>

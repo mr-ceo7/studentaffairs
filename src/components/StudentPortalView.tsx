@@ -478,7 +478,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
 
       {/* Tab Panels */}
       {activeTab === 'new-claim' ? (
-        <div className="clay-card p-5 sm:p-6 bg-white border border-slate-200/60 reveal active max-w-4xl mx-auto space-y-5">
+        <div className="clay-card p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 reveal active max-w-4xl mx-auto space-y-5">
           {/* Compact Header */}
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
             <div className="flex items-center gap-2.5">
@@ -489,7 +489,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">
                   File a Missing / Disputed Mark
                 </h2>
-                <p className="text-slate-400 dark:text-slate-500 text-[10px]">Submit exam sheets or CAT dockets for validation</p>
+                <p className="text-slate-500 dark:text-slate-400 text-[10px]">Submit exam sheets or CAT dockets for validation</p>
               </div>
             </div>
             {regNumber && !regError && (
@@ -521,15 +521,15 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                         ? 'bg-blue-600 text-white ring-4 ring-blue-500/10'
                         : formStep > step
                           ? 'bg-emerald-500 text-white'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                     }`}
                   >
                     {formStep > step ? '✓' : step}
                   </button>
                   <span className={`text-[10px] uppercase font-bold tracking-wider hidden sm:inline ${
                     formStep === step
-                      ? 'text-slate-800 dark:text-slate-250 font-extrabold'
-                      : 'text-slate-400 dark:text-slate-550'
+                      ? 'text-slate-800 dark:text-slate-200 font-extrabold'
+                      : 'text-slate-500 dark:text-slate-400'
                   }`}>
                     {step === 1 ? 'Academic' : step === 2 ? 'Grievance' : 'Submit'}
                   </span>
@@ -573,7 +573,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                         />
                         <div 
                           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                          className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-slate-400 dark:text-slate-500"
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-slate-500 dark:text-slate-400"
                         >
                           <ChevronDown size={14} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                         </div>
@@ -605,7 +605,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                                 </div>
                               ))
                             ) : (
-                              <div className="p-3 text-xs text-slate-400 dark:text-slate-500 italic text-center">
+                              <div className="p-3 text-xs text-slate-500 dark:text-slate-400 italic text-center">
                                 No matching units found
                               </div>
                             )}
@@ -690,7 +690,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                       rows={5}
                       className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
                     />
-                    <div className="flex justify-between items-center mt-1 text-[9px] font-bold text-slate-400 dark:text-slate-550 select-none">
+                    <div className="flex justify-between items-center mt-1 text-[9px] font-bold text-slate-500 dark:text-slate-400 select-none">
                       <span>Limit: 500 characters</span>
                       <span className={notes.length >= 480 ? 'text-red-500 dark:text-red-400' : ''}>
                         {notes.length}/500
@@ -747,7 +747,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                                 ? `✓ ${uploadedFiles.length} file(s) attached` 
                                 : 'Tap to attach supporting documents (Optional)'}
                           </span>
-                          <span className="text-[9px] text-slate-400 dark:text-slate-550">PDF, Word (DOC, DOCX), or images (PNG, JPG, HEIC) up to 3MB (Max 3 files)</span>
+                          <span className="text-[9px] text-slate-500 dark:text-slate-400">PDF, Word (DOC, DOCX), or images (PNG, JPG, HEIC) up to 3MB (Max 3 files)</span>
                         </div>
                       </div>
 
@@ -858,7 +858,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 <ListTodo className="w-5 h-5 text-blue-700 dark:text-blue-400" />
                 Active Grievance Tickets
               </h2>
-              <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">Review the clearance timeline of your marks.</p>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Review the clearance timeline of your marks.</p>
             </div>
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 px-3 py-1 rounded-full shadow-sm whitespace-nowrap shrink-0">{tickets.length} Total</span>
           </div>
@@ -882,7 +882,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                       <span className="font-mono font-extrabold text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/80 px-2.5 py-0.5 rounded-lg shrink-0">
                         {t.ticket_id}
                       </span>
-                      <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-550">
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                         {new Date(t.created_at).toLocaleDateString()}
                       </span>
                     </div>
@@ -903,10 +903,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
 
                     {/* Bottom Metrics Row */}
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-655 dark:text-slate-400">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-650 dark:text-slate-400">
                         <span>Claimed: <strong className="text-amber-600 dark:text-amber-500 font-extrabold">{t.claimed_score}%</strong></span>
                         <span className="text-slate-200 dark:text-slate-750">|</span>
-                        <span>Verified: <strong className={t.verified_score !== null && t.verified_score !== undefined ? 'text-emerald-600 dark:text-emerald-450 font-extrabold' : 'text-slate-400 dark:text-slate-500 font-extrabold'}>
+                        <span>Verified: <strong className={t.verified_score !== null && t.verified_score !== undefined ? 'text-emerald-600 dark:text-emerald-450 font-extrabold' : 'text-slate-500 dark:text-slate-400 font-extrabold'}>
                           {t.verified_score !== null && t.verified_score !== undefined ? `${t.verified_score}%` : 'Pending'}
                         </strong></span>
                       </div>
@@ -935,16 +935,16 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                           className="overflow-hidden mt-1 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-3"
                         >
                           {t.additional_notes ? (
-                            <div className="bg-slate-50/50 dark:bg-slate-955/30 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-850/80 text-xs">
-                              <span className="block text-[8px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider mb-1">Additional Notes / Context</span>
+                            <div className="bg-slate-50/50 dark:bg-slate-950/30 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-850/80 text-xs">
+                              <span className="block text-[8px] font-extrabold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">Additional Notes / Context</span>
                               <p className="text-slate-600 dark:text-slate-400 italic leading-relaxed">{t.additional_notes}</p>
                             </div>
                           ) : (
-                            <p className="text-[10px] text-slate-400 dark:text-slate-550 italic">No additional notes provided.</p>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 italic">No additional notes provided.</p>
                           )}
 
                           <div className="flex items-center justify-between gap-3 pt-1">
-                            <span className="text-[10px] text-slate-400 dark:text-slate-550">
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
                               Last action: {new Date(t.updated_at).toLocaleDateString()}
                             </span>
                             <button
@@ -966,7 +966,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
             <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm">
               <BookOpen size={40} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
               <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm">No Active Tickets</h3>
-              <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">Submit a new claim to start tracking missing marks.</p>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Submit a new claim to start tracking missing marks.</p>
               <button
                 onClick={() => setActiveTab('new-claim')}
                 className="mt-3 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 mx-auto transition-all cursor-pointer shadow-sm"

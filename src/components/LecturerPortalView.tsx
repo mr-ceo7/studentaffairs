@@ -252,10 +252,10 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="clay-card p-4 flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Resolution Rate</span>
+            <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Resolution Rate</span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{resolutionRate}%</span>
-              <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-0.5">
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-0.5">
                 <TrendingUp size={10} /> completed
               </span>
             </div>
@@ -268,39 +268,39 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
 
         <div className="clay-card p-4 flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">New Submissions</span>
+            <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">New Submissions</span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{pendingReviewCount}</span>
-              <span className="text-[10px] text-blue-500 font-semibold">needs review</span>
+              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">needs review</span>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-555 dark:text-blue-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
             <Clock size={18} />
           </div>
         </div>
 
         <div className="clay-card p-4 flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Under Review</span>
+            <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Under Review</span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{underProcessingCount}</span>
-              <span className="text-[10px] text-amber-500 font-semibold">in progress</span>
+              <span className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">in progress</span>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-555 dark:text-amber-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
             <FolderOpen size={18} />
           </div>
         </div>
 
         <div className="clay-card p-4 flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Completed</span>
+            <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Completed</span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{completedClaims}</span>
-              <span className="text-[10px] text-slate-500">claims resolved</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">claims resolved</span>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-650 dark:text-emerald-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <CheckCircle size={18} />
           </div>
         </div>
@@ -309,7 +309,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
       {/* Unit Cards Summary & Clickable Quick Filter */}
       <div>
         <div className="flex justify-between items-center mb-3">
-          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+          <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
             Filter Queue by Assigned Unit Code
           </span>
           {activeUnitFilter && (
@@ -337,7 +337,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                 }`}
               >
                 <div className="flex justify-between items-start">
-                  <span className="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     {unit.split(' — ')[0]}
                   </span>
                   {isActive && <CheckCircle size={12} className="text-blue-500" />}
@@ -368,7 +368,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             {/* Search Input */}
             <div className="relative flex-1 md:flex-initial md:w-60">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={13} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" size={13} />
               <input
                 type="text"
                 placeholder="Search Reg No., Name, Unit..."
@@ -379,7 +379,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-800"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 >
                   <X size={12} />
                 </button>
@@ -394,9 +394,9 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                 onChange={(e) => setSelectedType(e.target.value)}
                 className="bg-transparent text-xs text-slate-700 dark:text-slate-350 font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">All Categories</option>
+                <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">All Categories</option>
                 {CATEGORIES.map(c => (
-                  <option key={c} value={c} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">{c}</option>
+                  <option key={c} value={c} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">{c}</option>
                 ))}
               </select>
             </div>
@@ -409,9 +409,9 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                 onChange={(e) => setSelectedStatus(e.target.value)}
                 className="bg-transparent text-xs text-slate-700 dark:text-slate-350 font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">All Statuses</option>
+                <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">All Statuses</option>
                 {STATUSES.map(s => (
-                  <option key={s} value={s} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">{s}</option>
+                  <option key={s} value={s} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">{s}</option>
                 ))}
               </select>
             </div>
@@ -425,7 +425,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-550 text-[10px] font-bold uppercase tracking-wider">
+                <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider">
                   <th className="py-3 px-4">Ticket</th>
                   <th className="py-3 px-4">Student Reg</th>
                   <th className="py-3 px-4">Student Name</th>
@@ -445,10 +445,10 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                     <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 font-medium">{t.student_name || 'Anonymous'}</td>
                     <td className="py-3.5 px-4">
                       <span className="font-bold text-slate-800 dark:text-slate-200">{t.unit_code.split(' — ')[0]}</span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5 truncate max-w-[150px]">{t.unit_code.split(' — ')[1]}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 truncate max-w-[150px]">{t.unit_code.split(' — ')[1]}</span>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-slate-150">{t.claimed_score}</td>
-                    <td className="py-3.5 px-4 text-center font-black text-blue-700 dark:text-blue-450">{t.verified_score !== null && t.verified_score !== undefined ? t.verified_score : '—'}</td>
+                    <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-slate-200">{t.claimed_score}</td>
+                    <td className="py-3.5 px-4 text-center font-black text-blue-700 dark:text-blue-400">{t.verified_score !== null && t.verified_score !== undefined ? t.verified_score : '—'}</td>
                     <td className="py-3.5 px-4">
                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold border uppercase tracking-wide inline-block ${getStatusBadge(t.status)}`}>
                         {t.status}
@@ -488,7 +488,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
           <div className="text-center py-16 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-slate-100 dark:border-slate-800">
             <AlertCircle size={40} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
             <h3 className="font-bold text-slate-700 dark:text-slate-350 text-sm">Clear Queue</h3>
-            <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">No claims match the selected filters or search queries.</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">No claims match the selected filters or search queries.</p>
           </div>
         )}
       </div>
@@ -524,7 +524,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                     <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                       Grievance Claim {reviewTicketId}
                     </h3>
-                    <p className="text-[10px] text-slate-450 dark:text-slate-550 font-medium">Quick inspection & marks approval board</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Quick inspection & marks approval board</p>
                   </div>
                 </div>
                 <button
@@ -553,7 +553,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                           <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
                             {reviewTicket.student_name || 'Anonymous Student'}
                           </h4>
-                          <span className="text-[10px] text-slate-450 dark:text-slate-500 font-mono font-bold block">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-bold block">
                             Reg No: {reviewTicket.reg_number}
                           </span>
                         </div>
@@ -561,11 +561,11 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
 
                       <div className="grid grid-cols-2 gap-2 text-[10px] font-medium text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
                         <div>
-                          <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Faculty</span>
+                          <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Faculty</span>
                           <span className="truncate block font-bold text-slate-700 dark:text-slate-350">{reviewTicket.faculty.replace('Faculty of ', '')}</span>
                         </div>
                         <div>
-                          <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Department</span>
+                          <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Department</span>
                           <span className="truncate block font-bold text-slate-700 dark:text-slate-350">{reviewTicket.department}</span>
                         </div>
                       </div>
@@ -573,28 +573,28 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
 
                     {/* Claim Details Card */}
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                      <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Claim Discrepancy Details
                       </h4>
                       <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-xs space-y-3">
                         <div>
-                          <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Course Unit</span>
-                          <span className="font-extrabold text-slate-800 dark:text-slate-250 block mt-0.5">{reviewTicket.unit_code}</span>
+                          <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Course Unit</span>
+                          <span className="font-extrabold text-slate-800 dark:text-slate-200 block mt-0.5">{reviewTicket.unit_code}</span>
                         </div>
 
                         <div className="grid grid-cols-3 gap-3 border-t border-slate-100 dark:border-slate-850 pt-2.5">
                           <div>
-                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Category</span>
+                            <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Category</span>
                             <span className="font-semibold text-slate-700 dark:text-slate-350 text-[10px] block mt-0.5 truncate" title={reviewTicket.assessment_category}>
                               {reviewTicket.assessment_category.replace('End of Semester ', '')}
                             </span>
                           </div>
                           <div className="text-center">
-                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Claimed Score</span>
+                            <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Claimed Score</span>
                             <span className="font-black text-slate-800 dark:text-slate-200 text-sm block mt-0.5">{reviewTicket.claimed_score}</span>
                           </div>
                           <div className="text-center">
-                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Verified Score</span>
+                            <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Verified Score</span>
                             <span className="font-black text-blue-700 dark:text-blue-400 text-sm block mt-0.5">
                               {reviewTicket.verified_score !== null && reviewTicket.verified_score !== undefined ? reviewTicket.verified_score : '—'}
                             </span>
@@ -603,7 +603,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
 
                         {reviewTicket.additional_notes && (
                           <div className="border-t border-slate-100 dark:border-slate-850 pt-2.5">
-                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Student Notes</span>
+                            <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Student Notes</span>
                             <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-900 italic">
                               "{reviewTicket.additional_notes}"
                             </p>
@@ -613,7 +613,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                         {/* Proof Attachment Preview */}
                         {reviewTicket.proof_attachment && (
                           <div className="border-t border-slate-100 dark:border-slate-850 pt-2.5">
-                            <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Evidence Proof / Script Sheet</span>
+                            <span className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1.5">Evidence Proof / Script Sheet</span>
                             
                             <div className="flex flex-wrap gap-2">
                               {reviewTicket.proof_attachment.split(',').map((url, index) => {
@@ -653,7 +653,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
 
                     {/* Timeline & Student-Lecturer Comments */}
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-550 uppercase tracking-wider flex items-center gap-1.5">
+                      <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                         <MessageSquare size={12} /> Discussion History ({reviewTicket.comments?.length || 0})
                       </h4>
                       
@@ -670,7 +670,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                                     : 'bg-slate-50 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 mr-auto items-start rounded-tl-none'
                                 }`}
                               >
-                                <div className="flex items-center gap-2 text-[8px] font-bold text-slate-400 dark:text-slate-500">
+                                <div className="flex items-center gap-2 text-[8px] font-bold text-slate-500 dark:text-slate-400">
                                   <span>{comment.author_name} ({comment.author_role})</span>
                                   <span>•</span>
                                   <span>{new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -689,13 +689,13 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
 
                     {/* Action form */}
                     <form onSubmit={handleUpdateStatusAndScore} className="space-y-3 border-t border-slate-100 dark:border-slate-850 pt-4">
-                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-550 uppercase tracking-wider">
+                      <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Update Claim & Verify Mark
                       </h4>
                       
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          <label className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">
                             Verified Score
                           </label>
                           <input
@@ -705,12 +705,12 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                             placeholder="verified marks..."
                             value={verifiedScoreInput}
                             onChange={(e) => setVerifiedScoreInput(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-850 dark:text-slate-150 focus:outline-none focus:border-blue-500"
+                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-850 dark:text-slate-200 focus:outline-none focus:border-blue-500"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          <label className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">
                             Workflow Status
                           </label>
                           <select
@@ -730,7 +730,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
 
                       {/* Comment textarea */}
                       <div>
-                        <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        <label className="block text-[8px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">
                           Comment / Resolution Notes
                         </label>
                         <textarea
@@ -794,7 +794,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
             <a 
               href={lightboxUrl} 
               download="student_script_proof.png" 
-              className="mt-4 px-4 py-2 bg-blue-650 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all"
+              className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all"
             >
               <FolderOpen size={13} /> Open Image In New Tab
             </a>

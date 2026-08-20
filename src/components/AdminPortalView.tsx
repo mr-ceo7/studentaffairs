@@ -342,7 +342,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                   <Database size={20} />
                 </div>
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block">Total Claims</span>
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Total Claims</span>
                   <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{total}</span>
                 </div>
               </div>
@@ -352,7 +352,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                   <Clock size={20} />
                 </div>
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block">Open Queue</span>
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Open Queue</span>
                   <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{openCount}</span>
                 </div>
               </div>
@@ -362,7 +362,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                   <CheckCircle2 size={20} />
                 </div>
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block">Cleared for SMS</span>
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Cleared for SMS</span>
                   <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{clearedCount}</span>
                 </div>
               </div>
@@ -372,7 +372,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                   <XCircle size={20} />
                 </div>
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block">Rejected Claims</span>
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Rejected Claims</span>
                   <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{rejectedCount}</span>
                 </div>
               </div>
@@ -413,7 +413,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                 <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                   {/* Registry Search */}
                   <div className="relative flex-1 md:flex-initial md:w-56">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-550" size={13} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" size={13} />
                     <input
                       type="text"
                       placeholder="Search Student, Reg, Unit..."
@@ -422,7 +422,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                       className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-850 focus:border-blue-500 focus:outline-none rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 transition-all"
                     />
                     {clearanceSearch && (
-                      <button onClick={() => setClearanceSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-800">
+                      <button onClick={() => setClearanceSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
                         <X size={12} />
                       </button>
                     )}
@@ -473,7 +473,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-550 text-[10px] font-bold uppercase tracking-wider">
+                      <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider">
                         <th className="py-3 px-4">Ticket</th>
                         <th className="py-3 px-4">Student Reg</th>
                         <th className="py-3 px-4">Faculty</th>
@@ -493,7 +493,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                           <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 truncate max-w-[120px]" title={t.faculty}>{t.faculty.replace('Faculty of ', '')}</td>
                           <td className="py-3.5 px-4">
                             <span className="font-bold text-slate-800 dark:text-slate-200">{t.unit_code.split(' — ')[0]}</span>
-                            <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5 truncate max-w-[150px]">{t.unit_code.split(' — ')[1]}</span>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 truncate max-w-[150px]">{t.unit_code.split(' — ')[1]}</span>
                           </td>
                           <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-slate-150">{t.claimed_score}</td>
                           <td className="py-3.5 px-4 text-center font-black text-blue-700 dark:text-blue-450">{t.verified_score !== null && t.verified_score !== undefined ? t.verified_score : '—'}</td>
@@ -520,7 +520,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                               </button>
                               <button
                                 onClick={() => onTicketClick(t.ticket_id)}
-                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-305 rounded-lg transition-all cursor-pointer"
+                                className="p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-305 rounded-lg transition-all cursor-pointer"
                                 title="Open Inspection Board"
                               >
                                 <ArrowRight size={11} />
@@ -536,7 +536,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                 <div className="text-center py-16 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <AlertCircle className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
                   <h3 className="font-bold text-slate-700 dark:text-slate-350 text-sm">No Claims Found</h3>
-                  <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">There are no marks claims submitted under the selected filters.</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">There are no marks claims submitted under the selected filters.</p>
                 </div>
               )}
             </div>
@@ -575,7 +575,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                     <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                       Clearance Registry {reviewTicketId}
                     </h3>
-                    <p className="text-[10px] text-slate-450 dark:text-slate-550 font-medium">Registrar master validation drawer</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Registrar master validation drawer</p>
                   </div>
                 </div>
                 <button
@@ -604,7 +604,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                           <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
                             {reviewTicket.student_name || 'Anonymous Student'}
                           </h4>
-                          <span className="text-[10px] text-slate-450 dark:text-slate-500 font-mono font-bold block">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-bold block">
                             Reg No: {reviewTicket.reg_number}
                           </span>
                         </div>
@@ -624,7 +624,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
 
                     {/* Claim Details Card */}
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                      <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Clearance Case Details
                       </h4>
                       <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-xs space-y-3">
@@ -704,7 +704,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
 
                     {/* Chat Comments Thread */}
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-extrabold text-slate-450 dark:text-slate-550 uppercase tracking-wider flex items-center gap-1.5">
+                      <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                         <MessageSquare size={12} /> Registrar &amp; Faculty Logs ({reviewTicket.comments?.length || 0})
                       </h4>
                       
@@ -721,7 +721,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                                     : 'bg-slate-50 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 mr-auto items-start rounded-tl-none'
                                 }`}
                               >
-                                <div className="flex items-center gap-2 text-[8px] font-bold text-slate-400 dark:text-slate-500">
+                                <div className="flex items-center gap-2 text-[8px] font-bold text-slate-500 dark:text-slate-400">
                                   <span>{comment.author_name} ({comment.author_role})</span>
                                   <span>•</span>
                                   <span>{new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -740,7 +740,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
 
                     {/* Quick Registry Action form */}
                     <form onSubmit={handleUpdateStatusAndScore} className="space-y-3 border-t border-slate-100 dark:border-slate-850 pt-4">
-                      <h4 className="text-[10px] font-extrabold text-slate-455 dark:text-slate-550 uppercase tracking-wider">
+                      <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Master Clearance Dispatch Actions
                       </h4>
                       

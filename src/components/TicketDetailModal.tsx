@@ -211,7 +211,7 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
 
         {/* Body */}
         {loading ? (
-          <div className="flex-1 py-20 text-center text-slate-400 dark:text-slate-500 text-xs font-semibold">
+          <div className="flex-1 py-20 text-center text-slate-500 dark:text-slate-400 text-xs font-semibold">
             Fetching grievance data...
           </div>
         ) : ticket ? (
@@ -220,19 +220,19 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 text-xs">
               <div>
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase block mb-0.5">Registration No</span>
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-0.5">Registration No</span>
                 <span className="font-bold text-slate-800 dark:text-slate-200">{ticket.reg_number}</span>
               </div>
               <div>
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase block mb-0.5">Student Name</span>
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-0.5">Student Name</span>
                 <span className="font-bold text-slate-800 dark:text-slate-200">{ticket.student_name}</span>
               </div>
               <div>
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase block mb-0.5">Course Unit</span>
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-0.5">Course Unit</span>
                 <span className="font-bold text-slate-800 dark:text-slate-200 truncate block" title={ticket.unit_code}>{ticket.unit_code.split(' — ')[0]}</span>
               </div>
               <div>
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase block mb-0.5">Assessment</span>
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-0.5">Assessment</span>
                 <span className="font-semibold text-slate-700 dark:text-slate-300">{ticket.assessment_category}</span>
               </div>
               <div className="text-center bg-blue-50/50 dark:bg-blue-950/30 rounded-lg py-1 border border-blue-100/50 dark:border-blue-900/50">
@@ -252,7 +252,7 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
                   <FileCheck className="w-5 h-5 text-green-700 dark:text-green-500" />
                   <div>
                     <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block truncate max-w-xs">{ticket.proof_attachment}</span>
-                    <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-bold">Grade Proof Document</span>
+                    <span className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold">Grade Proof Document</span>
                   </div>
                 </div>
                 <a
@@ -274,7 +274,7 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
             {/* Notes */}
             {ticket.additional_notes && (
               <div className="space-y-1">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Student Remarks</span>
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Student Remarks</span>
                 <div className="bg-slate-50 dark:bg-slate-950/20 p-3 rounded-2xl border border-slate-200/50 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 leading-relaxed italic">
                   "{ticket.additional_notes}"
                 </div>
@@ -283,7 +283,7 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
 
             {/* Thread */}
             <div className="space-y-3 pt-2">
-              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block border-b border-slate-100 dark:border-slate-800 pb-2">Feedback Thread ({ticket.comments.length})</span>
+              <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block border-b border-slate-100 dark:border-slate-800 pb-2">Feedback Thread ({ticket.comments.length})</span>
               
               <div className="space-y-3 max-h-48 overflow-y-auto pr-1 scrollbar-hide">
                 {ticket.comments.length > 0 ? (
@@ -300,14 +300,14 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
                       >
                         <div className="flex justify-between items-center gap-4 mb-1 text-[10px] font-bold">
                           <span className={isSelf ? 'text-blue-900 dark:text-blue-400' : 'text-slate-800 dark:text-slate-300'}>{c.author_name}</span>
-                          <span className="text-slate-400 dark:text-slate-500 font-normal">{new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-normal">{new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                         </div>
                         <p className="text-slate-700 dark:text-slate-300">{c.message}</p>
                       </div>
                     );
                   })
                 ) : (
-                  <div className="text-center py-6 text-slate-400 dark:text-slate-500 italic text-[11px]">
+                  <div className="text-center py-6 text-slate-500 dark:text-slate-400 italic text-[11px]">
                     No comments in thread yet.
                   </div>
                 )}
@@ -347,7 +347,7 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
                       onChange={(e) => setVerificationScore(e.target.value)}
                       className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 w-24 text-center font-bold"
                     />
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500">Confirm or adjust the verified score before forwarding.</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Confirm or adjust the verified score before forwarding.</span>
                   </div>
                 )}
 

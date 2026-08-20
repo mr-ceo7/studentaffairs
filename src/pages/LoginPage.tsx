@@ -499,7 +499,7 @@ export default function LoginPage() {
         </div>
 
         {/* Bottom bar */}
-        <div className="relative z-10 flex items-center justify-between text-xs text-slate-500 pt-6">
+        <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 pt-6">
           <span>&copy; 2026 University of Nairobi. All Rights Reserved.</span>
           <div className="flex gap-4">
             <Link to="/privacy" className="hover:text-slate-350 transition-colors">Privacy</Link>
@@ -524,7 +524,7 @@ export default function LoginPage() {
                 <span className="block text-sm font-extrabold text-slate-800 dark:text-slate-100 font-display">
                   UoN Student Affairs Portal
                 </span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">University of Nairobi</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block">University of Nairobi</span>
               </div>
             </div>
           </div>
@@ -547,14 +547,14 @@ export default function LoginPage() {
             {/* Handwritten Sign In Text */}
             <div className="absolute left-[calc(50%+40px)] lg:left-[calc(50%+60px)] top-[-10px] lg:top-[15px] z-20 text-blue-500 dark:text-blue-400 rotate-6 select-none font-bold" style={{ fontFamily: '"Caveat", cursive' }}>
               <span className="block text-2xl lg:text-3xl tracking-wide whitespace-nowrap drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">Sign In here!</span>
-              <span className="block text-sm lg:text-base text-slate-400 dark:text-slate-500 -mt-0.5 leading-tight">
+              <span className="block text-sm lg:text-base text-slate-600 dark:text-slate-300 -mt-0.5 leading-tight">
                 Submit &amp; track<br />missing marks
               </span>
             </div>
             <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-900/60 flex flex-col items-center justify-center space-y-4 relative z-10">
               <div className="text-center space-y-1">
                 <span className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">Continue with your University Google Account</span>
-                <span className="block text-[9px] text-slate-400 dark:text-slate-550 leading-normal">Allows quick one-tap login for verified domains.</span>
+                <span className="block text-[9px] text-slate-550 dark:text-slate-400 leading-normal">Allows quick one-tap login for verified domains.</span>
               </div>
 
               <div className="w-full flex justify-center pt-2">
@@ -578,7 +578,7 @@ export default function LoginPage() {
                     text="continue_with"
                   />
                 ) : (
-                  <div className="text-xs text-slate-400 dark:text-slate-500 py-2">Google Sign-In is not configured.</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 py-2">Google Sign-In is not configured.</div>
                 )}
               </div>
             </div>
@@ -589,7 +589,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowDemoAccounts(!showDemoAccounts)}
-              className="w-full flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider hover:text-slate-700 dark:hover:text-slate-350 transition-colors py-1 cursor-pointer"
+              className="w-full flex items-center justify-between text-[11px] font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider hover:text-slate-700 dark:hover:text-slate-350 transition-colors py-1 cursor-pointer"
             >
               <span className="flex items-center gap-1.5">
                 <Info size={13} />
