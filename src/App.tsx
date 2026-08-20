@@ -12,14 +12,15 @@ import BottomNav from './components/BottomNav';
 import Sidebar from './components/Sidebar';
 import ScrollVideo from './components/ScrollVideo';
 import AuthModal from './components/AuthModal';
-import FloatingSupportButton from './components/FloatingSupportButton';
+// import FloatingSupportButton from './components/FloatingSupportButton';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactPage from './pages/ContactPage';
 import FAQPage from './pages/FAQPage';
-import CatalogPage from './pages/CatalogPage';
-import GpaCalculatorPage from './pages/GpaCalculatorPage';
-import NoticesPage from './pages/NoticesPage';
-import ClearancePage from './pages/ClearancePage';
+// Archived features:
+// import CatalogPage from './pages/CatalogPage';
+// import GpaCalculatorPage from './pages/GpaCalculatorPage';
+// import NoticesPage from './pages/NoticesPage';
+// import ClearancePage from './pages/ClearancePage';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import Footer from './components/Footer';
@@ -98,10 +99,12 @@ function AppContent() {
           <div className="flex-1 w-full flex flex-col pt-6 md:pt-8 pb-[100px] md:pb-8 min-w-0">
             <Routes>
               <Route path="/" element={<Dashboard onShowPricing={() => handleShowAuth()} onShowAuth={handleShowAuth} />} />
+              {/* Archived features:
               <Route path="/catalog" element={<CatalogPage />} />
               <Route path="/gpa" element={<GpaCalculatorPage />} />
               <Route path="/notices" element={<NoticesPage />} />
               <Route path="/clearance" element={<ClearancePage />} />
+              */}
               <Route path="/about" element={<AboutUsPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/faq" element={<FAQPage />} />
@@ -118,8 +121,9 @@ function AppContent() {
         <BottomNav />
       </div>
 
-      {/* Floating Support Button */}
+      {/* Floating Support Button (Archived)
       <FloatingSupportButton />
+      */}
 
       {/* SSO Auth Modal (kept as fallback for any legacy actions, but normally unused) */}
       <AuthModal 

@@ -10,46 +10,17 @@ import os
 
 from app.config import settings
 from app.database import engine, Base, AsyncSessionLocal
-from app.routers import auth, tips, payments, subscriptions, admin, campaigns, internal, tickets, notices, clearance, support
+from app.routers import auth, internal, tickets
 
 
 async def seed_default_data():
-    """Seed default subscription tiers if they don't exist."""
+    """Seed default data if they don't exist."""
     from sqlalchemy import select
-    from app.models.subscription import SubscriptionTier
     from app.models.user import User
     from app.security import hash_password
 
     async with AsyncSessionLocal() as db:
-        # Check if tiers exist
-        result = await db.execute(select(SubscriptionTier))
-        existing = result.scalars().all()
-
-        if not existing:
-            tiers = [
-                SubscriptionTier(
-                    tier_id="standard",
-                    name="Standard",
-                    description="Access to GG (Both Teams to Score) tips",
-                    price_2wk=500,
-                    price_4wk=800,
-                    categories=["free", "gg"],
-                    popular=False,
-                ),
-                SubscriptionTier(
-                    tier_id="premium",
-                    name="Premium",
-                    description="Access to GG + Over 2.5 tips + VIP analysis",
-                    price_2wk=1000,
-                    price_4wk=1800,
-                    categories=["free", "gg", "over25"],
-                    popular=True,
-                ),
-            ]
-            for tier in tiers:
-                db.add(tier)
-            await db.commit()
-            print("[Student Affairs] Seeded default subscription tiers")
+        # Seed admin user if none exists
 
         # Seed admin user if none exists
         admin_result = await db.execute(select(User).where(User.email == "admin@studentsaffairs.com"))
@@ -231,85 +202,15 @@ async def seed_default_data():
             db.add(c2)
             await db.commit()
             print("[UoN Clearinghouse] Seeded default ticket data")
-
-        # Seed notices
-        from app.models.notice import Notice
-        result_notices = await db.execute(select(Notice))
-        existing_notices = result_notices.scalars().all()
-        if not existing_notices:
-            default_notices = [
-                Notice(
-                    title="Graduation Clearance Deadline for 2026 Cohort",
-                    category="Graduation",
-                    content="All undergraduate students expecting to graduate in the upcoming December 2026 ceremony must submit all missing marks claims on the clearinghouse by September 30th, 2026. Late claims will not be processed in time for the Senate approval.",
-                    priority="urgent",
-                    target_faculty="All Faculties",
-                    posted_by="Office of the Registrar",
-                    is_pinned=True,
-                    image_url="/graduation_deadline.jpg",
-                ),
-                Notice(
-                    title="Supplementary Examinations Timetable Release",
-                    category="Exam",
-                    content="The supplementary and special examinations timetable for the 2025/2026 academic year has been published. Exams will commence on September 7th, 2026. Please check your assigned rooms and times.",
-                    priority="high",
-                    target_faculty="Faculty of Science & Technology",
-                    posted_by="Dr. Peter Otieno",
-                    is_pinned=False,
-                    image_url="/exam_timetable.jpg",
-                ),
-                Notice(
-                    title="Missing Marks Processing Guidelines",
-                    category="Missing Marks",
-                    content="Ensure that when submitting a missing mark claim, you attach a scanned copy of your signed exam card, CAT docket, or graded coursework sheet. Failure to attach legible proof will result in immediate rejection by the department.",
-                    priority="normal",
-                    target_faculty="All Faculties",
-                    posted_by="Office of Academic Affairs",
-                    is_pinned=False,
-                    image_url="/marks_guidelines.jpg",
-                )
-            ]
-            for n in default_notices:
-                db.add(n)
-            await db.commit()
-            print("[UoN Clearinghouse] Seeded default noticeboard data")
-
-        # Seed support messages
-        from app.models.support import SupportMessage
-        result_sup = await db.execute(select(SupportMessage))
-        existing_sup = result_sup.scalars().all()
-        if not existing_sup:
-            default_sup = [
-                SupportMessage(
-                    target_recipient="developer",
-                    category="UI / Visual Layout Glitch",
-                    user_email="emily.wanjiru@student.uonbi.ac.ke",
-                    sender_name="Emily Wanjiru Kamau",
-                    subject="Dark mode contrast on catalog dropdowns",
-                    message="The lecturer dropdown on the catalog filter has dark text on dark background in dark mode.",
-                    status="open",
-                ),
-                SupportMessage(
-                    target_recipient="student_leader",
-                    category="Missing Mark Delay",
-                    user_email="emily.wanjiru@student.uonbi.ac.ke",
-                    sender_name="Emily Wanjiru Kamau",
-                    subject="ICS 2205 Lab Score Delay Advocacy",
-                    message="Submitted lab sheet 2 weeks ago to the department, seeking student rep assistance for HOD follow-up.",
-                    status="open",
-                )
-            ]
-            for s in default_sup:
-                db.add(s)
-            await db.commit()
-            print("[UoN Clearinghouse] Seeded sample support inbox data")
+        # Notices and support seeding disabled (archived)
+        pass
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create tables and seed data on startup."""
     # Import all models to register them with Base
-    from app.models import user, tip, payment, subscription, setting, activity, ad, campaign, ticket, comment, notice, clearance, support  # noqa: F401
+    from app.models import user, setting, activity, ad, ticket, comment  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -340,16 +241,8 @@ app.add_middleware(
 
 # ── Routers ──────────────────────────────────────────────────
 app.include_router(auth.router)
-app.include_router(tips.router)
-app.include_router(payments.router)
-app.include_router(subscriptions.router)
-app.include_router(admin.router)
-app.include_router(campaigns.router)
 app.include_router(internal.router)
 app.include_router(tickets.router)
-app.include_router(notices.router)
-app.include_router(clearance.router)
-app.include_router(support.router)
 
 os.makedirs("media", exist_ok=True)
 app.mount("/api/media", StaticFiles(directory="media"), name="media")

@@ -22,7 +22,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { useUser } from '../context/UserContext';
-import { supportService } from '../services/supportService';
+// import { supportService } from '../services/supportService';
 
 const CONTACT_INFO = {
   DEV_EMAIL: 'dev-support@studentsaffairs.com',
@@ -171,38 +171,12 @@ export default function ContactPage() {
       return;
     }
 
-    setSubmitting(true);
-    try {
-      await supportService.submitMessage({
-        target_recipient: activeModal,
-        category,
-        subject: subject.trim() || (activeModal === 'developer' ? 'Developer Bug Report' : 'ONUSS Student Advocacy Request'),
-        message: message.trim(),
-        user_email: userEmail.trim() || undefined,
-        sender_name: senderName.trim() || undefined,
-        attachment_url: attachmentUrl || undefined,
-        attachment_name: attachmentName || undefined,
-        reg_number: regNumber || undefined,
-        campus: campus || undefined,
-        faculty: faculty || undefined,
-        department: department || undefined,
-        course: course || undefined,
-        year_of_study: yearOfStudy || undefined,
-        semester: semester || undefined,
-      });
-
-      toast.success(
-        activeModal === 'developer'
-          ? 'Bug report sent directly to the engineering team!'
-          : 'Grievance sent directly to ONUSS Student Leaders for academic advocacy!'
-      );
-
-      closeModal();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Failed to send support message.');
-    } finally {
-      setSubmitting(false);
-    }
+    toast.info(
+      activeModal === 'developer'
+        ? 'In-app developer support ticket submission is currently archived. Please email us directly.'
+        : 'In-app ONUSS Rep ticket submission is currently archived. Please email us directly.'
+    );
+    closeModal();
   };
 
   return (

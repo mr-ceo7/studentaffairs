@@ -21,7 +21,7 @@ from app.schemas.auth import GoogleLoginRequest, PhoneLoginRequest, PhoneVerifyR
 from app.models.activity import UserActivity, AnonymousVisitor, AnonymousActivity
 from app.security import hash_password, create_access_token, create_refresh_token, decode_token
 from app.services.email_service import send_welcome_email
-from app.services.subscription_access import grant_subscription_entitlement
+# from app.services.subscription_access import grant_subscription_entitlement
 
 
 def get_real_ip(request: Request) -> str:

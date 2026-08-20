@@ -14,29 +14,12 @@ UTC = timezone.utc
 
 from app.database import AsyncSessionLocal
 from app.security import decode_token
-from app.services.subscription_access import sync_user_subscription_summary
+# from app.services.subscription_access import sync_user_subscription_summary
 
 security_scheme = HTTPBearer(auto_error=False)
 
 
 async def _auto_downgrade_expired_subscription(db: AsyncSession, user) -> bool:
-    previous_tier = user.subscription_tier
-    previous_expiry = user.subscription_expires_at
-    now = datetime.now(UTC).replace(tzinfo=None)
-
-    if user.subscription_entitlement_rows:
-        sync_user_subscription_summary(user, now=now)
-    elif (
-        user.subscription_tier != "free"
-        and user.subscription_expires_at is not None
-        and user.subscription_expires_at <= now
-    ):
-        user.subscription_tier = "free"
-        user.subscription_expires_at = None
-
-    if user.subscription_tier != previous_tier or user.subscription_expires_at != previous_expiry:
-        db.add(user)
-        return True
     return False
 
 
@@ -84,7 +67,6 @@ async def get_current_user(
 
     result = await db.execute(
         select(User)
-        .options(selectinload(User.subscription_entitlement_rows))
         .where(User.id == int(user_id))
     )
     user = result.scalar_one_or_none()

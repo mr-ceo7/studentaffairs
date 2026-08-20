@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { UserProfile } from './UserProfile';
 import { useTheme } from '../context/ThemeContext';
 import { ticketService } from '../services/ticketService';
-import { supportService } from '../services/supportService';
+// import { supportService } from '../services/supportService';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -82,7 +82,8 @@ export default function Header({ onShowAuth }: HeaderProps) {
           }
         });
 
-        // 2. Fetch Support Messages (if student)
+        // 2. Fetch Support Messages (Archived)
+        /*
         if (isStudent) {
           const supportMsgs = await supportService.getStudentMessages();
           supportMsgs.forEach(msg => {
@@ -98,6 +99,7 @@ export default function Header({ onShowAuth }: HeaderProps) {
             }
           });
         }
+        */
 
         // Sort all by time desc
         list.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());

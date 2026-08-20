@@ -56,7 +56,7 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
                 {user ? (isAdmin ? 'Registrar Master' : isStudent ? 'My Claims' : 'Lecturer Queue') : 'Faculty Gateway'}
               </Link>
 
-              {/* Course Catalog Link - visible to admin and staff */}
+              {/* Archived features:
               {user && (
                 <Link 
                   to="/catalog" 
@@ -74,7 +74,6 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
                 </Link>
               )}
 
-              {/* GPA Calculator Link */}
               {user && (
                 <Link 
                   to="/gpa" 
@@ -92,7 +91,6 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
                 </Link>
               )}
 
-              {/* Official Bulletins Link */}
               {user && (
                 <Link 
                   to="/notices" 
@@ -110,7 +108,6 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
                 </Link>
               )}
 
-              {/* Graduation Clearance Link */}
               {user && (
                 <Link 
                   to="/clearance" 
@@ -127,6 +124,7 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
                   Academic Clearance
                 </Link>
               )}
+              */}
 
               {/* Admin Panel Link */}
               {user?.is_admin && (

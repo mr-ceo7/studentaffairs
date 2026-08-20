@@ -26,7 +26,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ticketService, type TicketData, type CommentData } from '../services/ticketService';
-import { supportService, type SupportMessage } from '../services/supportService';
+// import { supportService, type SupportMessage } from '../services/supportService';
+type SupportMessage = any;
 import { toast } from 'sonner';
 import PencilLoader from './PencilLoader';
 
@@ -68,7 +69,7 @@ const STATUS_CLASS: Record<string, string> = {
 };
 
 export default function AdminPortalView({ user, onTicketClick }: AdminPortalProps) {
-  const [activeTab, setActiveTab] = useState<'clearance' | 'support_inbox'>('clearance');
+  const [activeTab] = useState<'clearance'>('clearance');
 
   // Clearance Tickets
   const [tickets, setTickets] = useState<TicketData[]>([]);
@@ -79,16 +80,14 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
   const [selectedFaculty, setSelectedFaculty] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
-  // Support Inbox
-  const [supportMessages, setSupportMessages] = useState<SupportMessage[]>([]);
-  const [loadingSupport, setLoadingSupport] = useState(false);
-  
-  // Support Inbox Filters & Search
-  const [supportSearch, setSupportSearch] = useState('');
-  const [targetFilter, setTargetFilter] = useState('all');
-  const [campusFilter, setCampusFilter] = useState('');
-  const [facultyFilter, setFacultyFilter] = useState('');
-  const [yearFilter, setYearFilter] = useState('');
+  // Support Inbox (Archived)
+  const supportMessages: SupportMessage[] = [];
+  const loadingSupport = false;
+  const supportSearch = '';
+  const targetFilter = 'all';
+  const campusFilter = '';
+  const facultyFilter = '';
+  const yearFilter = '';
 
   // Quick Review Drawer States
   const [reviewTicketId, setReviewTicketId] = useState<string | null>(null);
@@ -104,7 +103,6 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
 
   useEffect(() => {
     loadTickets();
-    loadSupportMessages();
   }, []);
 
   const loadTickets = async () => {
@@ -120,6 +118,8 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
     }
   };
 
+  // Archived support inbox fetcher
+  /*
   const loadSupportMessages = async () => {
     setLoadingSupport(true);
     try {
@@ -140,6 +140,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
       loadSupportMessages();
     }
   }, [targetFilter, activeTab]);
+  */
 
   // Fetch full details of ticket for quick drawer review
   useEffect(() => {
@@ -217,6 +218,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
     }
   };
 
+  /*
   const handleResolveSupportMessage = async (id: number) => {
     try {
       await supportService.updateMessageStatus(id, 'resolved');
@@ -226,6 +228,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
       toast.error('Failed to resolve support ticket.');
     }
   };
+  */
 
   // Stats
   const total = tickets.length;
@@ -254,7 +257,8 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
     return matchesSearch && matchesFaculty && matchesStatus;
   });
 
-  // Filtered Support Messages
+  // Filtered Support Messages (Archived)
+  /*
   const filteredSupportMessages = supportMessages.filter(m => {
     const matchesSearch = 
       !supportSearch ||
@@ -270,6 +274,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
     if (yearFilter && m.year_of_study !== yearFilter) return false;
     return true;
   });
+  */
 
   // CSV Export
   const exportCSV = () => {
@@ -317,33 +322,11 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
           </p>
         </div>
 
-        <div className="flex gap-2 shrink-0">
-          <button 
-            onClick={() => setActiveTab('clearance')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'clearance'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700'
-            }`}
-          >
-            Clearance Registry
-          </button>
-          <button 
-            onClick={() => setActiveTab('support_inbox')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'support_inbox'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700'
-            }`}
-          >
-            <Inbox size={14} />
-            Support Inbox ({supportMessages.filter(m => m.status === 'open').length})
-          </button>
-        </div>
+        {/* Support Inbox Switcher Archived */}
       </div>
 
       <AnimatePresence mode="wait">
-        {activeTab === 'clearance' ? (
+        {activeTab === 'clearance' && (
           <motion.div
             key="clearance-tab"
             initial={{ opacity: 0, y: 10 }}
@@ -557,215 +540,6 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                 </div>
               )}
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="support-tab"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="clay-card p-6 space-y-4"
-          >
-            {/* Support Inbox view controls */}
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3.5 flex flex-col gap-3">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Inbox className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    In-App Support &amp; Academic Advocacy Inbox
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Incoming developer bug reports and ONUSS student leaders academic advocacy requests with complete student academic profile metadata.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                  {/* Support Search */}
-                  <div className="relative flex-1 md:flex-initial md:w-48">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-550" size={12} />
-                    <input
-                      type="text"
-                      placeholder="Search sender, message..."
-                      value={supportSearch}
-                      onChange={(e) => setSupportSearch(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-850 focus:border-blue-500 focus:outline-none rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-205 transition-all"
-                    />
-                    {supportSearch && (
-                      <button onClick={() => setSupportSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-800">
-                        <X size={11} />
-                      </button>
-                    )}
-                  </div>
-
-                  <select
-                    value={targetFilter}
-                    onChange={(e) => setTargetFilter(e.target.value)}
-                    className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-350 focus:outline-none cursor-pointer shrink-0"
-                  >
-                    <option value="all">All Target Channels</option>
-                    <option value="developer">Developer Bugs Only</option>
-                    <option value="student_leader">Student Leaders (ONUSS) Only</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Academic Filtering Bar */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/60">
-                <select
-                  value={campusFilter}
-                  onChange={(e) => setCampusFilter(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
-                >
-                  <option value="">All Campuses</option>
-                  {CAMPUSES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={facultyFilter}
-                  onChange={(e) => setFacultyFilter(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer truncate"
-                >
-                  <option value="">All Faculties</option>
-                  {FACULTIES.map((f) => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={yearFilter}
-                  onChange={(e) => setYearFilter(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
-                >
-                  <option value="">All Years of Study</option>
-                  <option value="Year 1">Year 1</option>
-                  <option value="Year 2">Year 2</option>
-                  <option value="Year 3">Year 3</option>
-                  <option value="Year 4">Year 4</option>
-                  <option value="Year 5">Year 5</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Support Message Lists */}
-            {loadingSupport ? (
-              <PencilLoader message="Fetching support inbox records..." size="sm" />
-            ) : filteredSupportMessages.length > 0 ? (
-              <div className="space-y-4">
-                {filteredSupportMessages.map(msg => (
-                  <motion.div 
-                    key={msg.id} 
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`p-4.5 rounded-2xl border transition-colors space-y-3 ${
-                      msg.target_recipient === 'developer'
-                        ? 'bg-blue-500/5 border-blue-200/50 dark:border-blue-900/40'
-                        : 'bg-emerald-500/5 border-emerald-200/50 dark:border-emerald-900/40'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {msg.target_recipient === 'developer' ? (
-                          <span className="bg-blue-500/10 text-blue-700 dark:text-blue-400 px-2.5 py-0.5 rounded-md font-bold text-[10px] flex items-center gap-1 border border-blue-500/20">
-                            <Code size={11} /> DEVELOPER BUG
-                          </span>
-                        ) : (
-                          <span className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-md font-bold text-[10px] flex items-center gap-1 border border-emerald-500/20">
-                            <UserCheck size={11} /> ONUSS STUDENT REPS
-                          </span>
-                        )}
-                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                          {msg.category}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <span className={`px-2 py-0.5 rounded-md font-extrabold text-[10px] uppercase ${
-                          msg.status === 'resolved'
-                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
-                            : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'
-                        }`}>
-                          {msg.status}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {new Date(msg.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-805 dark:text-slate-100">
-                        {msg.subject || 'Support Ticket'}
-                      </h3>
-                      <p className="text-xs text-slate-650 dark:text-slate-300 mt-1 leading-relaxed">
-                        {msg.message}
-                      </p>
-                    </div>
-
-                    {/* Attached File/Image Preview */}
-                    {msg.attachment_url && (
-                      <div className="p-2.5 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1.5">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                          <Paperclip size={11} className="text-blue-500" />
-                          Attached Evidence / Screenshot
-                        </div>
-                        {msg.attachment_url.startsWith('data:image/') ? (
-                          <div className="space-y-1">
-                            <img 
-                              src={msg.attachment_url} 
-                              alt={msg.attachment_name || 'Attached proof'} 
-                              onClick={() => setLightboxUrl(msg.attachment_url || null)}
-                              className="max-h-48 rounded-lg object-contain border border-slate-200 dark:border-slate-800 bg-white dark:bg-black/25 cursor-zoom-in"
-                            />
-                            <span className="text-[9px] text-slate-400 block font-mono">{msg.attachment_name}</span>
-                          </div>
-                        ) : (
-                          <a
-                            href={msg.attachment_url}
-                            download={msg.attachment_name || 'attached_document'}
-                            className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline"
-                          >
-                            <Download size={13} /> Download {msg.attachment_name || 'Attached Document'}
-                          </a>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Student Academic Metadata Chips */}
-                    <div className="p-2.5 bg-white/70 dark:bg-slate-900/60 rounded-xl border border-slate-105 dark:border-slate-800/80 text-[11px] space-y-1">
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-medium text-slate-600 dark:text-slate-350">
-                        <div>Sender: <strong className="text-slate-900 dark:text-slate-100">{msg.sender_name || 'Anonymous Student'}</strong> ({msg.user_email || 'No email'})</div>
-                        <div>Reg No: <strong className="font-mono text-blue-700 dark:text-blue-400">{msg.reg_number || 'F17/141029/2022'}</strong></div>
-                        <div>Campus: <strong>{msg.campus || 'Main Campus'}</strong></div>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-500 dark:text-slate-400">
-                        <div>Faculty: <strong>{msg.faculty || 'Faculty of Science & Technology'}</strong></div>
-                        <div>Dept: <strong>{msg.department || 'Department of Computer Science'}</strong></div>
-                        <div>Course: <strong>{msg.course || 'B.Sc. Computer Science'}</strong> ({msg.year_of_study || 'Yr 3'} {msg.semester || 'Sem 2'})</div>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end pt-1">
-                      {msg.status === 'open' && (
-                        <button
-                          onClick={() => handleResolveSupportMessage(msg.id)}
-                          className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-850 text-white rounded-xl font-bold text-[10px] flex items-center gap-1 cursor-pointer shadow-sm transition-all"
-                        >
-                          <Check size={12} /> Mark as Resolved
-                        </button>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 text-xs text-slate-400 dark:text-slate-500 bg-slate-50/20 dark:bg-slate-900/10 rounded-2xl border border-slate-100 dark:border-slate-850">
-                No support messages found matching your selected campus and academic filters.
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

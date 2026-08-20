@@ -59,33 +59,23 @@ class User(Base):
     updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     # Relationships
-    payments = relationship("Payment", back_populates="user", lazy="selectin")
-    subscription_entitlement_rows = relationship(
-        "SubscriptionEntitlement",
-        back_populates="user",
-        cascade="all, delete-orphan",
-        lazy="selectin",
-    )
+    # Relationships (Archived)
+    # payments = relationship("Payment", back_populates="user", lazy="selectin")
+    # subscription_entitlement_rows = relationship(
+    #     "SubscriptionEntitlement",
+    #     back_populates="user",
+    #     cascade="all, delete-orphan",
+    #     lazy="selectin",
+    # )
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
 
     @property
     def subscription_entitlements(self):
-        now = datetime.now(UTC).replace(tzinfo=None)
-        return [
-            entitlement
-            for entitlement in (self.subscription_entitlement_rows or [])
-            if entitlement.expires_at and entitlement.expires_at > now
-        ]
+        return []
 
     @property
     def is_subscription_active(self) -> bool:
-        if self.subscription_entitlement_rows:
-            return len(self.subscription_entitlements) > 0
-
-        if self.subscription_tier == "free" or self.subscription_expires_at is None:
-            return False
-
-        return self.subscription_expires_at > datetime.now(UTC).replace(tzinfo=None)
+        return False
 
 
 class UserSession(Base):
