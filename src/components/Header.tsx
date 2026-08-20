@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bell, LogIn, LogOut, ShieldAlert, Sun, Moon, Inbox, MessageSquare, AlertCircle, CheckSquare, Sparkles } from 'lucide-react';
 import { useUser } from '../context/UserContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { UserProfile } from './UserProfile';
 import { useTheme } from '../context/ThemeContext';
 import { ticketService } from '../services/ticketService';
@@ -17,10 +17,14 @@ export default function Header({ onShowAuth }: HeaderProps) {
   const { user, logout } = useUser();
   const { theme, toggleTheme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   // Determine user domain
   const isStudent = user?.email.endsWith('@student.uonbi.ac.ke');
   const isStaff = user?.email.endsWith('@uonbi.ac.ke');
+  const isAdmin = user?.is_admin;
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [readNotifIds, setReadNotifIds] = useState<string[]>([]);
@@ -185,6 +189,50 @@ export default function Header({ onShowAuth }: HeaderProps) {
             <span className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">University of Nairobi</span>
           </div>
         </Link>
+
+        {/* Center Section: Navigation Links */}
+        <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+          <Link 
+            to="/" 
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+              isActive('/') 
+                ? 'bg-blue-50/50 border-blue-200/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/40 dark:text-blue-400 shadow-sm' 
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/about" 
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+              isActive('/about') 
+                ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            About
+          </Link>
+          <Link 
+            to="/faq" 
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+              isActive('/faq') 
+                ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            FAQ
+          </Link>
+          <Link 
+            to="/contact" 
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+              isActive('/contact') 
+                ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            Support
+          </Link>
+        </div>
 
         {/* Right Section: Navigation Elements */}
         <div className="flex gap-4 items-center ml-auto">

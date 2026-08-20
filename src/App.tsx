@@ -9,7 +9,7 @@ import { UserProvider } from './context/UserContext';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import BottomNav from './components/BottomNav';
-import Sidebar from './components/Sidebar';
+// import Sidebar from './components/Sidebar';
 import ScrollVideo from './components/ScrollVideo';
 import AuthModal from './components/AuthModal';
 // import FloatingSupportButton from './components/FloatingSupportButton';
@@ -94,9 +94,8 @@ function AppContent() {
         {/* Full-width top navigation bar */}
         <Header onShowAuth={() => handleShowAuth()} />
 
-        {/* Main upper content section with side-by-side sidebar & page flow */}
+        {/* Main upper content section with page flow */}
         <div className="flex-1 flex min-w-0 px-4 md:px-6 lg:px-8 gap-6">
-          <Sidebar className="hidden md:flex sticky top-20 h-[calc(100dvh-96px)] mt-4" onShowAuth={() => handleShowAuth()} />
           <div className="flex-1 w-full flex flex-col pt-6 md:pt-8 pb-[100px] md:pb-8 min-w-0">
             <Routes>
               <Route path="/" element={<Dashboard onShowPricing={() => handleShowAuth()} onShowAuth={handleShowAuth} />} />
