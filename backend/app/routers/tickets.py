@@ -108,11 +108,14 @@ async def create_ticket(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    # Verify domain
-    if not user.email.endswith("@student.uonbi.ac.ke"):
+    # Verify role
+    is_admin = user.is_admin or user.email == "admin@uonbi.ac.ke"
+    is_lecturer = user.email.endswith("@uonbi.ac.ke") and not is_admin
+    is_student = not is_admin and not is_lecturer
+    if not is_student:
         raise HTTPException(
             status_code=403,
-            detail="Only students (@student.uonbi.ac.ke) can submit claims.",
+            detail="Only students can submit claims.",
         )
 
     # Generate ticket ID
@@ -153,21 +156,16 @@ async def list_tickets(
     query = select(Ticket)
 
     # Filter based on role
-    if user.email.endswith("@student.uonbi.ac.ke"):
+    is_admin = user.is_admin or user.email == "admin@uonbi.ac.ke"
+    is_lecturer = user.email.endswith("@uonbi.ac.ke") and not is_admin
+    is_student = not is_admin and not is_lecturer
+
+    if is_student:
         # Students only see their own tickets
         query = query.where(Ticket.student_id == user.id)
-    elif user.email.endswith("@uonbi.ac.ke"):
+    elif is_lecturer:
         # Staff
-        if not user.is_admin:
-            # Lecturers: Filter by units or department (let's show department tickets, or all, but let's make it flexible)
-            # In a real system we'd check their assigned units. Here, let's filter by department or show all.
-            # We can allow filtering by query param
-            pass
-    else:
-        raise HTTPException(
-            status_code=403,
-            detail="Unauthorized domain. Must be @student.uonbi.ac.ke or @uonbi.ac.ke",
-        )
+        pass
 
     if faculty:
         query = query.where(Ticket.faculty == faculty)
@@ -202,7 +200,11 @@ async def get_ticket(
         raise HTTPException(status_code=404, detail="Ticket not found")
 
     # Access control
-    if user.email.endswith("@student.uonbi.ac.ke") and ticket.student_id != user.id:
+    is_admin = user.is_admin or user.email == "admin@uonbi.ac.ke"
+    is_lecturer = user.email.endswith("@uonbi.ac.ke") and not is_admin
+    is_student = not is_admin and not is_lecturer
+
+    if is_student and ticket.student_id != user.id:
         raise HTTPException(
             status_code=403, detail="You do not have access to this ticket."
         )
@@ -213,7 +215,7 @@ async def get_ticket(
 
     # Mark comments as read & update ticket read receipts
     from sqlalchemy import update
-    if user.email.endswith("@student.uonbi.ac.ke"):
+    if is_student:
         # Student is reading: mark lecturer/admin comments as read
         await db.execute(
             update(Comment)
@@ -244,8 +246,10 @@ async def update_ticket_status(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    # Only staff can change status
-    if not user.email.endswith("@uonbi.ac.ke"):
+    # Only staff/admin can change status
+    is_admin = user.is_admin or user.email == "admin@uonbi.ac.ke"
+    is_lecturer = user.email.endswith("@uonbi.ac.ke") and not is_admin
+    if not is_lecturer and not is_admin:
         raise HTTPException(
             status_code=403, detail="Only staff can change claim status."
         )
@@ -305,19 +309,23 @@ async def add_comment(
         raise HTTPException(status_code=404, detail="Ticket not found")
 
     # Access control for students
-    if user.email.endswith("@student.uonbi.ac.ke") and ticket.student_id != user.id:
+    is_admin = user.is_admin or user.email == "admin@uonbi.ac.ke"
+    is_lecturer = user.email.endswith("@uonbi.ac.ke") and not is_admin
+    is_student = not is_admin and not is_lecturer
+
+    if is_student and ticket.student_id != user.id:
         raise HTTPException(
             status_code=403, detail="You do not have access to this ticket."
         )
 
     # Determine role
-    if user.email.endswith("@student.uonbi.ac.ke"):
+    if is_student:
         role = "student"
         # If student comments, and it was awaiting student response, revert to submitted
         if ticket.status == "Awaiting Student Response":
             ticket.status = "Submitted to Department/Lecturer"
             db.add(ticket)
-    elif user.is_admin:
+    elif is_admin:
         role = "admin"
     else:
         role = "lecturer"

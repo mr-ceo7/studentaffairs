@@ -260,13 +260,13 @@ async def mock_sso_login(body: MockSSOLoginRequest, request: Request, response: 
             is_active=True,
             email_verified_at=datetime.now(UTC).replace(tzinfo=None),
             profile_picture=picture or f"https://api.dicebear.com/7.x/initials/svg?seed={name}",
-            reg_number=body.reg_number or ("F17/141029/2022" if is_student else None),
-            campus=body.campus or ("Main Campus" if is_student else None),
-            faculty=body.faculty or ("Faculty of Science & Technology" if is_student else None),
-            department=body.department or ("Department of Computer Science" if is_student else None),
-            course=body.course or ("B.Sc. Computer Science" if is_student else None),
-            year_of_study=body.year_of_study or ("Year 3" if is_student else None),
-            semester=body.semester or ("Semester 2" if is_student else None),
+            reg_number=body.reg_number or (None if email == "new.student@student.uonbi.ac.ke" else ("F17/141029/2022" if is_student else None)),
+            campus=body.campus or (None if email == "new.student@student.uonbi.ac.ke" else ("Main Campus" if is_student else None)),
+            faculty=body.faculty or (None if email == "new.student@student.uonbi.ac.ke" else ("Faculty of Science & Technology" if is_student else None)),
+            department=body.department or (None if email == "new.student@student.uonbi.ac.ke" else ("Department of Computer Science" if is_student else None)),
+            course=body.course or (None if email == "new.student@student.uonbi.ac.ke" else ("B.Sc. Computer Science" if is_student else None)),
+            year_of_study=body.year_of_study or (None if email == "new.student@student.uonbi.ac.ke" else ("Year 3" if is_student else None)),
+            semester=body.semester or (None if email == "new.student@student.uonbi.ac.ke" else ("Semester 2" if is_student else None)),
         )
         db.add(user)
         await db.commit()
@@ -276,13 +276,22 @@ async def mock_sso_login(body: MockSSOLoginRequest, request: Request, response: 
         user.is_admin = is_admin
         if picture:
             user.profile_picture = picture
-        if body.reg_number: user.reg_number = body.reg_number
-        if body.campus: user.campus = body.campus
-        if body.faculty: user.faculty = body.faculty
-        if body.department: user.department = body.department
-        if body.course: user.course = body.course
-        if body.year_of_study: user.year_of_study = body.year_of_study
-        if body.semester: user.semester = body.semester
+        if email == "new.student@student.uonbi.ac.ke":
+            user.reg_number = None
+            user.campus = None
+            user.faculty = None
+            user.department = None
+            user.course = None
+            user.year_of_study = None
+            user.semester = None
+        else:
+            if body.reg_number: user.reg_number = body.reg_number
+            if body.campus: user.campus = body.campus
+            if body.faculty: user.faculty = body.faculty
+            if body.department: user.department = body.department
+            if body.course: user.course = body.course
+            if body.year_of_study: user.year_of_study = body.year_of_study
+            if body.semester: user.semester = body.semester
         db.add(user)
         await db.commit()
         await db.refresh(user)

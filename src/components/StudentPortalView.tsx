@@ -20,6 +20,7 @@ import { ticketService, type TicketData, type TicketCreatePayload } from '../ser
 import { API_BASE_URL } from '../services/apiClient';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { UserProfile } from './UserProfile';
 
 interface StudentPortalProps {
   user: any;
@@ -72,6 +73,21 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState(false);
   const [heroSlide, setHeroSlide] = useState(0);
+
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showReminder, setShowReminder] = useState(() => {
+    const confirmedAtStr = localStorage.getItem('uon_academic_profile_confirmed_at');
+    if (!confirmedAtStr) return true;
+    const confirmedAt = parseInt(confirmedAtStr, 10);
+    const fourMonthsInMs = 120 * 24 * 60 * 60 * 1000;
+    return (Date.now() - confirmedAt) > fourMonthsInMs;
+  });
+
+  const handleConfirmProfile = () => {
+    localStorage.setItem('uon_academic_profile_confirmed_at', Date.now().toString());
+    setShowReminder(false);
+    toast.success('Academic profile confirmed!');
+  };
 
   // Hero carousel auto-play
   useEffect(() => {
@@ -353,6 +369,39 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
 
   return (
     <div className="space-y-6 text-slate-700 dark:text-slate-300">
+      {/* Dynamic Profile Verification Reminder */}
+      {showReminder && (
+        <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-300">
+          <div className="flex gap-3 items-start">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white">Verify Academic Progress</h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">
+                Please check if your active <strong className="text-slate-800 dark:text-slate-200">{user.year_of_study || 'Year 1'}</strong> and <strong className="text-slate-800 dark:text-slate-200">{user.semester || 'Semester 1'}</strong> are still correct for this academic cycle.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0 self-end sm:self-center">
+            <button
+              onClick={handleConfirmProfile}
+              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10.5px] font-bold transition-all cursor-pointer"
+            >
+              Yes, Correct
+            </button>
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              className="px-3.5 py-1.5 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg text-[10.5px] font-bold transition-all cursor-pointer"
+            >
+              Update Details
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Render User Profile Modal if clicked */}
+      <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       {/* Welcome Message (above hero) — visible on mobile, hidden on desktop */}
       <div className="reveal active space-y-1 px-1 md:hidden">
         <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest block">Student Portal</span>

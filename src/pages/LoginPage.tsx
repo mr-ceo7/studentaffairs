@@ -343,7 +343,17 @@ export default function LoginPage() {
   // Onboarding Wizard Submit
   const handleOnboardingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regNumber || !department || !course) {
+    
+    // Sanitize user inputs by stripping HTML tags and trimming spaces
+    const cleanReg = regNumber.replace(/<[^>]*>/g, '').trim();
+    const cleanCampus = campus.replace(/<[^>]*>/g, '').trim();
+    const cleanFaculty = faculty.replace(/<[^>]*>/g, '').trim();
+    const cleanDept = department.replace(/<[^>]*>/g, '').trim();
+    const cleanCourse = course.replace(/<[^>]*>/g, '').trim();
+    const cleanYear = yearOfStudy.replace(/<[^>]*>/g, '').trim();
+    const cleanSem = semester.replace(/<[^>]*>/g, '').trim();
+
+    if (!cleanReg || !cleanDept || !cleanCourse) {
       toast.error('Please fill in all academic profile details.');
       return;
     }
@@ -352,13 +362,13 @@ export default function LoginPage() {
     try {
       await authService.updateProfile({
         username: onboardingUser?.username,
-        reg_number: regNumber,
-        campus,
-        faculty,
-        department,
-        course,
-        year_of_study: yearOfStudy,
-        semester,
+        reg_number: cleanReg,
+        campus: cleanCampus,
+        faculty: cleanFaculty,
+        department: cleanDept,
+        course: cleanCourse,
+        year_of_study: cleanYear,
+        semester: cleanSem,
       });
 
       toast.success('Academic Profile Setup Complete!');
@@ -423,7 +433,15 @@ export default function LoginPage() {
                 ))}
               </div>
 
-              <form onSubmit={handleOnboardingSubmit} className="space-y-5">
+              <form 
+                onSubmit={handleOnboardingSubmit} 
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && onboardingStep < 3) {
+                    e.preventDefault();
+                  }
+                }}
+                className="space-y-5"
+              >
                 <AnimatePresence mode="wait">
                   {onboardingStep === 1 && (
                     <motion.div
@@ -559,15 +577,20 @@ export default function LoginPage() {
                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 px-1">
                           Degree Course
                         </label>
-                        <select
+                        <input
+                          type="text"
+                          required
+                          list="course-suggestions"
+                          placeholder="e.g. B.Sc. Computer Science"
                           value={course}
                           onChange={(e) => setCourse(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium truncate"
-                        >
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/80 transition-all font-medium"
+                        />
+                        <datalist id="course-suggestions">
                           {(DEPARTMENT_COURSE_MAP[department] || []).map((c) => (
-                            <option key={c} value={c}>{c}</option>
+                            <option key={c} value={c} />
                           ))}
-                        </select>
+                        </datalist>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3.5">
@@ -619,10 +642,12 @@ export default function LoginPage() {
                     </button>
                   )}
                   
-                  {onboardingStep < 3 ? (
-                    <button
-                      type="button"
-                      onClick={() => {
+                  <button
+                    type={onboardingStep === 3 ? "submit" : "button"}
+                    disabled={loading}
+                    onClick={(e) => {
+                      if (onboardingStep < 3) {
+                        e.preventDefault();
                         if (onboardingStep === 1 && !regNumber) {
                           toast.error('Registration number is required.');
                           return;
@@ -632,26 +657,26 @@ export default function LoginPage() {
                           return;
                         }
                         setOnboardingStep(onboardingStep + 1);
-                      }}
-                      className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all text-xs cursor-pointer flex items-center justify-center gap-1.5"
-                    >
-                      Continue <ChevronRight size={14} />
-                    </button>
-                  ) : (
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="flex-1 py-3 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white rounded-xl font-bold transition-all text-xs cursor-pointer flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg"
-                    >
-                      {loading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <>
-                          Complete Profile <CheckCircle2 size={14} />
-                        </>
-                      )}
-                    </button>
-                  )}
+                      }
+                    }}
+                    className={`flex-1 py-3 text-white rounded-xl font-bold transition-all text-xs cursor-pointer flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg ${
+                      onboardingStep === 3 
+                        ? 'bg-blue-700 hover:bg-blue-800' 
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    {onboardingStep < 3 ? (
+                      <>
+                        Continue <ChevronRight size={14} />
+                      </>
+                    ) : loading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        Complete Profile <CheckCircle2 size={14} />
+                      </>
+                    )}
+                  </button>
                 </div>
               </form>
             </motion.div>

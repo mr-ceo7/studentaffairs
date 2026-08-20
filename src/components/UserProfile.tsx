@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { X, User, LogOut, Shield, GraduationCap, BookOpen, Building } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { Link } from 'react-router-dom';
+import { authService } from '../services/authService';
+import { toast } from 'sonner';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -8,17 +11,64 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ isOpen, onClose }: UserProfileProps) {
-  const { user, logout } = useUser();
+  const { user, logout, refreshUser } = useUser();
+  const [updating, setUpdating] = useState(false);
 
   if (!isOpen || !user) return null;
 
   const isStudent = !user.email.endsWith('@uonbi.ac.ke') && !user.is_admin;
   const isAdmin = user.is_admin;
   
-  // Resolve academic details (can be mocked cleanly based on user data for high-fidelity representation)
-  const regNumber = isStudent ? (user.email === 'emily.wanjiru@student.uonbi.ac.ke' ? 'CS/45231/2022' : 'CS/40118/2021') : 'N/A';
-  const faculty = "Faculty of Science & Technology";
-  const department = "Computing & Informatics";
+  // Resolve academic details from actual user state
+  const regNumber = user.reg_number || 'N/A';
+  const faculty = user.faculty || 'N/A';
+  const department = user.department || 'N/A';
+  const course = user.course || 'N/A';
+
+  const handleYearChange = async (newYear: string) => {
+    setUpdating(true);
+    try {
+      await authService.updateProfile({
+        username: user.username,
+        reg_number: user.reg_number,
+        campus: user.campus,
+        faculty: user.faculty,
+        department: user.department,
+        course: user.course,
+        year_of_study: newYear,
+        semester: user.semester || 'Semester 1'
+      });
+      await refreshUser();
+      toast.success('Academic Year updated!');
+    } catch {
+      toast.error('Failed to update Academic Year.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleSemesterChange = async (newSem: string) => {
+    setUpdating(true);
+    try {
+      await authService.updateProfile({
+        username: user.username,
+        reg_number: user.reg_number,
+        campus: user.campus,
+        faculty: user.faculty,
+        department: user.department,
+        course: user.course,
+        year_of_study: user.year_of_study || 'Year 1',
+        semester: newSem
+      });
+      await refreshUser();
+      toast.success('Semester updated!');
+    } catch {
+      toast.error('Failed to update Semester.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const assignedUnits = isStudent 
     ? [] 
     : ["ICS 2101 — Data Structures & Algorithms", "ICS 2205 — Database Systems", "ICS 2303 — Computer Networks", "ICS 2401 — Software Engineering"];
@@ -63,17 +113,53 @@ export function UserProfile({ isOpen, onClose }: UserProfileProps) {
           {isStudent ? (
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200/40 dark:border-slate-800/50">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-0.5">Registration No.</span>
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{regNumber}</span>
+                <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wider block mb-0.5">Registration No.</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">{regNumber}</span>
               </div>
               <div className="bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200/40 dark:border-slate-800/50">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-0.5">Department</span>
+                <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wider block mb-0.5">Department</span>
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block" title={department}>{department}</span>
               </div>
+              <div className="bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200/40 dark:border-slate-800/50 col-span-2">
+                <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wider block mb-0.5">Degree Course</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block" title={course}>{course}</span>
+              </div>
+
+              {/* Year & Semester Selectors */}
+              <div className="bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200/40 dark:border-slate-800/50">
+                <label className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wider block mb-1">Academic Year</label>
+                <select
+                  disabled={updating}
+                  value={user.year_of_study || 'Year 1'}
+                  onChange={(e) => handleYearChange(e.target.value)}
+                  className="w-full bg-transparent text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+                >
+                  <option value="Year 1" className="bg-white dark:bg-slate-950">Year 1</option>
+                  <option value="Year 2" className="bg-white dark:bg-slate-950">Year 2</option>
+                  <option value="Year 3" className="bg-white dark:bg-slate-950">Year 3</option>
+                  <option value="Year 4" className="bg-white dark:bg-slate-950">Year 4</option>
+                  <option value="Year 5" className="bg-white dark:bg-slate-950">Year 5</option>
+                </select>
+              </div>
+
+              <div className="bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200/40 dark:border-slate-800/50">
+                <label className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wider block mb-1">Semester</label>
+                <select
+                  disabled={updating}
+                  value={user.semester || 'Semester 1'}
+                  onChange={(e) => handleSemesterChange(e.target.value)}
+                  className="w-full bg-transparent text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+                >
+                  <option value="Semester 1" className="bg-white dark:bg-slate-950">Semester 1</option>
+                  <option value="Semester 2" className="bg-white dark:bg-slate-950">Semester 2</option>
+                  <option value="Semester 3" className="bg-white dark:bg-slate-950">Semester 3</option>
+                </select>
+              </div>
+
               <div className="col-span-2 bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200/40 dark:border-slate-800/50 flex items-center gap-2">
-                <Building className="w-4 h-4 text-slate-400 dark:text-slate-550" />
+                <Building className="w-4 h-4 text-slate-450 dark:text-slate-550" />
                 <div className="min-w-0">
-                  <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-0.5">Faculty</span>
+                  <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wider block mb-0.5">Faculty</span>
                   <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block" title={faculty}>{faculty}</span>
                 </div>
               </div>
