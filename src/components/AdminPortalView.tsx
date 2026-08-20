@@ -564,7 +564,7 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-              className="fixed inset-y-0 right-0 w-full sm:max-w-lg bg-white dark:bg-slate-955 border-l border-slate-200 dark:border-slate-800/80 shadow-2xl z-50 flex flex-col text-xs text-slate-700 dark:text-slate-300"
+              className="fixed inset-y-0 right-0 w-full sm:max-w-lg bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800/80 shadow-2xl z-50 flex flex-col text-xs text-slate-700 dark:text-slate-300"
             >
               {/* Drawer Header */}
               <div className="p-5 border-b border-slate-100 dark:border-slate-850 flex items-center justify-between bg-slate-50/60 dark:bg-slate-900/40">

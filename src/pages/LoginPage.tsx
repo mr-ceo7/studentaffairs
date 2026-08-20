@@ -202,7 +202,7 @@ export default function LoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-955/80 backdrop-blur-md p-4 overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md p-4 overflow-y-auto"
           >
             <motion.div 
               initial={{ scale: 0.95, y: 15 }}
@@ -448,7 +448,7 @@ export default function LoginPage() {
             alt="UoN Campus"
           />
           {/* Vignette & dark color tint overlay to ensure text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-955/75 via-slate-900/50 to-slate-955/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-900/50 to-slate-950/80" />
         </div>
 
         {/* Subtle glowing gradients on left side */}
