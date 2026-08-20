@@ -48,7 +48,7 @@ export default function GatewayView({ onShowAuth }: GatewayProps) {
       <div className="reveal active text-center py-6 px-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-3xl border border-blue-100/50 dark:border-blue-900/50 shadow-sm max-w-4xl mx-auto">
         <img src="/uon_crest.jpg" className="w-16 h-16 object-cover mx-auto mb-3 hover:scale-105 transition-all rounded-xl shadow-md border border-slate-200/50 dark:border-slate-800" alt="UoN Crest" />
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight font-display">
-          UoN Academic Clearance Gateway
+          UoN Academic Grievance Clearinghouse
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1.5 leading-relaxed max-w-xl mx-auto">
           Select your faculty and department to log in through Single Sign-On (SSO) and access claims submission or review queues.
@@ -154,7 +154,7 @@ export default function GatewayView({ onShowAuth }: GatewayProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="block text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-750 dark:group-hover:text-amber-400 transition-colors">Continue as Registrar / HOD</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate block mt-0.5">Clearance dashboard & export · @uonbi.ac.ke</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate block mt-0.5">Manage claims &amp; Senate updates · @uonbi.ac.ke</span>
                 </div>
               </button>
             </div>
