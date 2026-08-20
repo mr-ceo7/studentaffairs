@@ -26,8 +26,8 @@ router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
 
 
 ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx", ".heic"}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB per file
-MAX_TOTAL_FILES = 5
+MAX_FILE_SIZE = 3 * 1024 * 1024  # 3 MB per file
+MAX_TOTAL_FILES = 3
 
 @router.post("/upload")
 async def upload_proof_attachments(

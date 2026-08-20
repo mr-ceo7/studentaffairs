@@ -233,8 +233,16 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       }
     }
 
-    if (uploadedFiles.length + filesToUpload.length > 5) {
-      toast.error('You can only upload up to 5 total files.');
+    const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 MB
+    const overSizeFiles = incomingFiles.filter(f => f.size > MAX_FILE_SIZE);
+    if (overSizeFiles.length > 0) {
+      toast.error(`File(s) exceed 3MB limit: ${overSizeFiles.map(o => o.name).join(', ')}`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    if (uploadedFiles.length + filesToUpload.length > 3) {
+      toast.error('You can only upload up to 3 total files.');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -675,12 +683,19 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                       Describe your issue
                     </label>
                     <textarea
-                      placeholder="Invigilator name, exam room, script code..."
+                      placeholder="Provide clear details (e.g. invigilator name, exam room, script docket code, or why the mark is missing)..."
                       value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      rows={2}
+                      onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+                      maxLength={500}
+                      rows={5}
                       className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
                     />
+                    <div className="flex justify-between items-center mt-1 text-[9px] font-bold text-slate-400 dark:text-slate-550 select-none">
+                      <span>Limit: 500 characters</span>
+                      <span className={notes.length >= 480 ? 'text-red-500 dark:text-red-400' : ''}>
+                        {notes.length}/500
+                      </span>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -732,7 +747,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                                 ? `✓ ${uploadedFiles.length} file(s) attached` 
                                 : 'Tap to attach supporting documents (Optional)'}
                           </span>
-                          <span className="text-[9px] text-slate-400 dark:text-slate-550">PDF, Word (DOC, DOCX), or images (PNG, JPG, HEIC) up to 10MB</span>
+                          <span className="text-[9px] text-slate-400 dark:text-slate-550">PDF, Word (DOC, DOCX), or images (PNG, JPG, HEIC) up to 3MB (Max 3 files)</span>
                         </div>
                       </div>
 
