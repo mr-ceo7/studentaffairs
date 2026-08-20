@@ -25,6 +25,7 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import TermsOfService from './pages/legal/TermsOfService';
 import Footer from './components/Footer';
 import PencilLoader from './components/PencilLoader';
+import './components/Loader.css';
 import LoginPage from './pages/LoginPage';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -141,8 +142,8 @@ export default function App() {
   const [splashFading, setSplashFading] = useState(false);
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setSplashFading(true), 1600);
-    const removeTimer = setTimeout(() => setSplashVisible(false), 2100);
+    const fadeTimer = setTimeout(() => setSplashFading(true), 3500);
+    const removeTimer = setTimeout(() => setSplashVisible(false), 4000);
     return () => { clearTimeout(fadeTimer); clearTimeout(removeTimer); };
   }, []);
 
