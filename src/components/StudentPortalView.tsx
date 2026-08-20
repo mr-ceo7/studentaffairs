@@ -134,7 +134,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   }, []);
   const [category, setCategory] = useState('');
   const [claimedScore, setClaimedScore] = useState('');
-  const [isScoreUnknown, setIsScoreUnknown] = useState(false);
+  const [isScoreUnknown, setIsScoreUnknown] = useState(true);
   const [notes, setNotes] = useState('');
   const [agree, setAgree] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{ url: string; name: string }[]>([]);
@@ -316,7 +316,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       setUnitCode('');
       setCategory('');
       setClaimedScore('');
-      setIsScoreUnknown(false);
+      setIsScoreUnknown(true);
       setNotes('');
       setAgree(false);
       setUploadedFiles([]);
@@ -857,7 +857,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   setUnitCode('');
                   setCategory('');
                   setClaimedScore('');
-                  setIsScoreUnknown(false);
+                  setIsScoreUnknown(true);
                   setNotes('');
                   setAgree(false);
                   setUploadedFiles([]);
@@ -885,129 +885,88 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
           </div>
 
           {tickets.length > 0 ? (
-            <>
-              {/* Tab Switcher for separating read/unread tickets */}
-              <div className="flex gap-2 border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
-                <button
-                  onClick={() => setSubTab('unread')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                    subTab === 'unread'
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-50 dark:bg-slate-900 text-slate-650 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  Attention Needed
-                  <span className={`px-1.5 py-0.5 text-[10px] rounded-md ${
-                    subTab === 'unread' 
-                      ? 'bg-white/20 text-white' 
-                      : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
-                  }`}>
-                    {tickets.filter(t => {
-                      const statusLower = t.status.toLowerCase();
-                      if (statusLower.includes('awaiting student') || statusLower.includes('insufficient proof') || statusLower.includes('rejected')) return true;
-                      return t.comments?.some(c => c.author_role !== 'student' && !c.is_read) || false;
-                    }).length}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSubTab('read')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    subTab === 'read'
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-50 dark:bg-slate-900 text-slate-650 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  Seen & Acted Upon
-                </button>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(() => {
+                const getIsUnread = (t: TicketData) => {
+                  const statusLower = t.status.toLowerCase();
+                  if (statusLower.includes('awaiting student') || statusLower.includes('insufficient proof') || statusLower.includes('rejected')) return true;
+                  return t.comments?.some(c => c.author_role !== 'student' && !c.is_read) || false;
+                };
 
-              {/* Grid of displayed tickets */}
-              {tickets.filter(t => {
-                const isUnread = t.status.toLowerCase().includes('awaiting student') || 
-                                 t.status.toLowerCase().includes('insufficient proof') || 
-                                 t.status.toLowerCase().includes('rejected') || 
-                                 t.comments?.some(c => c.author_role !== 'student' && !c.is_read);
-                return subTab === 'unread' ? isUnread : !isUnread;
-              }).length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {tickets.filter(t => {
-                    const isUnread = t.status.toLowerCase().includes('awaiting student') || 
-                                     t.status.toLowerCase().includes('insufficient proof') || 
-                                     t.status.toLowerCase().includes('rejected') || 
-                                     t.comments?.some(c => c.author_role !== 'student' && !c.is_read);
-                    return subTab === 'unread' ? isUnread : !isUnread;
-                  }).map(t => {
-                    const isUnread = t.status.toLowerCase().includes('awaiting student') || 
-                                     t.status.toLowerCase().includes('insufficient proof') || 
-                                     t.status.toLowerCase().includes('rejected') || 
-                                     t.comments?.some(c => c.author_role !== 'student' && !c.is_read);
+                return [...tickets].sort((a, b) => {
+                  const aUnread = getIsUnread(a);
+                  const bUnread = getIsUnread(b);
+                  if (aUnread && !bUnread) return -1;
+                  if (!aUnread && bUnread) return 1;
+                  return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+                }).map(t => {
+                  const isUnread = getIsUnread(t);
 
-                    return (
-                      <div 
-                        key={t.ticket_id} 
-                        onClick={() => navigate(`/clearance/ticket/${t.ticket_id}`)}
-                        className="rounded-2xl p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-blue-800 hover:ring-2 hover:ring-blue-500/5 transition-all duration-200 shadow-sm flex flex-col gap-3 cursor-pointer"
-                      >
-                        {/* Top Row: Ticket ID badge & Date */}
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5">
-                            {isUnread && (
-                              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" title="New Activity" />
-                            )}
-                            <span className="font-mono font-extrabold text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/80 px-2.5 py-0.5 rounded-lg shrink-0">
-                              {t.ticket_id}
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                            {new Date(t.created_at).toLocaleDateString()}
+                  return (
+                    <div 
+                      key={t.ticket_id} 
+                      onClick={() => navigate(`/clearance/ticket/${t.ticket_id}`)}
+                      className={`rounded-2xl p-4 sm:p-5 bg-white dark:bg-slate-900 border transition-all duration-200 shadow-sm flex flex-col gap-3 cursor-pointer ${
+                        isUnread 
+                          ? 'border-blue-300 dark:border-blue-800/70 ring-2 ring-blue-500/5 shadow-blue-50/5' 
+                          : 'border-slate-200/60 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-blue-800 hover:ring-2 hover:ring-blue-500/5'
+                      }`}
+                    >
+                      {/* Top Row: Ticket ID badge & Date */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          {isUnread && (
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" title="Attention Needed" />
+                          )}
+                          <span className="font-mono font-extrabold text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/80 px-2.5 py-0.5 rounded-lg shrink-0">
+                            {t.ticket_id}
                           </span>
                         </div>
-
-                        {/* Main Title: Course Unit Code & Title */}
-                        <div>
-                          <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">
-                            {t.unit_code}
-                          </h3>
-                          {/* Subtitle: Student Name (Reg No) · Assessment Category */}
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium font-bold truncate">
-                            {t.assessment_category}
-                          </p>
-                        </div>
-
-                        {/* Divider line */}
-                        <div className="border-t border-slate-100 dark:border-slate-800/80 my-0.5" />
-
-                        {/* Bottom Metrics Row */}
-                        <div className="flex items-center justify-between gap-3 flex-wrap">
-                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-650 dark:text-slate-400">
-                            <span>Claimed: <strong className="text-amber-600 dark:text-amber-500 font-extrabold">{t.claimed_score !== null ? `${t.claimed_score}%` : '—'}</strong></span>
-                            <span className="text-slate-200 dark:text-slate-750">|</span>
-                            <span>Verified: <strong className={t.verified_score !== null && t.verified_score !== undefined ? 'text-emerald-600 dark:text-emerald-450 font-extrabold' : 'text-slate-500 dark:text-slate-400 font-extrabold'}>
-                              {t.verified_score !== null && t.verified_score !== undefined ? `${t.verified_score}%` : 'Pending'}
-                            </strong></span>
-                          </div>
-
-                          {/* Status Text on right */}
-                          <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
-                            t.status.toLowerCase().includes('clear') || t.status.toLowerCase().includes('sms')
-                              ? 'text-emerald-600 dark:text-emerald-450'
-                              : t.status.toLowerCase().includes('reject')
-                                ? 'text-red-650 dark:text-red-400'
-                                : 'text-blue-700 dark:text-blue-400'
-                          }`}>
-                            {t.status.toUpperCase()}
-                          </span>
-                        </div>
+                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                          {new Date(t.created_at).toLocaleDateString()}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-slate-50/40 dark:bg-slate-900/10 rounded-2xl border border-slate-100 dark:border-slate-850 text-slate-400 italic text-xs">
-                  {subTab === 'unread' ? "No unread claims or tickets requiring your attention!" : "No seen tickets in this tab."}
-                </div>
-              )}
-            </>
+
+                      {/* Main Title: Course Unit Code & Title */}
+                      <div>
+                        <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">
+                          {t.unit_code}
+                        </h3>
+                        {/* Subtitle: Student Name (Reg No) · Assessment Category */}
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium font-bold truncate">
+                          {t.assessment_category}
+                        </p>
+                      </div>
+
+                      {/* Divider line */}
+                      <div className="border-t border-slate-100 dark:border-slate-800/80 my-0.5" />
+
+                      {/* Bottom Metrics Row */}
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-650 dark:text-slate-400">
+                          <span>Claimed: <strong className="text-amber-600 dark:text-amber-500 font-extrabold">{t.claimed_score !== null ? `${t.claimed_score}%` : '—'}</strong></span>
+                          <span className="text-slate-200 dark:text-slate-750">|</span>
+                          <span>Verified: <strong className={t.verified_score !== null && t.verified_score !== undefined ? 'text-emerald-600 dark:text-emerald-450 font-extrabold' : 'text-slate-500 dark:text-slate-400 font-extrabold'}>
+                            {t.verified_score !== null && t.verified_score !== undefined ? `${t.verified_score}%` : 'Pending'}
+                          </strong></span>
+                        </div>
+
+                        {/* Status Text on right */}
+                        <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
+                          t.status.toLowerCase().includes('clear') || t.status.toLowerCase().includes('sms')
+                            ? 'text-emerald-600 dark:text-emerald-450'
+                            : t.status.toLowerCase().includes('reject')
+                              ? 'text-red-650 dark:text-red-400'
+                              : 'text-blue-700 dark:text-blue-400'
+                        }`}>
+                          {t.status.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
           ) : (
             <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm">
               <BookOpen size={40} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />

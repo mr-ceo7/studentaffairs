@@ -109,7 +109,7 @@ export default function LoginPage() {
       const userData = await authService.me();
       await refreshUser();
       
-      const isStudent = userData.email.endsWith('@student.uonbi.ac.ke');
+      const isStudent = !userData.email.endsWith('@uonbi.ac.ke') && !userData.is_admin;
       const isNewStudent = isStudent && !userData.reg_number;
 
       if (isNewStudent) {
@@ -140,7 +140,7 @@ export default function LoginPage() {
       const userData = await authService.me();
       await refreshUser();
 
-      const isStudent = userData.email.endsWith('@student.uonbi.ac.ke');
+      const isStudent = !userData.email.endsWith('@uonbi.ac.ke') && !userData.is_admin;
       const isNewStudent = isStudent && !userData.reg_number;
 
       if (isNewStudent) {
@@ -212,7 +212,7 @@ export default function LoginPage() {
             >
               <div className="text-center mb-6">
                 <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
-                  <Sparkles size={24} />
+                  <GraduationCap size={24} />
                 </div>
                 <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">Setup Academic Profile</h2>
                 <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">First-time student account setup</p>
@@ -706,7 +706,7 @@ export default function LoginPage() {
                         </span>
                       </div>
                     </div>
-                    <Sparkles size={14} className="text-blue-550 dark:text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <ArrowRight size={14} className="text-blue-550 dark:text-blue-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                   </button>
                 </motion.div>
               )}

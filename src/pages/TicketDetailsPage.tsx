@@ -46,7 +46,7 @@ export default function TicketDetailsPage() {
       setSelectedStatusInput(data.status);
 
       // Update student read timestamps in localStorage
-      if (user && user.email.endsWith('@student.uonbi.ac.ke')) {
+      if (user && !user.email.endsWith('@uonbi.ac.ke') && !user.is_admin) {
         try {
           const stored = localStorage.getItem(`clearance_last_read_tickets_${user.id}`);
           const readMap = stored ? JSON.parse(stored) : {};
@@ -166,7 +166,7 @@ export default function TicketDetailsPage() {
     );
   }
 
-  const isStudent = user.email.endsWith('@student.uonbi.ac.ke');
+  const isStudent = !user.email.endsWith('@uonbi.ac.ke') && !user.is_admin;
   const isAdmin = user.is_admin;
   const isLecturer = !isStudent && !isAdmin;
 

@@ -12,7 +12,7 @@ export function UserProfile({ isOpen, onClose }: UserProfileProps) {
 
   if (!isOpen || !user) return null;
 
-  const isStudent = user.email.endsWith('@student.uonbi.ac.ke');
+  const isStudent = !user.email.endsWith('@uonbi.ac.ke') && !user.is_admin;
   const isAdmin = user.is_admin;
   
   // Resolve academic details (can be mocked cleanly based on user data for high-fidelity representation)

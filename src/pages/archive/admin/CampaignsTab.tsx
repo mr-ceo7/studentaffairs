@@ -309,7 +309,7 @@ export function CampaignsTab() {
                 <FileDropZone label="OG Share Image" accept="image/*" currentUrl={ogImageUrl} onUploaded={setOgImageUrl} />
               </div>
               <div className="space-y-3 pt-4 border-t border-white/5">
-                <h4 className="text-xs font-bold text-slate-300 flex items-center gap-2"><Sparkles size={13} /> Visual Effects</h4>
+                <h4 className="text-xs font-bold text-slate-300 flex items-center gap-2"><Palette size={13} /> Visual Effects</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <ToggleSwitch label="Splash Screen" checked={useSplashScreen} onChange={setUseSplashScreen} />
                   <ToggleSwitch label="Floating Badge" checked={useFloatingBadge} onChange={setUseFloatingBadge} />

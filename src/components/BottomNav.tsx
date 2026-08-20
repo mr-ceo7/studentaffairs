@@ -14,7 +14,7 @@ export default function BottomNav() {
   const isActive = (path: string) => location.pathname === path;
 
   // Determine user roles
-  const isStudent = user?.email.endsWith('@student.uonbi.ac.ke');
+  const isStudent = user ? (!user.email.endsWith('@uonbi.ac.ke') && !user.is_admin) : false;
   const isAdmin = user?.is_admin;
 
   return (

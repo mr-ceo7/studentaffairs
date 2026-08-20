@@ -156,7 +156,7 @@ export default function GpaCalculatorPage() {
         <div className="clay-card p-5 space-y-3 bg-gradient-to-r from-blue-500/5 to-transparent">
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase font-bold text-blue-700 dark:text-blue-400 tracking-wider flex items-center gap-1">
-              <Sparkles size={12} className="animate-spin-slow" /> Projected Standing (After Clearing Claim)
+              <Award size={12} className="animate-pulse" /> Projected Standing (After Clearing Claim)
             </span>
             <span className="text-xl font-extrabold text-blue-800 dark:text-blue-400 font-mono">{simAverage.toFixed(1)}%</span>
           </div>

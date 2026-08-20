@@ -28,7 +28,7 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
   const isActive = (path: string) => location.pathname === path;
 
   // Determine user role details
-  const isStudent = user?.email.endsWith('@student.uonbi.ac.ke');
+  const isStudent = user ? (!user.email.endsWith('@uonbi.ac.ke') && !user.is_admin) : false;
   const isStaff = user?.email.endsWith('@uonbi.ac.ke');
   const isAdmin = user?.is_admin;
 

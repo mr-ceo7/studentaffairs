@@ -49,7 +49,7 @@ export default function Dashboard({ onShowPricing, onShowAuth }: DashboardProps)
   }
 
   // Determine portal to render based on email domain and admin flag
-  const isStudent = user.email.endsWith('@student.uonbi.ac.ke');
+  const isStudent = !user.email.endsWith('@uonbi.ac.ke') && !user.is_admin;
   const isAdmin = user.is_admin;
 
   return (
