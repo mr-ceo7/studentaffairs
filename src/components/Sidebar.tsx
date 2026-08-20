@@ -126,7 +126,7 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
               )}
               */}
 
-              {/* Admin Panel Link */}
+              {/* Admin Panel Link (Archived with System Admin Panel)
               {user?.is_admin && (
                 <Link 
                   to="/admin" 
@@ -143,6 +143,7 @@ export default function Sidebar({ className = "", onShowAuth }: SidebarProps) {
                   System Admin
                 </Link>
               )}
+              */}
             </div>
           </div>
 

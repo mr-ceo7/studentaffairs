@@ -71,10 +71,10 @@ async def create_user_session(user: User, db: AsyncSession) -> str:
     db.add(user)
     await db.commit()
 
-    # Track login campaign event
-    from app.routers.campaigns import track_campaign_event
-    import asyncio
-    asyncio.create_task(track_campaign_event("login"))
+    # Track login campaign event (Archived)
+    # from app.routers.campaigns import track_campaign_event
+    # import asyncio
+    # asyncio.create_task(track_campaign_event("login"))
 
     return session_id
 
