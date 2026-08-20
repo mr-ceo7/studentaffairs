@@ -15,7 +15,17 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
 
     const detailMsg = error.response?.data?.detail;
-    if (error.response?.status === 401 && detailMsg === "Session expired. Device logged in elsewhere.") {
+    if (error.response?.data && Array.isArray(detailMsg)) {
+      error.response.data.detail = detailMsg
+        .map((err: any) => {
+          const field = err.loc ? err.loc[err.loc.length - 1] : '';
+          const fieldName = field ? `"${field}" ` : '';
+          return `${fieldName}${err.msg}`;
+        })
+        .join(' | ');
+    }
+
+    if (error.response?.status === 401 && error.response?.data?.detail === "Session expired. Device logged in elsewhere.") {
       window.dispatchEvent(new Event('auth:conflict'));
       return Promise.reject(error);
     }
