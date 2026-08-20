@@ -130,6 +130,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   }, []);
   const [category, setCategory] = useState('');
   const [claimedScore, setClaimedScore] = useState('');
+  const [isScoreUnknown, setIsScoreUnknown] = useState(false);
   const [notes, setNotes] = useState('');
   const [agree, setAgree] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{ url: string; name: string }[]>([]);
@@ -166,7 +167,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         toast.error('Please select an assessment category.');
         return;
       }
-      if (!claimedScore || isNaN(Number(claimedScore))) {
+      if (!isScoreUnknown && (!claimedScore || isNaN(Number(claimedScore)))) {
         toast.error('Please enter a valid claimed score.');
         return;
       }
@@ -273,7 +274,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       toast.error('Please select an assessment category.');
       return;
     }
-    if (!claimedScore || isNaN(Number(claimedScore))) {
+    if (!isScoreUnknown && (!claimedScore || isNaN(Number(claimedScore)))) {
       toast.error('Please enter a valid claimed score.');
       return;
     }
@@ -290,7 +291,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         department: user.department || 'Computing & Informatics',
         unit_code: finalUnitCode,
         assessment_category: category,
-        claimed_score: Number(claimedScore),
+        claimed_score: isScoreUnknown ? undefined : Number(claimedScore),
         proof_attachment: uploadedFiles.map(f => f.url).join(',') || undefined,
         additional_notes: notes
       };
@@ -303,6 +304,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       setUnitCode('');
       setCategory('');
       setClaimedScore('');
+      setIsScoreUnknown(false);
       setNotes('');
       setAgree(false);
       setUploadedFiles([]);
@@ -635,15 +637,34 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                        Claimed Score / Grade
-                      </label>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          Claimed Score / Grade
+                        </label>
+                        <label className="flex items-center gap-1 cursor-pointer text-[9px] font-extrabold text-slate-500 dark:text-slate-450 hover:text-slate-800 dark:hover:text-slate-200 select-none">
+                          <input
+                            type="checkbox"
+                            checked={isScoreUnknown}
+                            onChange={(e) => {
+                              setIsScoreUnknown(e.target.checked);
+                              if (e.target.checked) {
+                                setClaimedScore('');
+                              }
+                            }}
+                            className="rounded border-slate-300 dark:border-slate-800 text-blue-600 focus:ring-blue-500 w-3 h-3 cursor-pointer"
+                          />
+                          <span>Mark is Missing</span>
+                        </label>
+                      </div>
                       <input
                         type="number"
-                        placeholder="e.g. 68"
+                        placeholder={isScoreUnknown ? "N/A (Mark completely missing)" : "e.g. 68"}
                         value={claimedScore}
+                        disabled={isScoreUnknown}
                         onChange={(e) => setClaimedScore(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                        className={`w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all ${
+                          isScoreUnknown ? 'opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-950/20' : ''
+                        }`}
                       />
                     </div>
                   </div>
@@ -651,7 +672,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   {/* Notes (compact) */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      Additional Notes (optional)
+                      Describe your issue
                     </label>
                     <textarea
                       placeholder="Invigilator name, exam room, script code..."
@@ -800,6 +821,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   setUnitCode('');
                   setCategory('');
                   setClaimedScore('');
+                  setIsScoreUnknown(false);
                   setNotes('');
                   setAgree(false);
                   setUploadedFiles([]);

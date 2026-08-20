@@ -20,7 +20,7 @@ class Ticket(Base):
     department = Column(String(255), nullable=False)
     unit_code = Column(String(255), nullable=False)
     assessment_category = Column(String(100), nullable=False)
-    claimed_score = Column(Integer, nullable=False)
+    claimed_score = Column(Integer, nullable=True)
     verified_score = Column(Integer, nullable=True)
     status = Column(
         String(100),

@@ -18,7 +18,7 @@ export interface TicketData {
   department: string;
   unit_code: string;
   assessment_category: string;
-  claimed_score: number;
+  claimed_score?: number;
   verified_score?: number;
   status: string;
   proof_attachment?: string;
@@ -37,7 +37,7 @@ export interface TicketCreatePayload {
   department: string;
   unit_code: string;
   assessment_category: string;
-  claimed_score: number;
+  claimed_score?: number;
   proof_attachment?: string;
   additional_notes?: string;
 }

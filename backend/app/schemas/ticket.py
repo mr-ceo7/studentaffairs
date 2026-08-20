@@ -26,7 +26,7 @@ class TicketCreate(BaseModel):
     department: str
     unit_code: str
     assessment_category: str
-    claimed_score: int
+    claimed_score: Optional[int] = None
     proof_attachment: Optional[str] = None
     additional_notes: Optional[str] = None
 
@@ -45,7 +45,7 @@ class TicketResponse(BaseModel):
     department: str
     unit_code: str
     assessment_category: str
-    claimed_score: int
+    claimed_score: Optional[int] = None
     verified_score: Optional[int] = None
     status: str
     proof_attachment: Optional[str] = None
