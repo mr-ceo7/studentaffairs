@@ -339,10 +339,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
 
   return (
     <div className="space-y-6 text-slate-700 dark:text-slate-300">
-      {/* Welcome Message (above hero) */}
-      <div className="reveal active space-y-1 px-1">
+      {/* Welcome Message (above hero) — visible on mobile, hidden on desktop */}
+      <div className="reveal active space-y-1 px-1 md:hidden">
         <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest block">Student Portal</span>
-        <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
           Welcome, {user.username}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-xs leading-none">
@@ -369,22 +369,65 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
           </motion.div>
         </AnimatePresence>
 
+        {/* Subtle Dark Overlay to dim hero & improve text legibility on desktop */}
+        <div className="absolute inset-0 bg-black/45 md:bg-black/55 z-10 pointer-events-none" />
+
+        {/* Desktop Overlay: Welcome text & CTA buttons (visible on desktop only) */}
+        <div className="hidden md:flex flex-col justify-between absolute inset-0 z-20 p-8 text-white">
+          {/* Welcome Message */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-blue-300 uppercase tracking-widest block">Student Portal</span>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
+              Welcome, {user.username}
+            </h1>
+            <p className="text-slate-200 text-xs font-semibold drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+              {user.faculty || 'Faculty of Science & Technology'} · {user.department || 'Department of Computing & Informatics'}
+            </p>
+          </div>
+
+          {/* CTA Tab Buttons */}
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setActiveTab('new-claim')}
+              className={`px-5 py-2.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md ${
+                activeTab === 'new-claim' 
+                  ? 'bg-blue-600 border-blue-600 text-white' 
+                  : 'bg-slate-800/90 border-slate-700/80 hover:bg-slate-700/90 text-white/95'
+              }`}
+            >
+              <PlusCircle size={14} />
+              New Claim Ticket
+            </button>
+            <button 
+              onClick={() => setActiveTab('my-tickets')}
+              className={`px-5 py-2.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md ${
+                activeTab === 'my-tickets' 
+                  ? 'bg-blue-600 border-blue-600 text-white' 
+                  : 'bg-slate-800/90 border-slate-700/80 hover:bg-slate-700/90 text-white/95'
+              }`}
+            >
+              <ListTodo size={14} />
+              My Tickets ({tickets.length})
+            </button>
+          </div>
+        </div>
+
         {/* Navigation Arrows */}
         <button
           onClick={() => setHeroSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 cursor-pointer"
         >
           <ChevronLeft size={14} />
         </button>
         <button
           onClick={() => setHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 cursor-pointer"
         >
           <ChevronRight size={14} />
         </button>
 
         {/* Slide Indicators */}
-        <div className="absolute bottom-2 right-3 flex gap-1.5 z-20">
+        <div className="absolute bottom-2 right-3 flex gap-1.5 z-30">
           {HERO_SLIDES.map((_, i) => (
             <button
               key={i}
@@ -397,8 +440,8 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         </div>
       </div>
 
-      {/* Tab Buttons (below hero) */}
-      <div className="flex gap-2">
+      {/* Tab Buttons (below hero) — visible on mobile, hidden on desktop */}
+      <div className="flex gap-2 md:hidden">
         <button 
           onClick={() => setActiveTab('new-claim')}
           className={`px-4 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
@@ -784,7 +827,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
           </div>
 
           {tickets.length > 0 ? (
-            <div className="space-y-2.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {tickets.map(t => {
                 const isExpanded = expandedTicketId === t.ticket_id;
                 return (
