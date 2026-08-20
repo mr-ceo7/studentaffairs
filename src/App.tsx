@@ -8,7 +8,7 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigate, useSearchParams
 import { UserProvider } from './context/UserContext';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
-import BottomNav from './components/BottomNav';
+// import BottomNav from './components/BottomNav';
 // import Sidebar from './components/Sidebar';
 import ScrollVideo from './components/ScrollVideo';
 import AuthModal from './components/AuthModal';
@@ -118,7 +118,8 @@ function AppContent() {
         
         {/* Full-width footer positioned directly below sidebar and main content */}
         <Footer />
-        <BottomNav />
+        {/* BottomNav removed as navigation links moved to top header / hamburger menu */}
+        {/* <BottomNav /> */}
       </div>
 
       {/* Floating Support Button (Archived)

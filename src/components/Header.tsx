@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bell, LogIn, LogOut, ShieldAlert, Sun, Moon, Inbox, MessageSquare, AlertCircle, CheckSquare, Sparkles } from 'lucide-react';
+import { Bell, LogIn, LogOut, ShieldAlert, Sun, Moon, Inbox, MessageSquare, AlertCircle, CheckSquare, Sparkles, Menu, X } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { Link, useLocation } from 'react-router-dom';
 import { UserProfile } from './UserProfile';
@@ -17,6 +17,7 @@ export default function Header({ onShowAuth }: HeaderProps) {
   const { user, logout } = useUser();
   const { theme, toggleTheme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -361,7 +362,7 @@ export default function Header({ onShowAuth }: HeaderProps) {
               </button>
               <button 
                 onClick={() => setIsProfileOpen(true)}
-                className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 hover:scale-105 active:scale-95 hover:shadow-md hover:border-blue-400 transition-all duration-150 cursor-pointer"
+                className="hidden md:block w-9 h-9 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 hover:scale-105 active:scale-95 hover:shadow-md hover:border-blue-400 transition-all duration-150 cursor-pointer"
               >
                 {user.profile_picture ? (
                   <img 
@@ -384,8 +385,133 @@ export default function Header({ onShowAuth }: HeaderProps) {
               <LogIn size={14} /> SSO Sign In
             </button>
           )}
+          {/* Hamburger Menu Button (visible on mobile only) */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            title="Menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </header>
+
+      {/* Mobile Navigation Dropdown Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full z-45 absolute top-16 left-0 overflow-hidden flex flex-col p-4 space-y-1 shadow-lg"
+          >
+            <Link 
+              to="/" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                isActive('/') 
+                  ? 'bg-blue-50/50 border-blue-200/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/about" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                isActive('/about') 
+                  ? 'bg-blue-50/50 border-blue-200/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              About
+            </Link>
+            <Link 
+              to="/faq" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                isActive('/faq') 
+                  ? 'bg-blue-50/50 border-blue-200/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              FAQ
+            </Link>
+            <Link 
+              to="/contact" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                isActive('/contact') 
+                  ? 'bg-blue-50/50 border-blue-200/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              Support
+            </Link>
+
+            {!user && (
+              <>
+                <div className="h-px bg-slate-100 dark:bg-slate-900 my-2" />
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onShowAuth();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-blue-700 hover:bg-blue-800 text-white transition-all w-full text-center justify-center cursor-pointer shadow-sm"
+                >
+                  <LogIn size={16} /> SSO Sign In
+                </button>
+              </>
+            )}
+
+            {user && (
+              <>
+                <div className="h-px bg-slate-100 dark:bg-slate-900 my-2" />
+                
+                {/* Profile Card Item */}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsProfileOpen(true);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200/60 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-105 dark:hover:bg-slate-900 transition-all w-full text-left cursor-pointer"
+                >
+                  <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0">
+                    {user.profile_picture ? (
+                      <img 
+                        alt="User avatar" 
+                        className="w-full h-full object-cover" 
+                        src={user.profile_picture} 
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-white flex items-center justify-center font-bold text-sm uppercase">
+                        {user.username.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{user.username}</span>
+                    <span className="block text-[10px] text-slate-500 dark:text-slate-450 truncate">{user.email}</span>
+                  </div>
+                </button>
+
+                {/* Logout Button */}
+                <button 
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-transparent text-red-600 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-950/20 transition-all w-full text-left cursor-pointer"
+                >
+                  <LogOut size={16} /> Logout
+                </button>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
     </>
   );
