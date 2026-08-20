@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Send, Download, ShieldAlert, CheckCircle, HelpCircle, FileCheck, Ban } from 'lucide-react';
 import { ticketService, type TicketData } from '../services/ticketService';
+import { API_BASE_URL } from '../services/apiClient';
 import { useUser } from '../context/UserContext';
 import { toast } from 'sonner';
 
@@ -246,30 +247,36 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
             </div>
 
             {/* Proof Attachment */}
-            {ticket.proof_attachment && (
-              <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-950/20 rounded-2xl border border-slate-200/55 dark:border-slate-800">
-                <div className="flex items-center gap-2">
-                  <FileCheck className="w-5 h-5 text-green-700 dark:text-green-500" />
-                  <div>
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block truncate max-w-xs">{ticket.proof_attachment}</span>
-                    <span className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold">Grade Proof Document</span>
+            {ticket.proof_attachment && (() => {
+              const filename = ticket.proof_attachment.split('/').pop() || 'proof_document';
+              const getFileUrl = (path: string) => {
+                if (!path) return '';
+                if (path.startsWith('http') || path.startsWith('data:')) return path;
+                if (path.startsWith('/api/media')) return `${API_BASE_URL}${path}`;
+                return `${API_BASE_URL}/api/media/${path}`;
+              };
+              const fullUrl = getFileUrl(ticket.proof_attachment);
+              return (
+                <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-950/20 rounded-2xl border border-slate-200/55 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="w-5 h-5 text-green-700 dark:text-green-500" />
+                    <div>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block truncate max-w-xs">{filename}</span>
+                      <span className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold">Grade Proof Document</span>
+                    </div>
                   </div>
+                  <a
+                    href={fullUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700 rounded-lg text-[10px] font-bold flex items-center gap-1 text-slate-800 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-400 cursor-pointer"
+                  >
+                    <Download size={12} />
+                    View Proof
+                  </a>
                 </div>
-                <a
-                  href={`/api/media/${ticket.proof_attachment}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700 rounded-lg text-[10px] font-bold flex items-center gap-1 text-slate-800 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-400 cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toast.info(`Mock Download: Opening PDF/Image viewer for ${ticket.proof_attachment}`);
-                  }}
-                >
-                  <Download size={12} />
-                  View Proof
-                </a>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Notes */}
             {ticket.additional_notes && (

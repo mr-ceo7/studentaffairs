@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ticketService, type TicketData, type TicketCreatePayload } from '../services/ticketService';
+import { API_BASE_URL } from '../services/apiClient';
 import { toast } from 'sonner';
 
 interface StudentPortalProps {
@@ -752,21 +753,38 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                       </div>
 
                       {uploadedFiles.length > 0 && (
-                        <div className="space-y-1.5 mt-2">
+                        <div className="grid grid-cols-3 gap-2 mt-2">
                           {uploadedFiles.map((f, idx) => {
+                            const isImage = /\.(jpg|jpeg|png|webp|heic)$/i.test(f.name);
+                            const fullUrl = f.url.startsWith('http') ? f.url : `${API_BASE_URL}${f.url}`;
                             return (
-                              <div key={idx} className="flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/60 px-3 py-1.5 rounded-xl text-[10px] font-semibold">
-                                <span className="truncate text-slate-750 dark:text-slate-350 max-w-[85%]">{f.name}</span>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setUploadedFiles(prev => prev.filter((_, i) => i !== idx));
-                                  }}
-                                  className="p-1 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer"
-                                >
-                                  <X size={11} />
-                                </button>
+                              <div key={idx} className="relative group bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/60 rounded-xl overflow-hidden">
+                                {isImage ? (
+                                  <a href={fullUrl} target="_blank" rel="noreferrer">
+                                    <img
+                                      src={fullUrl}
+                                      alt={f.name}
+                                      className="w-full h-20 object-cover rounded-t-xl bg-white dark:bg-black/25"
+                                    />
+                                  </a>
+                                ) : (
+                                  <a href={fullUrl} target="_blank" rel="noreferrer" className="flex items-center justify-center h-20 bg-slate-100 dark:bg-slate-900">
+                                    <FileText size={24} className="text-slate-400 dark:text-slate-500" />
+                                  </a>
+                                )}
+                                <div className="flex items-center justify-between px-2 py-1.5">
+                                  <span className="truncate text-[9px] font-semibold text-slate-650 dark:text-slate-350 max-w-[80%]">{f.name}</span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setUploadedFiles(prev => prev.filter((_, i) => i !== idx));
+                                    }}
+                                    className="p-0.5 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer"
+                                  >
+                                    <X size={10} />
+                                  </button>
+                                </div>
                               </div>
                             );
                           })}

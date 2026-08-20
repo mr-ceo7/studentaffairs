@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ticketService, type TicketData, type CommentData } from '../services/ticketService';
+import { API_BASE_URL } from '../services/apiClient';
 import { toast } from 'sonner';
 import PencilLoader from './PencilLoader';
 
@@ -618,23 +619,50 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                             <div className="flex flex-wrap gap-2">
                               {reviewTicket.proof_attachment.split(',').map((url, index) => {
                                 const filename = url.split('/').pop() || 'proof_document';
-                                const isImage = /\.(jpg|jpeg|png|webp)$/i.test(url) || url.startsWith('data:image/');
+                                const getFileUrl = (path: string) => {
+                                  if (!path) return '';
+                                  if (path.startsWith('http') || path.startsWith('data:')) return path;
+                                  if (path.startsWith('/api/media')) return `${API_BASE_URL}${path}`;
+                                  return `${API_BASE_URL}/api/media/${path}`;
+                                };
+                                const fullUrl = getFileUrl(url);
+                                const isImage = /\.(jpg|jpeg|png|webp|heic)$/i.test(filename) || url.startsWith('data:image/');
+                                const isPdf = /\.pdf$/i.test(filename);
                                 
                                 return (
-                                  <div key={index} className="flex flex-col bg-slate-50 dark:bg-slate-950 p-2 rounded-xl border border-slate-100 dark:border-slate-850 items-center justify-center relative w-full">
+                                  <div key={index} className="flex flex-col bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800 items-center justify-center relative w-full">
                                     {isImage ? (
                                       <div className="relative group cursor-zoom-in w-full flex flex-col items-center">
                                         <img 
-                                          src={url} 
+                                          src={fullUrl} 
                                           alt={`Proof ${index}`} 
-                                          onClick={() => setLightboxUrl(url)}
+                                          onClick={() => setLightboxUrl(fullUrl)}
                                           className="max-h-36 rounded-lg object-contain border border-slate-200/50 dark:border-slate-800 bg-white dark:bg-black/25 w-full"
                                         />
                                         <span className="text-[8px] text-slate-400 block mt-1 truncate max-w-full font-mono">{filename}</span>
                                       </div>
+                                    ) : isPdf ? (
+                                      <div className="w-full flex flex-col items-center gap-1.5">
+                                        <iframe 
+                                          src={fullUrl} 
+                                          title={`PDF Proof ${index}`}
+                                          className="w-full h-80 rounded-lg border border-slate-200/60 dark:border-slate-800 bg-white"
+                                        />
+                                        <div className="flex justify-between items-center w-full px-1">
+                                          <span className="text-[8px] text-slate-400 truncate max-w-[70%] font-mono">{filename}</span>
+                                          <a 
+                                            href={fullUrl} 
+                                            target="_blank" 
+                                            rel="noreferrer"
+                                            className="text-[9px] text-blue-600 dark:text-blue-400 font-extrabold hover:underline"
+                                          >
+                                            Open PDF ↗
+                                          </a>
+                                        </div>
+                                      </div>
                                     ) : (
                                       <a 
-                                        href={url} 
+                                        href={fullUrl} 
                                         target="_blank" 
                                         rel="noreferrer"
                                         className="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline py-1 flex items-center gap-1"
