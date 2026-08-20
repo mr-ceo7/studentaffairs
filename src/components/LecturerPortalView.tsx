@@ -87,9 +87,9 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
   const loadTickets = async () => {
     setLoading(true);
     try {
-      const data = await ticketService.listTickets();
+      const res = await ticketService.listTickets({ per_page: 200 });
       // Filter claims to only show assigned unit codes for high fidelity
-      const filtered = data.filter(t => ASSIGNED_UNITS.includes(t.unit_code));
+      const filtered = res.tickets.filter(t => ASSIGNED_UNITS.includes(t.unit_code));
       setTickets(filtered);
     } catch (e) {
       console.error(e);

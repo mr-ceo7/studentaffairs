@@ -20,6 +20,7 @@ from app.schemas.ticket import (
     TicketStatusUpdate,
     CommentCreate,
     CommentResponse,
+    PaginatedTicketsResponse,
 )
 
 router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
@@ -146,10 +147,12 @@ async def create_ticket(
     return ticket
 
 
-@router.get("", response_model=List[TicketResponse])
+@router.get("", response_model=PaginatedTicketsResponse)
 async def list_tickets(
     faculty: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
@@ -172,8 +175,17 @@ async def list_tickets(
     if status:
         query = query.where(Ticket.status == status)
 
+    # Count total matching records before paging
+    count_query = select(func.count()).select_from(query.subquery())
+    count_result = await db.execute(count_query)
+    total = count_result.scalar() or 0
+
     # Order by updated_at desc
     query = query.order_by(Ticket.updated_at.desc())
+
+    # Apply paging
+    offset = (page - 1) * per_page
+    query = query.offset(offset).limit(per_page)
 
     result = await db.execute(query)
     tickets = result.scalars().all()
@@ -184,7 +196,15 @@ async def list_tickets(
         student = student_result.scalar_one_or_none()
         t.student_name = student.name if student else "Unknown Student"
 
-    return tickets
+    total_pages = (total + per_page - 1) // per_page
+
+    return {
+        "tickets": tickets,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages,
+    }
 
 
 @router.get("/{ticket_id}", response_model=TicketResponse)

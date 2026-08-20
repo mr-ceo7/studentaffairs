@@ -89,6 +89,11 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
     toast.success('Academic profile confirmed!');
   };
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalTickets, setTotalTickets] = useState(0);
+
   // Hero carousel auto-play
   useEffect(() => {
     const timer = setInterval(() => {
@@ -209,16 +214,20 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   }, [user.reg_number]);
 
   useEffect(() => {
-    loadTickets();
+    loadTickets(1);
   }, [activeTab]);
 
-  const loadTickets = async () => {
+  const loadTickets = async (pageNum = 1) => {
     try {
-      const data = await ticketService.listTickets();
-      setTickets(data);
+      const res = await ticketService.listTickets({ page: pageNum, per_page: 9 });
+      setTickets(res?.tickets || []);
+      setPage(res?.page || 1);
+      setTotalPages(res?.total_pages || 1);
+      setTotalTickets(res?.total || 0);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load tickets');
+      setTickets([]);
     }
   };
 
@@ -470,7 +479,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
               }`}
             >
               <ListTodo size={14} />
-              My Tickets ({tickets.length})
+              My Tickets ({tickets?.length || 0})
             </button>
           </div>
         </div>
@@ -509,8 +518,8 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
           onClick={() => setActiveTab('new-claim')}
           className={`px-4 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'new-claim' 
-              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200/50 dark:border-blue-900/50 text-blue-700 dark:text-blue-400 shadow-sm font-bold' 
-              : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+              ? 'bg-blue-600 dark:bg-blue-600 border-blue-600 dark:border-blue-600 text-white shadow-sm font-bold' 
+              : 'border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/50 text-slate-650 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
           }`}
         >
           <PlusCircle size={14} />
@@ -520,12 +529,12 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
           onClick={() => setActiveTab('my-tickets')}
           className={`px-4 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'my-tickets' 
-              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200/50 dark:border-blue-900/50 text-blue-700 dark:text-blue-400 shadow-sm font-bold' 
-              : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+              ? 'bg-blue-600 dark:bg-blue-600 border-blue-600 dark:border-blue-600 text-white shadow-sm font-bold' 
+              : 'border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/50 text-slate-650 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
           }`}
         >
           <ListTodo size={14} />
-          My Tickets ({tickets.length})
+          My Tickets ({tickets?.length || 0})
         </button>
       </div>
 
@@ -930,11 +939,12 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Review the clearance timeline of your marks.</p>
             </div>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 px-3 py-1 rounded-full shadow-sm whitespace-nowrap shrink-0">{tickets.length} Total</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 px-3 py-1 rounded-full shadow-sm whitespace-nowrap shrink-0">{(tickets || []).length} Total</span>
           </div>
 
-          {tickets.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {((tickets || []).length) > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {(() => {
                 const getIsUnread = (t: TicketData) => {
                   const statusLower = t.status.toLowerCase();
@@ -942,7 +952,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   return t.comments?.some(c => c.author_role !== 'student' && !c.is_read) || false;
                 };
 
-                return [...tickets].sort((a, b) => {
+                return [...(tickets || [])].sort((a, b) => {
                   const aUnread = getIsUnread(a);
                   const bUnread = getIsUnread(b);
                   if (aUnread && !bUnread) return -1;
@@ -1016,7 +1026,36 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 });
               })()}
             </div>
-          ) : (
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/85 pt-4 mt-4 w-full">
+                <span className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Showing {(page - 1) * 9 + 1} - {Math.min(page * 9, totalTickets)} of {totalTickets} tickets
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    disabled={page <= 1}
+                    onClick={() => loadTickets(page - 1)}
+                    className="p-1.5 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-lg disabled:opacity-40 transition-all cursor-pointer"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center px-1">
+                    {page} / {totalPages}
+                  </span>
+                  <button
+                    disabled={page >= totalPages}
+                    onClick={() => loadTickets(page + 1)}
+                    className="p-1.5 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-lg disabled:opacity-40 transition-all cursor-pointer"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
             <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm">
               <BookOpen size={40} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
               <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm">No Active Tickets</h3>

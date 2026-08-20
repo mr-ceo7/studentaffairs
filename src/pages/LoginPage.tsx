@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { authService } from '../services/authService';
 import { useUser } from '../context/UserContext';
+import PencilLoader from '../components/PencilLoader';
 import { useTheme } from '../context/ThemeContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -768,7 +769,7 @@ export default function LoginPage() {
               </div>
               <div className="space-y-0.5">
                 <span className="block text-sm font-extrabold text-slate-800 dark:text-slate-100 font-display">
-                  UoN Student Affairs Portal
+                  Student Affairs Portal
                 </span>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block">University of Nairobi</span>
               </div>
@@ -805,9 +806,7 @@ export default function LoginPage() {
 
               <div className="w-full flex justify-center pt-2">
                 {loading ? (
-                  <div className="flex items-center justify-center py-2 text-xs font-bold text-blue-700 dark:text-blue-400 gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" /> Verifying Credentials...
-                  </div>
+                  <PencilLoader message="Verifying Credentials..." size="sm" />
                 ) : googleClientId ? (
                   <GoogleLogin 
                     onSuccess={(credentialResponse) => {

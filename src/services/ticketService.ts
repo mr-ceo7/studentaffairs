@@ -44,14 +44,22 @@ export interface TicketCreatePayload {
   additional_notes?: string;
 }
 
+export interface PaginatedTickets {
+  tickets: TicketData[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+}
+
 export const ticketService = {
   async createTicket(payload: TicketCreatePayload): Promise<TicketData> {
     const response = await apiClient.post<TicketData>('/tickets', payload);
     return response.data;
   },
 
-  async listTickets(params?: { faculty?: string; status?: string }): Promise<TicketData[]> {
-    const response = await apiClient.get<TicketData[]>('/tickets', { params });
+  async listTickets(params?: { faculty?: string; status?: string; page?: number; per_page?: number }): Promise<PaginatedTickets> {
+    const response = await apiClient.get<PaginatedTickets>('/tickets', { params });
     return response.data;
   },
 

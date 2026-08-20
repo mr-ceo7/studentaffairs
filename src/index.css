@@ -4,17 +4,17 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-surface: #f8fafc;
-  --color-surface-dim: #f1f5f9;
-  --color-on-surface: #0f172a;
-  --color-on-surface-variant: #475569;
-  --color-surface-container: rgba(15, 23, 42, 0.04);
-  --color-surface-container-high: rgba(15, 23, 42, 0.08);
-  --color-primary-fixed: #1e3a8a;
-  --color-primary-fixed-dim: #2563eb;
-  --color-primary-container: rgba(37, 99, 235, 0.08);
+  --color-surface: #eeeae1;
+  --color-surface-dim: #e5e0d6;
+  --color-on-surface: #2E4357;
+  --color-on-surface-variant: #48607A;
+  --color-surface-container: rgba(109, 134, 161, 0.04);
+  --color-surface-container-high: rgba(109, 134, 161, 0.08);
+  --color-primary-fixed: #6D86A1;
+  --color-primary-fixed-dim: #5B7490;
+  --color-primary-container: rgba(109, 134, 161, 0.08);
   --color-on-primary: #ffffff;
-  --color-secondary-fixed-dim: #64748b;
+  --color-secondary-fixed-dim: #48607A;
   --color-tertiary-fixed-dim: #d97706;
   --color-on-tertiary-fixed: #ffffff;
   --color-error: #dc2626;
@@ -26,23 +26,47 @@
   --color-slate-750: #283342;
   --color-slate-850: #161f2b;
 
+  --color-blue-50: #f2f5f8;
+  --color-blue-100: #e2e8ef;
+  --color-blue-200: #c9d5e2;
+  --color-blue-300: #a2b8ce;
+  --color-blue-400: #7495b5;
+  --color-blue-500: #55799c;
+  --color-blue-600: #425f7d;
+  --color-blue-700: #6D86A1;
+  --color-blue-800: #566c85;
+  --color-blue-900: #394a5c;
+  --color-blue-950: #222d39;
+
   --font-body: ui-sans-serif, system-ui, sans-serif;
   --font-display: ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
-  --color-surface: #0b0f19;
-  --color-surface-dim: #07090e;
+  --color-surface: #2d394a;
+  --color-surface-dim: #222b38;
   --color-on-surface: #f1f5f9;
   --color-on-surface-variant: #94a3b8;
-  --color-surface-container: rgba(255, 255, 255, 0.03);
-  --color-surface-container-high: rgba(255, 255, 255, 0.06);
+  --color-surface-container: rgba(255, 255, 255, 0.04);
+  --color-surface-container-high: rgba(255, 255, 255, 0.08);
   --color-primary-fixed: #3b82f6;
   --color-primary-fixed-dim: #60a5fa;
   --color-primary-container: rgba(96, 165, 250, 0.08);
   --color-on-primary: #0f172a;
   --color-secondary-fixed-dim: #475569;
   --color-tertiary-fixed-dim: #f59e0b;
+
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-blue-950: #172554;
 }
 
 /* ===== Scroll Video Background ===== */
@@ -75,25 +99,25 @@
 .scroll-video-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(248, 250, 252, 0.88);
+  background-color: rgba(238, 234, 225, 0.90);
   background-image: linear-gradient(
     180deg,
-    rgba(248, 250, 252, 0.94) 0%,
-    rgba(255, 255, 255, 0.80) 30%,
-    rgba(241, 245, 249, 0.85) 60%,
-    rgba(241, 245, 249, 0.96) 100%
+    rgba(238, 234, 225, 0.95) 0%,
+    rgba(248, 246, 241, 0.82) 30%,
+    rgba(238, 234, 225, 0.88) 60%,
+    rgba(229, 224, 214, 0.97) 100%
   );
   pointer-events: none;
 }
 
 .dark .scroll-video-overlay {
-  background-color: rgba(7, 9, 14, 0.92);
+  background-color: rgba(45, 57, 74, 0.92);
   background-image: linear-gradient(
     180deg,
-    rgba(7, 9, 14, 0.96) 0%,
-    rgba(11, 15, 25, 0.88) 30%,
-    rgba(7, 9, 14, 0.92) 60%,
-    rgba(2, 4, 8, 0.98) 100%
+    rgba(45, 57, 74, 0.96) 0%,
+    rgba(57, 72, 94, 0.88) 30%,
+    rgba(45, 57, 74, 0.92) 60%,
+    rgba(33, 42, 55, 0.98) 100%
   );
 }
 

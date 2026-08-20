@@ -67,3 +67,11 @@ class TicketResponse(BaseModel):
         # If student_name is not populated, we can fetch it from student relationship if info.data has student object
         # But FastAPI will automatically map it if we supply it in the dictionary.
         return v
+
+
+class PaginatedTicketsResponse(BaseModel):
+    tickets: List[TicketResponse]
+    total: int
+    page: int
+    per_page: int
+    total_pages: int

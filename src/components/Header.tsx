@@ -56,7 +56,8 @@ export default function Header({ onShowAuth }: HeaderProps) {
         const list: any[] = [];
         
         // 1. Fetch Student/Staff Tickets
-        const tickets = await ticketService.listTickets();
+        const res = await ticketService.listTickets({ per_page: 100 });
+        const tickets = res?.tickets || [];
         tickets.forEach(t => {
           // If ticket has been cleared or rejected, or has lecturer comment, trigger notif
           // Status change notif:
@@ -175,7 +176,7 @@ export default function Header({ onShowAuth }: HeaderProps) {
   return (
     <>
       <header 
-        className="bg-white/70 dark:bg-slate-950/70 backdrop-blur-md sticky top-0 w-full z-50 border-b border-slate-200/60 dark:border-slate-800/60 flex justify-between items-center h-16 px-6 shrink-0 relative"
+        className="bg-white/70 dark:bg-slate-950/70 backdrop-blur-md sticky top-0 w-full z-50 border-b border-slate-200/60 dark:border-slate-800/60 flex justify-between items-center h-16 px-3.5 md:px-6 shrink-0 relative"
         style={{ WebkitBackdropFilter: 'blur(30px) saturate(1.5)', boxShadow: '0 4px 30px rgba(0, 0, 0, 0.02)' }}
       >
         {/* Left Section: Branding Logo */}

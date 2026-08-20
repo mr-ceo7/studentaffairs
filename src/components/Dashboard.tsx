@@ -42,7 +42,7 @@ export default function Dashboard({ onShowPricing, onShowAuth }: DashboardProps)
   // If user is not logged in, render the Faculty Gateway
   if (!user) {
     return (
-      <main className="pt-2 px-4 md:px-0 relative z-10 space-y-6 flex-1">
+      <main className="pt-2 px-0 md:px-0 relative z-10 space-y-6 flex-1">
         <GatewayView onShowAuth={triggerAuth} />
       </main>
     );
@@ -53,7 +53,7 @@ export default function Dashboard({ onShowPricing, onShowAuth }: DashboardProps)
   const isAdmin = user.is_admin;
 
   return (
-    <main className="pt-2 px-4 md:px-0 relative z-10 space-y-6 flex-1">
+    <main className="pt-2 px-0 md:px-0 relative z-10 space-y-6 flex-1">
       {isAdmin ? (
         <AdminPortalView 
           key={`admin-${refreshCounter}`}

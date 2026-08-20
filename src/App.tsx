@@ -96,7 +96,7 @@ function AppContent() {
         <Header onShowAuth={() => handleShowAuth()} />
 
         {/* Main upper content section with page flow */}
-        <div className="flex-1 flex min-w-0 px-4 md:px-6 lg:px-8 gap-6">
+        <div className="flex-1 flex min-w-0 px-2 md:px-6 lg:px-8 gap-6">
           <div className="flex-1 w-full flex flex-col pt-6 md:pt-8 pb-[100px] md:pb-8 min-w-0">
             <Routes>
               <Route path="/" element={<Dashboard onShowPricing={() => handleShowAuth()} onShowAuth={handleShowAuth} />} />

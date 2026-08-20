@@ -111,8 +111,8 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
   const loadTickets = async () => {
     setLoadingTickets(true);
     try {
-      const data = await ticketService.listTickets();
-      setTickets(data);
+      const res = await ticketService.listTickets({ per_page: 250 });
+      setTickets(res.tickets);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load clearance queue');
