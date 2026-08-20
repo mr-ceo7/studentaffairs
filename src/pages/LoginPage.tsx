@@ -50,6 +50,85 @@ const FACULTIES = [
   "Faculty of Veterinary Medicine"
 ];
 
+const CAMPUS_FACULTY_MAP: Record<string, string[]> = {
+  'Main Campus': [
+    "Faculty of Engineering",
+    "Faculty of Built Environment & Design",
+    "Faculty of Arts & Social Sciences",
+    "Faculty of Education"
+  ],
+  'Chiromo Campus': [
+    "Faculty of Science & Technology",
+    "Faculty of Health Sciences"
+  ],
+  'Upper Kabete Campus': [
+    "Faculty of Agriculture",
+    "Faculty of Veterinary Medicine"
+  ],
+  'Lower Kabete Campus': [
+    "Faculty of Business & Management Sciences"
+  ],
+  'Parklands Campus': [
+    "Faculty of Law"
+  ],
+  'Kenya Science Campus': [
+    "Faculty of Education"
+  ]
+};
+
+const FACULTY_DEPARTMENT_MAP: Record<string, string[]> = {
+  "Faculty of Science & Technology": [
+    "Department of Computer Science",
+    "Department of Chemistry",
+    "Department of Physics",
+    "Department of Mathematics",
+    "Department of Biology"
+  ],
+  "Faculty of Engineering": [
+    "Department of Electrical & Information Engineering",
+    "Department of Civil & Construction Engineering",
+    "Department of Mechanical & Manufacturing Engineering"
+  ],
+  "Faculty of Health Sciences": [
+    "Department of Medicine",
+    "Department of Pharmacy",
+    "Department of Nursing",
+    "Department of Dental Sciences"
+  ],
+  "Faculty of Business & Management Sciences": [
+    "Department of Finance & Accounting",
+    "Department of Business Administration",
+    "Department of Management Science"
+  ],
+  "Faculty of Arts & Social Sciences": [
+    "Department of Economics",
+    "Department of Sociology & Social Work",
+    "Department of History & Archeology"
+  ],
+  "Faculty of Law": [
+    "Department of Public Law",
+    "Department of Private Law",
+    "Department of Commercial Law"
+  ],
+  "Faculty of Education": [
+    "Department of Educational Studies",
+    "Department of Physical Education & Sport"
+  ],
+  "Faculty of Built Environment & Design": [
+    "Department of Real Estate & Construction Management",
+    "Department of Architecture",
+    "Department of Art & Design"
+  ],
+  "Faculty of Agriculture": [
+    "Department of Agricultural Economics",
+    "Department of Plant Science & Crop Protection"
+  ],
+  "Faculty of Veterinary Medicine": [
+    "Department of Veterinary Anatomy & Physiology",
+    "Department of Clinical Studies"
+  ]
+};
+
 // Separate component so useGoogleOneTapLogin hook is only called when GoogleOAuthProvider exists
 function GoogleOneTapWrapper({ onSuccess }: { onSuccess: (idToken: string) => Promise<void> }) {
   useGoogleOneTapLogin({
@@ -91,8 +170,8 @@ export default function LoginPage() {
   // Onboarding Form Details
   const [regNumber, setRegNumber] = useState('');
   const [campus, setCampus] = useState('Main Campus');
-  const [faculty, setFaculty] = useState('Faculty of Science & Technology');
-  const [department, setDepartment] = useState('');
+  const [faculty, setFaculty] = useState('Faculty of Engineering');
+  const [department, setDepartment] = useState('Department of Electrical & Information Engineering');
   const [course, setCourse] = useState('');
   const [yearOfStudy, setYearOfStudy] = useState('Year 1');
   const [semester, setSemester] = useState('Semester 1');
@@ -277,7 +356,14 @@ export default function LoginPage() {
                         </label>
                         <select
                           value={campus}
-                          onChange={(e) => setCampus(e.target.value)}
+                          onChange={(e) => {
+                            const selected = e.target.value;
+                            setCampus(selected);
+                            const campusFaculties = CAMPUS_FACULTY_MAP[selected] || [];
+                            if (campusFaculties.length > 0) {
+                              setFaculty(campusFaculties[0]);
+                            }
+                          }}
                           className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium"
                         >
                           {CAMPUSES.map((c) => (
@@ -302,10 +388,17 @@ export default function LoginPage() {
                         </label>
                         <select
                           value={faculty}
-                          onChange={(e) => setFaculty(e.target.value)}
+                          onChange={(e) => {
+                            const selected = e.target.value;
+                            setFaculty(selected);
+                            const facultyDepts = FACULTY_DEPARTMENT_MAP[selected] || [];
+                            if (facultyDepts.length > 0) {
+                              setDepartment(facultyDepts[0]);
+                            }
+                          }}
                           className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium truncate"
                         >
-                          {FACULTIES.map((f) => (
+                          {(CAMPUS_FACULTY_MAP[campus] || FACULTIES).map((f) => (
                             <option key={f} value={f}>{f}</option>
                           ))}
                         </select>
@@ -315,14 +408,15 @@ export default function LoginPage() {
                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 px-1">
                           Department Name
                         </label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. Department of Computer Science"
+                        <select
                           value={department}
                           onChange={(e) => setDepartment(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/80 transition-all font-medium"
-                        />
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium truncate"
+                        >
+                          {(FACULTY_DEPARTMENT_MAP[faculty] || []).map((d) => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                        </select>
                       </div>
                     </motion.div>
                   )}
