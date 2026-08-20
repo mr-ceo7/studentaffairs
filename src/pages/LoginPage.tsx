@@ -129,6 +129,110 @@ const FACULTY_DEPARTMENT_MAP: Record<string, string[]> = {
   ]
 };
 
+const DEPARTMENT_COURSE_MAP: Record<string, string[]> = {
+  "Department of Computer Science": [
+    "B.Sc. Computer Science",
+    "B.Sc. Applied Computer Science"
+  ],
+  "Department of Chemistry": [
+    "B.Sc. Chemistry",
+    "B.Sc. Industrial Chemistry"
+  ],
+  "Department of Physics": [
+    "B.Sc. Physics",
+    "B.Sc. Meteorology"
+  ],
+  "Department of Mathematics": [
+    "B.Sc. Mathematics",
+    "B.Sc. Statistics",
+    "B.Sc. Actuarial Science"
+  ],
+  "Department of Biology": [
+    "B.Sc. Biology",
+    "B.Sc. Microbiology"
+  ],
+  "Department of Electrical & Information Engineering": [
+    "B.Sc. Electrical & Electronic Engineering"
+  ],
+  "Department of Civil & Construction Engineering": [
+    "B.Sc. Civil Engineering"
+  ],
+  "Department of Mechanical & Manufacturing Engineering": [
+    "B.Sc. Mechanical Engineering"
+  ],
+  "Department of Medicine": [
+    "Bachelor of Medicine & Bachelor of Surgery (MBChB)"
+  ],
+  "Department of Pharmacy": [
+    "Bachelor of Pharmacy (B.Pharm)"
+  ],
+  "Department of Nursing": [
+    "B.Sc. Nursing"
+  ],
+  "Department of Dental Sciences": [
+    "Bachelor of Dental Surgery (BDS)"
+  ],
+  "Department of Finance & Accounting": [
+    "Bachelor of Commerce (Finance)",
+    "Bachelor of Commerce (Accounting)"
+  ],
+  "Department of Business Administration": [
+    "Bachelor of Business Administration"
+  ],
+  "Department of Management Science": [
+    "Bachelor of Project Planning & Management"
+  ],
+  "Department of Economics": [
+    "Bachelor of Economics",
+    "Bachelor of Economics & Statistics"
+  ],
+  "Department of Sociology & Social Work": [
+    "Bachelor of Arts (Sociology)",
+    "Bachelor of Arts (Social Work)"
+  ],
+  "Department of History & Archeology": [
+    "Bachelor of Arts (History)"
+  ],
+  "Department of Public Law": [
+    "Bachelor of Laws (LL.B)"
+  ],
+  "Department of Private Law": [
+    "Bachelor of Laws (LL.B)"
+  ],
+  "Department of Commercial Law": [
+    "Bachelor of Laws (LL.B)"
+  ],
+  "Department of Educational Studies": [
+    "Bachelor of Education (Arts)",
+    "Bachelor of Education (Science)"
+  ],
+  "Department of Physical Education & Sport": [
+    "Bachelor of Education (Physical Education)"
+  ],
+  "Department of Real Estate & Construction Management": [
+    "Bachelor of Real Estate",
+    "Bachelor of Construction Management"
+  ],
+  "Department of Architecture": [
+    "Bachelor of Architectural Studies"
+  ],
+  "Department of Art & Design": [
+    "Bachelor of Arts (Design)"
+  ],
+  "Department of Agricultural Economics": [
+    "B.Sc. Agricultural Education & Extension"
+  ],
+  "Department of Plant Science & Crop Protection": [
+    "B.Sc. Agriculture"
+  ],
+  "Department of Veterinary Anatomy & Physiology": [
+    "Bachelor of Veterinary Medicine (BVM)"
+  ],
+  "Department of Clinical Studies": [
+    "Bachelor of Veterinary Medicine (BVM)"
+  ]
+};
+
 // Separate component so useGoogleOneTapLogin hook is only called when GoogleOAuthProvider exists
 function GoogleOneTapWrapper({ onSuccess }: { onSuccess: (idToken: string) => Promise<void> }) {
   useGoogleOneTapLogin({
@@ -172,7 +276,7 @@ export default function LoginPage() {
   const [campus, setCampus] = useState('Main Campus');
   const [faculty, setFaculty] = useState('Faculty of Engineering');
   const [department, setDepartment] = useState('Department of Electrical & Information Engineering');
-  const [course, setCourse] = useState('');
+  const [course, setCourse] = useState('B.Sc. Electrical & Electronic Engineering');
   const [yearOfStudy, setYearOfStudy] = useState('Year 1');
   const [semester, setSemester] = useState('Semester 1');
 
@@ -361,7 +465,17 @@ export default function LoginPage() {
                             setCampus(selected);
                             const campusFaculties = CAMPUS_FACULTY_MAP[selected] || [];
                             if (campusFaculties.length > 0) {
-                              setFaculty(campusFaculties[0]);
+                              const newFac = campusFaculties[0];
+                              setFaculty(newFac);
+                              const facultyDepts = FACULTY_DEPARTMENT_MAP[newFac] || [];
+                              if (facultyDepts.length > 0) {
+                                const newDept = facultyDepts[0];
+                                setDepartment(newDept);
+                                const deptCourses = DEPARTMENT_COURSE_MAP[newDept] || [];
+                                if (deptCourses.length > 0) {
+                                  setCourse(deptCourses[0]);
+                                }
+                              }
                             }
                           }}
                           className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium"
@@ -393,7 +507,12 @@ export default function LoginPage() {
                             setFaculty(selected);
                             const facultyDepts = FACULTY_DEPARTMENT_MAP[selected] || [];
                             if (facultyDepts.length > 0) {
-                              setDepartment(facultyDepts[0]);
+                              const newDept = facultyDepts[0];
+                              setDepartment(newDept);
+                              const deptCourses = DEPARTMENT_COURSE_MAP[newDept] || [];
+                              if (deptCourses.length > 0) {
+                                setCourse(deptCourses[0]);
+                              }
                             }
                           }}
                           className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium truncate"
@@ -410,7 +529,14 @@ export default function LoginPage() {
                         </label>
                         <select
                           value={department}
-                          onChange={(e) => setDepartment(e.target.value)}
+                          onChange={(e) => {
+                            const selected = e.target.value;
+                            setDepartment(selected);
+                            const deptCourses = DEPARTMENT_COURSE_MAP[selected] || [];
+                            if (deptCourses.length > 0) {
+                              setCourse(deptCourses[0]);
+                            }
+                          }}
                           className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium truncate"
                         >
                           {(FACULTY_DEPARTMENT_MAP[faculty] || []).map((d) => (
@@ -433,14 +559,15 @@ export default function LoginPage() {
                         <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 px-1">
                           Degree Course
                         </label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. B.Sc. Computer Science"
+                        <select
                           value={course}
                           onChange={(e) => setCourse(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/80 transition-all font-medium"
-                        />
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-855 rounded-xl px-3.5 py-3 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-blue-500/80 transition-all font-medium truncate"
+                        >
+                          {(DEPARTMENT_COURSE_MAP[department] || []).map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3.5">
