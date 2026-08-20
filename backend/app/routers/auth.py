@@ -24,6 +24,14 @@ from app.services.email_service import send_welcome_email
 # from app.services.subscription_access import grant_subscription_entitlement
 
 
+def set_auth_cookies(response: Response, request: Request, access_token: str, refresh_token: str):
+    """Set auth cookies with correct flags for HTTP vs HTTPS."""
+    is_secure = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
+    samesite_val = "none" if is_secure else "lax"
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=is_secure, samesite=samesite_val, max_age=3600)
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=is_secure, samesite=samesite_val, max_age=604800)
+
+
 def get_real_ip(request: Request) -> str:
     x_forwarded_for = request.headers.get("x-forwarded-for")
     if x_forwarded_for:
@@ -203,8 +211,7 @@ async def google_auth(body: GoogleLoginRequest, request: Request, response: Resp
         access_token = create_access_token(str(user.id), extra={"session_id": session_id})
         refresh_token = create_refresh_token(str(user.id))
 
-        response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600)
-        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="none", max_age=604800)
+        set_auth_cookies(response, request, access_token, refresh_token)
 
         return {"status": "success"}
 
@@ -286,8 +293,7 @@ async def mock_sso_login(body: MockSSOLoginRequest, request: Request, response: 
     access_token = create_access_token(str(user.id), extra={"session_id": session_id})
     refresh_token = create_refresh_token(str(user.id))
     
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600)
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="none", max_age=604800)
+    set_auth_cookies(response, request, access_token, refresh_token)
     
     return {"status": "success"}
 
@@ -429,8 +435,7 @@ async def verify_phone_otp(body: PhoneVerifyRequest, request: Request, response:
     access_token = create_access_token(str(user.id), extra={"session_id": session_id})
     refresh_token = create_refresh_token(str(user.id))
 
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600)
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="none", max_age=604800)
+    set_auth_cookies(response, request, access_token, refresh_token)
 
     return {"status": "success"}
 
@@ -464,8 +469,7 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
     access_token = create_access_token(str(user.id), extra={"session_id": session_id})
     new_refresh_token = create_refresh_token(str(user.id))
 
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600)
-    response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True, secure=True, samesite="none", max_age=604800)
+    set_auth_cookies(response, request, access_token, new_refresh_token)
 
     return {"status": "success"}
 
