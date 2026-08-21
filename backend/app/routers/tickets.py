@@ -124,6 +124,13 @@ async def create_ticket(
     count = count_result.scalar() or 0
     ticket_id = f"UON-{1043 + count}"
 
+    # Check if lecturer already exists in the platform
+    lec_res = await db.execute(
+        select(User).where(User.email == body.lecturer_email.lower().strip())
+    )
+    lec_user = lec_res.scalar_one_or_none()
+    lecturer_id = lec_user.id if lec_user else None
+
     ticket = Ticket(
         ticket_id=ticket_id,
         reg_number=body.reg_number.upper().strip(),
@@ -136,11 +143,42 @@ async def create_ticket(
         additional_notes=body.additional_notes,
         student_id=user.id,
         status="Submitted to Department/Lecturer",
+        lecturer_id=lecturer_id,
+        lecturer_name=body.lecturer_name.strip(),
+        lecturer_email=body.lecturer_email.lower().strip(),
+        completed_elements=body.completed_elements,
     )
 
     db.add(ticket)
+    
+    # Queue lecturer notification for 6-hour debounce
+    from app.models.ticket import PendingLecturerNotification
+    from app.services.email_service import check_and_send_debounced_lecturer_notifications
+    import asyncio
+
+    # Check if there is already a pending notification in the queue
+    existing_notif_res = await db.execute(
+        select(PendingLecturerNotification)
+        .where(PendingLecturerNotification.lecturer_email == body.lecturer_email.lower().strip())
+    )
+    existing_notif = existing_notif_res.scalars().first()
+
+    pending_notif = PendingLecturerNotification(
+        lecturer_email=body.lecturer_email.lower().strip(),
+        ticket_id=ticket_id
+    )
+    db.add(pending_notif)
     await db.commit()
     await db.refresh(ticket)
+
+    if not existing_notif:
+        # Spawn the 6-hour debounce background worker task
+        asyncio.create_task(
+            check_and_send_debounced_lecturer_notifications(
+                body.lecturer_email.lower().strip(),
+                body.lecturer_name.strip()
+            )
+        )
 
     # Fetch user name for response mapping
     ticket.student_name = user.name
@@ -305,11 +343,25 @@ async def update_ticket_status(
             )
             db.add(new_comment)
 
+    student_result = await db.execute(select(User).where(User.id == ticket.student_id))
+    student = student_result.scalar_one_or_none()
+
+    if student:
+        from app.services.email_service import send_student_instant_notification
+        import asyncio
+        asyncio.create_task(
+            send_student_instant_notification(
+                student.email,
+                student.name,
+                ticket.ticket_id,
+                user.name,
+                ticket.status
+            )
+        )
+
     await db.commit()
     await db.refresh(ticket)
 
-    student_result = await db.execute(select(User).where(User.id == ticket.student_id))
-    student = student_result.scalar_one_or_none()
     ticket.student_name = student.name if student else "Unknown Student"
 
     return ticket
@@ -369,6 +421,22 @@ async def add_comment(
         ticket.is_read_by_lecturer = True
     db.add(ticket)
     db.add(comment)
+
+    if role != "student":
+        student_result = await db.execute(select(User).where(User.id == ticket.student_id))
+        student = student_result.scalar_one_or_none()
+        if student:
+            from app.services.email_service import send_student_instant_notification
+            import asyncio
+            asyncio.create_task(
+                send_student_instant_notification(
+                    student.email,
+                    student.name,
+                    ticket.ticket_id,
+                    user.name,
+                    ticket.status
+                )
+            )
 
     await db.commit()
     await db.refresh(comment)

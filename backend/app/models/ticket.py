@@ -30,6 +30,9 @@ class Ticket(Base):
     proof_attachment = Column(String(255), nullable=True)
     additional_notes = Column(Text, nullable=True)
     is_read_by_lecturer = Column(Boolean, default=False)
+    lecturer_name = Column(String(255), nullable=True)
+    lecturer_email = Column(String(255), nullable=True)
+    completed_elements = Column(String(500), nullable=True)
 
     # Relationships
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -58,3 +61,12 @@ class Ticket(Base):
         backref="assigned_tickets",
         lazy="selectin",
     )
+
+
+class PendingLecturerNotification(Base):
+    __tablename__ = "pending_lecturer_notifications"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    lecturer_email = Column(String(255), nullable=False, index=True)
+    ticket_id = Column(String(20), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))

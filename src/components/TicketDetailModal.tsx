@@ -278,6 +278,20 @@ export default function TicketDetailModal({ ticketId, isOpen, onClose, onRefresh
               );
             })()}
 
+            {/* Completed Deliverables List */}
+            {ticket.completed_elements && (
+              <div className="space-y-1">
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Submitted Coursework Deliverables</span>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {ticket.completed_elements.split(', ').map((el) => (
+                    <span key={el} className="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/50 rounded-lg text-[10px] font-bold">
+                      ✔ {el}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Notes */}
             {ticket.additional_notes && (
               <div className="space-y-1">

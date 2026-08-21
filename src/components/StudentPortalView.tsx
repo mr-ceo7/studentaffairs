@@ -162,6 +162,19 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Lecturer details
+  const [lecturerName, setLecturerName] = useState('');
+  const [lecturerEmail, setLecturerEmail] = useState('');
+  
+  // Coursework checklist deliverables (rough idea refined)
+  const [completedDeliverables, setCompletedDeliverables] = useState<string[]>([]);
+
+  // Bodyguard checklist states
+  const [checkedSatExam, setCheckedSatExam] = useState(false);
+  const [checkedDoneCats, setCheckedDoneCats] = useState(false);
+  const [checkedHaveProof, setCheckedHaveProof] = useState(false);
+  const [checkedHonest, setCheckedHonest] = useState(false);
+
   // RegEx validation helper
   const [regError, setRegError] = useState(false);
 
@@ -174,6 +187,12 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
   // Step validation and transition handlers
   const handleNextStep = () => {
     if (formStep === 1) {
+      if (!checkedSatExam || !checkedDoneCats || !checkedHaveProof || !checkedHonest) {
+        toast.error('You must satisfy all minimum requirements to be allowed to submit a claim.');
+        return;
+      }
+      setFormStep(2);
+    } else if (formStep === 2) {
       if (!regNumber || regError) {
         toast.error('Please enter a valid Registration Number in the format ABC/12345/2022');
         return;
@@ -184,10 +203,20 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         toast.error('Please select or type a course unit.');
         return;
       }
+
+      if (!lecturerName.trim()) {
+        toast.error('Please enter the respective lecturer name.');
+        return;
+      }
+
+      if (!lecturerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lecturerEmail.trim())) {
+        toast.error('Please enter a valid lecturer email address.');
+        return;
+      }
       
       setUnitCode(selectedUnit);
-      setFormStep(2);
-    } else if (formStep === 2) {
+      setFormStep(3);
+    } else if (formStep === 3) {
       if (!category) {
         toast.error('Please select an assessment category.');
         return;
@@ -196,7 +225,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         toast.error('Please enter a valid claimed score.');
         return;
       }
-      setFormStep(3);
+      setFormStep(4);
     }
   };
 
@@ -315,6 +344,14 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       toast.error('Please enter a valid claimed score.');
       return;
     }
+    if (!lecturerName.trim()) {
+      toast.error('Please enter the respective lecturer name.');
+      return;
+    }
+    if (!lecturerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lecturerEmail.trim())) {
+      toast.error('Please enter a valid lecturer email address.');
+      return;
+    }
     if (!agree) {
       toast.error('You must agree to the academic integrity authorization disclaimer.');
       return;
@@ -330,7 +367,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         assessment_category: category,
         claimed_score: isScoreUnknown ? undefined : Number(claimedScore),
         proof_attachment: uploadedFiles.map(f => f.url).join(',') || undefined,
-        additional_notes: notes
+        additional_notes: notes,
+        lecturer_name: lecturerName.trim(),
+        lecturer_email: lecturerEmail.trim().toLowerCase(),
+        completed_elements: completedDeliverables.length > 0 ? completedDeliverables.join(', ') : undefined
       };
       
       await ticketService.createTicket(payload);
@@ -345,6 +385,13 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
       setNotes('');
       setAgree(false);
       setUploadedFiles([]);
+      setLecturerName('');
+      setLecturerEmail('');
+      setCheckedSatExam(false);
+      setCheckedDoneCats(false);
+      setCheckedHaveProof(false);
+      setCheckedHonest(false);
+      setCompletedDeliverables([]);
       setFormStep(1);
       
       // Load and redirect
@@ -563,8 +610,8 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
 
 
           {/* Step Progress Indicator */}
-          <div className="flex items-center justify-between px-1 py-1.5 max-w-md mx-auto border-b border-slate-50 dark:border-slate-850 pb-3">
-            {[1, 2, 3].map((step) => (
+          <div className="flex items-center justify-between px-1 py-1.5 max-w-lg mx-auto border-b border-slate-50 dark:border-slate-850 pb-3">
+            {[1, 2, 3, 4].map((step) => (
               <React.Fragment key={step}>
                 <div className="flex items-center gap-2">
                   <button
@@ -575,6 +622,8 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                       } else if (step === 2 && formStep === 1) {
                         handleNextStep();
                       } else if (step === 3 && formStep === 2) {
+                        handleNextStep();
+                      } else if (step === 4 && formStep === 3) {
                         handleNextStep();
                       }
                     }}
@@ -593,10 +642,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                       ? 'text-slate-800 dark:text-slate-200 font-extrabold'
                       : 'text-slate-500 dark:text-slate-400'
                   }`}>
-                    {step === 1 ? 'Academic' : step === 2 ? 'Grievance' : 'Submit'}
+                    {step === 1 ? 'Verify' : step === 2 ? 'Academic' : step === 3 ? 'Grievance' : 'Submit'}
                   </span>
                 </div>
-                {step < 3 && (
+                {step < 4 && (
                   <div className={`flex-1 h-0.5 mx-2 rounded-full ${
                     formStep > step ? 'bg-emerald-500' : 'bg-slate-150 dark:bg-slate-800'
                   }`} />
@@ -610,6 +659,87 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
               {formStep === 1 && (
                 <motion.div
                   key="step1"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-4"
+                >
+                  <div className="p-3.5 bg-amber-500/10 rounded-xl border border-amber-500/20 space-y-2">
+                    <div className="flex gap-2 items-center">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0" />
+                      <span className="text-[10px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Academic Integrity Disclaimer & Bodyguard Checklist</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Before proceeding, you must satisfy the university's minimum requirements for grade claims. Submitting falsified claims for exams you did not sit or coursework you did not submit constitutes academic fraud and will be referred directly to the Disciplinary Senate.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checkedSatExam}
+                        onChange={(e) => setCheckedSatExam(e.target.checked)}
+                        className="rounded border-slate-350 dark:border-slate-800 text-blue-600 focus:ring-blue-500 cursor-pointer w-4 h-4 mt-0.5"
+                      />
+                      <div className="select-none">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">I physically sat for the final exam</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">I have my exam card and signed the departmental attendance log for this specific course.</span>
+                      </div>
+                    </label>
+
+                    <div className="h-px bg-slate-100 dark:bg-slate-800/80 my-2" />
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checkedDoneCats}
+                        onChange={(e) => setCheckedDoneCats(e.target.checked)}
+                        className="rounded border-slate-350 dark:border-slate-800 text-blue-600 focus:ring-blue-500 cursor-pointer w-4 h-4 mt-0.5"
+                      />
+                      <div className="select-none">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">I completed all CATs and course assignments</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">I did not miss the midterm tests or coursework evaluations required for this unit.</span>
+                      </div>
+                    </label>
+
+                    <div className="h-px bg-slate-100 dark:bg-slate-800/80 my-2" />
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checkedHaveProof}
+                        onChange={(e) => setCheckedHaveProof(e.target.checked)}
+                        className="rounded border-slate-350 dark:border-slate-800 text-blue-600 focus:ring-blue-500 cursor-pointer w-4 h-4 mt-0.5"
+                      />
+                      <div className="select-none">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">I have supporting evidence to attach</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">I have a graded script, stamped docket, or email receipt to upload as verification proof.</span>
+                      </div>
+                    </label>
+
+                    <div className="h-px bg-slate-100 dark:bg-slate-800/80 my-2" />
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checkedHonest}
+                        onChange={(e) => setCheckedHonest(e.target.checked)}
+                        className="rounded border-slate-350 dark:border-slate-800 text-blue-600 focus:ring-blue-500 cursor-pointer w-4 h-4 mt-0.5"
+                      />
+                      <div className="select-none">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">I affirm this is an honest grade discrepancy claim</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">I accept that false claims will result in immediate suspension from the academic portal.</span>
+                      </div>
+                    </label>
+                  </div>
+                </motion.div>
+              )}
+
+              {formStep === 2 && (
+                <motion.div
+                  key="step2"
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
@@ -676,19 +806,53 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                       </AnimatePresence>
                     </div>
                   </div>
+
+                  {/* Lecturer Details Section */}
+                  <div className="p-4 bg-blue-500/5 dark:bg-blue-950/10 rounded-xl border border-blue-200/50 dark:border-blue-900/40 space-y-3">
+                    <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider block">Respective Course Lecturer</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                          Lecturer Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Dr. Jane Doe"
+                          value={lecturerName}
+                          onChange={(e) => setLecturerName(e.target.value)}
+                          className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                          Lecturer Email
+                        </label>
+                        <input
+                          type="email"
+                          placeholder="e.g. jane.doe@uonbi.ac.ke"
+                          value={lecturerEmail}
+                          onChange={(e) => setLecturerEmail(e.target.value)}
+                          className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 italic">
+                      Note: The lecturer will receive a debounced summary notification of this claim at this email address to review your marks.
+                    </p>
+                  </div>
                 </motion.div>
               )}
 
-              {formStep === 2 && (
+              {formStep === 3 && (
                 <motion.div
-                  key="step2"
+                  key="step3"
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.15 }}
                   className="space-y-4"
                 >
-                  {/* Row 2: Category + Score */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
@@ -739,7 +903,6 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                     </div>
                   </div>
 
-                  {/* Notes (compact) */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                       Describe your issue
@@ -762,16 +925,15 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 </motion.div>
               )}
 
-              {formStep === 3 && (
+              {formStep === 4 && (
                 <motion.div
-                  key="step3"
+                  key="step4"
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.15 }}
                   className="space-y-4"
                 >
-                  {/* Proof Upload (compact inline) */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                       Proof Attachment
@@ -854,7 +1016,37 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                     </div>
                   </div>
 
-                  {/* Disclaimer (compact) */}
+                  {/* Completed Coursework Elements Checkboxes */}
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-800 space-y-2.5">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Completed Coursework Deliverables</span>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 italic">Select all coursework elements that you sat for, completed, or submitted in this unit to help the lecturer verify your claim.</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1.5">
+                      {['CAT 1', 'CAT 2', 'CAT 3', 'Lab Reports', 'Term Paper / Assignment', 'Field Work / Practical', 'Final Exam'].map((el) => {
+                        const isChecked = completedDeliverables.includes(el);
+                        return (
+                          <label key={el} className="flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setCompletedDeliverables(prev => [...prev, el]);
+                                } else {
+                                  setCompletedDeliverables(prev => prev.filter(item => item !== el));
+                                }
+                              }}
+                              className="rounded border-slate-350 dark:border-slate-800 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
+                            />
+                            <span className="text-xs text-slate-700 dark:text-slate-300 font-semibold">{el}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-900/50 space-y-2">
                     <div className="flex gap-2 items-center">
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
@@ -876,20 +1068,19 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 </motion.div>
               )}
             </AnimatePresence>
-
             {/* Submit / Navigation Row */}
             <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
               {formStep > 1 && (
                 <button
                   type="button"
                   onClick={handlePrevStep}
-                  className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer transition-all flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-350 font-semibold rounded-xl text-xs cursor-pointer transition-all flex items-center gap-1.5"
                 >
                   <ChevronLeft size={14} /> Back
                 </button>
               )}
               
-              {formStep < 3 ? (
+              {formStep < 4 ? (
                 <button
                   type="button"
                   onClick={handleNextStep}
@@ -901,10 +1092,10 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 sm:flex-none ml-auto px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all whitespace-nowrap"
+                  className="flex-1 sm:flex-none ml-auto px-6 py-2.5 bg-blue-600 dark:bg-blue-600 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-all whitespace-nowrap"
                 >
                   <ArrowRight size={14} />
-                  {loading ? 'Submitting...' : 'Submit'}
+                  {loading ? 'Submitting...' : 'Submit Claim'}
                 </button>
               )}
               
@@ -919,6 +1110,12 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                   setNotes('');
                   setAgree(false);
                   setUploadedFiles([]);
+                  setLecturerName('');
+                  setLecturerEmail('');
+                  setCheckedSatExam(false);
+                  setCheckedDoneCats(false);
+                  setCheckedHaveProof(false);
+                  setCheckedHonest(false);
                   setFormStep(1);
                 }}
                 className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-300 font-semibold rounded-xl text-xs cursor-pointer transition-all"

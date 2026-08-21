@@ -30,6 +30,9 @@ class TicketCreate(BaseModel):
     claimed_score: Optional[int] = None
     proof_attachment: Optional[str] = None
     additional_notes: Optional[str] = None
+    lecturer_name: str
+    lecturer_email: str
+    completed_elements: Optional[str] = None
 
 
 class TicketStatusUpdate(BaseModel):
@@ -54,6 +57,9 @@ class TicketResponse(BaseModel):
     student_id: int
     student_name: Optional[str] = None
     lecturer_id: Optional[int] = None
+    lecturer_name: Optional[str] = None
+    lecturer_email: Optional[str] = None
+    completed_elements: Optional[str] = None
     is_read_by_lecturer: bool = False
     created_at: datetime
     updated_at: datetime

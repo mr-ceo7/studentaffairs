@@ -27,6 +27,9 @@ export interface TicketData {
   student_id: number;
   student_name?: string;
   lecturer_id?: number;
+  lecturer_name?: string;
+  lecturer_email?: string;
+  completed_elements?: string;
   is_read_by_lecturer?: boolean;
   created_at: string;
   updated_at: string;
@@ -42,6 +45,9 @@ export interface TicketCreatePayload {
   claimed_score?: number;
   proof_attachment?: string;
   additional_notes?: string;
+  lecturer_name: string;
+  lecturer_email: string;
+  completed_elements?: string;
 }
 
 export interface PaginatedTickets {

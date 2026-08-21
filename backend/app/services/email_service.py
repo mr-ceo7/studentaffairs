@@ -33,8 +33,8 @@ def _generate_html_template(title: str, body: str, cta_text: str = None, cta_url
             <tr><td align="center">
                 <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="background-color: #1a1a3e; border: 1px solid #2d2d5e; border-radius: 16px; max-width: 600px; width: 100%; margin: 0 auto; overflow: hidden;">
                     <tr><td style="padding: 30px 40px; border-bottom: 1px solid #2d2d5e; text-align: center; background-color: #141432;">
-                        <h1 style="color: #8b5cf6; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">STUDENT AFFAIRS</h1>
-                        <p style="color: #a1a1aa; margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">GG & Over 2.5 Predictions</p>
+                        <h1 style="color: #6D86A1; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">STUDENT AFFAIRS</h1>
+                        <p style="color: #a1a1aa; margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Marks Verification & Academic Grievance Clearinghouse</p>
                     </td></tr>
                     <tr><td style="padding: 40px;">
                         <h2 style="color: #ffffff; margin-top: 0; font-size: 22px; font-weight: 700;">{title}</h2>
@@ -117,3 +117,119 @@ async def send_welcome_email(email: str, name: str):
     """
     html_content = _generate_html_template("Welcome to Student Affairs!", body, "View Today's Tips", settings.FRONTEND_URL)
     await _send_smtp_email(email, subject, html_content)
+
+
+async def send_student_instant_notification(
+    student_email: str,
+    student_name: str,
+    ticket_id: str,
+    updated_by: str,
+    status: str
+):
+    """Sends an instant email notification to the student when a lecturer replies or updates a ticket."""
+    subject = f"Update on your Student Grievance Claim {ticket_id}"
+    body = f"""
+    <p>Hello {student_name},</p>
+    <p>Your academic grievance claim <strong>{ticket_id}</strong> has been updated by <strong>{updated_by}</strong>.</p>
+    <p>New Status: <strong style="color: #6D86A1;">{status}</strong></p>
+    <p>Please log in to your portal to review comments or provide further details.</p>
+    """
+    html_content = _generate_html_template(
+        "Grievance Ticket Update",
+        body,
+        "Access Student Portal",
+        f"{settings.FRONTEND_URL}/clearance"
+    )
+    await _send_smtp_email(student_email, subject, html_content)
+
+
+async def send_lecturer_summary_notification(
+    lec_email: str,
+    lec_name: str,
+    ticket_details: list
+):
+    """Sends a summary email to a lecturer listing new tickets, with an auto-onboarding CTA link."""
+    subject = f"New Student Grievance Claims Assigned to You"
+    
+    # Generate list of tickets in HTML
+    tickets_html = "<ul style='padding-left: 20px; color: #d4d4d8; font-size: 15px;'>"
+    for t in ticket_details:
+        elements_str = t.get("completed_elements")
+        elements_badge = ""
+        if elements_str:
+            elements_badge = f"<br/><span style='font-size: 12px; color: #6D86A1;'>✔ Submitted Deliverables: {elements_str}</span>"
+        tickets_html += f"""
+        <li style='margin-bottom: 12px;'>
+            <strong>{t['ticket_id']}</strong>: {t['unit_code']} ({t['assessment_category']}) - Claimed Score: {t['claimed_score']}%
+            <br/><span style='font-size: 13px; color: #a1a1aa;'>Submitted by: {t['student_name']} ({t['reg_number']})</span>
+            {elements_badge}
+        </li>
+        """
+    tickets_html += "</ul>"
+    
+    # CTA Link for auto-onboarding
+    onboard_url = f"{settings.BACKEND_URL}/api/auth/onboard?email={lec_email}&name={lec_name}"
+    
+    body = f"""
+    <p>Hello Dr./Prof. {lec_name},</p>
+    <p>The following student academic grievance claims have been submitted under your unit(s):</p>
+    {tickets_html}
+    <p>Please click the button below to instantly access/log in to the Students Affairs Clearinghouse and view these tickets.</p>
+    """
+    html_content = _generate_html_template(
+        "Student Grievance Notification",
+        body,
+        "Access Portal & View Tickets",
+        onboard_url
+    )
+    await _send_smtp_email(lec_email, subject, html_content)
+
+
+async def check_and_send_debounced_lecturer_notifications(lec_email: str, lec_name: str, delay: int = 21600):
+    """Sleeps for a specified duration (6 hours by default), then fetches and sends all pending notifications for a lecturer."""
+    import asyncio
+    await asyncio.sleep(delay)
+    
+    from app.database import AsyncSessionLocal
+    from app.models.ticket import PendingLecturerNotification, Ticket
+    from app.models.user import User
+    from sqlalchemy import select
+
+    async with AsyncSessionLocal() as db:
+        # Retrieve all pending notifications for this email
+        res = await db.execute(
+            select(PendingLecturerNotification)
+            .where(PendingLecturerNotification.lecturer_email == lec_email.lower().strip())
+        )
+        pending = res.scalars().all()
+        if not pending:
+            return
+            
+        ticket_details = []
+        for p in pending:
+            ticket_res = await db.execute(select(Ticket).where(Ticket.ticket_id == p.ticket_id))
+            t = ticket_res.scalar_one_or_none()
+            if t:
+                # Fetch student name
+                student_res = await db.execute(select(User).where(User.id == t.student_id))
+                student = student_res.scalar_one_or_none()
+                student_name = student.name if student else "Unknown Student"
+                
+                ticket_details.append({
+                    "ticket_id": t.ticket_id,
+                    "unit_code": t.unit_code,
+                    "assessment_category": t.assessment_category,
+                    "claimed_score": t.claimed_score,
+                    "student_name": student_name,
+                    "reg_number": t.reg_number,
+                    "completed_elements": t.completed_elements
+                })
+        
+        if ticket_details:
+            await send_lecturer_summary_notification(lec_email, lec_name, ticket_details)
+            
+        # Clean up database records
+        for p in pending:
+            await db.delete(p)
+        await db.commit()
+

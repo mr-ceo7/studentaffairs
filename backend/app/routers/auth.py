@@ -22,6 +22,20 @@ from app.models.activity import UserActivity, AnonymousVisitor, AnonymousActivit
 from app.security import hash_password, create_access_token, create_refresh_token, decode_token
 from app.services.email_service import send_welcome_email
 # from app.services.subscription_access import grant_subscription_entitlement
+from fastapi.responses import RedirectResponse
+from app.models.ticket import Ticket
+from sqlalchemy import update
+
+async def associate_lecturer_tickets(user_id: int, user_email: str, db: AsyncSession):
+    """Automatically maps all submitted student tickets targeting this email to the newly onboarded lecturer."""
+    await db.execute(
+        update(Ticket)
+        .where(Ticket.lecturer_email == user_email.lower().strip())
+        .where(Ticket.lecturer_id.is_(None))
+        .values(lecturer_id=user_id)
+    )
+    await db.commit()
+
 
 
 def set_auth_cookies(response: Response, request: Request, access_token: str, refresh_token: str):
@@ -202,6 +216,7 @@ async def google_auth(body: GoogleLoginRequest, request: Request, response: Resp
         db.add(user)
         await db.commit()
 
+        await associate_lecturer_tickets(user.id, user.email, db)
         await cleanup_expired_sessions(user, db)
         session_id = await create_user_session(user, db)
 
@@ -296,6 +311,7 @@ async def mock_sso_login(body: MockSSOLoginRequest, request: Request, response: 
         await db.commit()
         await db.refresh(user)
 
+    await associate_lecturer_tickets(user.id, user.email, db)
     await cleanup_expired_sessions(user, db)
     session_id = await create_user_session(user, db)
     
@@ -578,4 +594,53 @@ async def track_activity(
         
     await db.commit()
     return {"status": "ok"}
+
+
+@router.get("/onboard")
+async def onboard_lecturer(
+    email: str,
+    name: str,
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
+    email = email.lower().strip()
+    name = name.strip()
+
+    # Check if user already exists
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        # Auto-create user
+        rand_pass = "".join(random.choices(string.ascii_letters + string.digits, k=32))
+        user = User(
+            name=name,
+            email=email,
+            password=hash_password(rand_pass),
+            subscription_tier="premium",  # Staff/lecturers get premium tier privileges
+            is_admin=False,
+            is_active=True,
+            email_verified_at=datetime.now(UTC).replace(tzinfo=None),
+            profile_picture=f"https://api.dicebear.com/7.x/initials/svg?seed={name}",
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+
+    # Associate tickets
+    await associate_lecturer_tickets(user.id, user.email, db)
+
+    # Create session and set cookies
+    await cleanup_expired_sessions(user, db)
+    session_id = await create_user_session(user, db)
+
+    access_token = create_access_token(str(user.id), extra={"session_id": session_id})
+    refresh_token = create_refresh_token(str(user.id))
+
+    # Redirect to the frontend dashboard
+    redirect_res = RedirectResponse(url=f"{settings.FRONTEND_URL}/clearance")
+    set_auth_cookies(redirect_res, request, access_token, refresh_token)
+    return redirect_res
+
 

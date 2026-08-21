@@ -212,11 +212,40 @@ async def lifespan(app: FastAPI):
     # Import all models to register them with Base
     from app.models import user, setting, activity, ad, ticket, comment  # noqa: F401
 
+    from sqlalchemy import text
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        try:
+            await conn.execute(text("ALTER TABLE tickets ADD COLUMN lecturer_name VARCHAR(255)"))
+        except Exception as e:
+            print(f"[Lifespan Startup] Migrate lecturer_name column skip: {e}")
+        try:
+            await conn.execute(text("ALTER TABLE tickets ADD COLUMN lecturer_email VARCHAR(255)"))
+        except Exception as e:
+            print(f"[Lifespan Startup] Migrate lecturer_email column skip: {e}")
+        try:
+            await conn.execute(text("ALTER TABLE tickets ADD COLUMN completed_elements VARCHAR(500)"))
+        except Exception as e:
+            print(f"[Lifespan Startup] Migrate completed_elements column skip: {e}")
     print("[UoN Clearinghouse] Database tables created")
 
     await seed_default_data()
+
+    # Flush or schedule pending notifications on startup
+    import asyncio
+    from sqlalchemy import select
+    from app.models.ticket import PendingLecturerNotification, Ticket
+    from app.services.email_service import check_and_send_debounced_lecturer_notifications
+    async with AsyncSessionLocal() as db:
+        try:
+            res = await db.execute(select(PendingLecturerNotification.lecturer_email).distinct())
+            emails = res.scalars().all()
+            for email in emails:
+                ticket_res = await db.execute(select(Ticket.lecturer_name).where(Ticket.lecturer_email == email).limit(1))
+                lec_name = ticket_res.scalar() or "Lecturer"
+                asyncio.create_task(check_and_send_debounced_lecturer_notifications(email, lec_name, delay=10))
+        except Exception as e:
+            print(f"[Lifespan Startup] Skip notification flush: {e}")
 
     yield
 
