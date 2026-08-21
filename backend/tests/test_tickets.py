@@ -105,3 +105,75 @@ async def test_lecturer_lazy_onboarding(client: AsyncClient, db_session: AsyncSe
     )
     updated_ticket = res_ticket.scalar_one()
     assert updated_ticket.lecturer_id == lec_user.id
+
+
+@pytest.mark.asyncio
+async def test_ticket_escalation_and_admin_onboarding(client: AsyncClient, db_session: AsyncSession):
+    # 1. Create a lecturer user
+    lecturer = User(
+        name="Dr. Peter Otieno",
+        email="peter.otieno@uonbi.ac.ke",
+        password=hash_password("lecturer123"),
+        subscription_tier="premium",
+        is_admin=False,
+        is_active=True,
+    )
+    db_session.add(lecturer)
+    
+    # 2. Add a student ticket to escalate
+    ticket = Ticket(
+        ticket_id="UON-5555",
+        reg_number="CS/45231/2022",
+        faculty="Faculty of Science & Technology",
+        department="Department of Computer Science",
+        unit_code="ICS 2101 — Data Structures",
+        assessment_category="CAT",
+        student_id=2,
+        status="Submitted to Department/Lecturer",
+        lecturer_name="Dr. Peter Otieno",
+        lecturer_email="peter.otieno@uonbi.ac.ke",
+        lecturer_id=1
+    )
+    db_session.add(ticket)
+    await db_session.commit()
+
+    # Authenticate as lecturer
+    from app.dependencies import get_current_user
+    from app.main import app
+    app.dependency_overrides[get_current_user] = lambda: lecturer
+
+    # 3. Call escalate endpoint
+    payload = {
+        "admin_name": "Prof. Kaleb HOD",
+        "admin_email": "kaleb.wambua@uonbi.ac.ke",
+        "comment": "Escalating this for HOD approval."
+    }
+    response = await client.post("/api/tickets/UON-5555/escalate", json=payload)
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+    # Verify ticket status changed and comment added
+    await db_session.refresh(ticket)
+    assert ticket.status == "Under Departmental Processing"
+
+    # 4. Trigger HOD admin lazy onboarding CTA
+    onboard_res = await client.get(
+        "/api/auth/onboard",
+        params={
+            "email": "kaleb.wambua@uonbi.ac.ke",
+            "name": "Prof. Kaleb HOD",
+            "role": "admin"
+        },
+        follow_redirects=False
+    )
+    assert onboard_res.status_code == 307
+    
+    # Verify HOD user was created with is_admin = True
+    res_user = await db_session.execute(
+        select(User).where(User.email == "kaleb.wambua@uonbi.ac.ke")
+    )
+    admin_user = res_user.scalar_one_or_none()
+    assert admin_user is not None
+    assert admin_user.is_admin is True
+
+    app.dependency_overrides.clear()

@@ -21,6 +21,7 @@ from app.schemas.ticket import (
     CommentCreate,
     CommentResponse,
     PaginatedTicketsResponse,
+    TicketEscalate,
 )
 
 router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
@@ -190,7 +191,7 @@ async def list_tickets(
     faculty: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
-    per_page: int = Query(50, ge=1, le=100),
+    per_page: int = Query(50, ge=1, le=250),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
@@ -442,3 +443,59 @@ async def add_comment(
     await db.refresh(comment)
 
     return comment
+
+
+@router.post("/{ticket_id}/escalate")
+async def escalate_ticket(
+    ticket_id: str,
+    body: TicketEscalate,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    # Only lecturers or admins can escalate tickets
+    is_admin = user.is_admin or user.email == "admin@uonbi.ac.ke"
+    is_lecturer = user.email.endswith("@uonbi.ac.ke") and not is_admin
+    if not is_lecturer and not is_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Only lecturers or admins can escalate claims.",
+        )
+
+    # Fetch ticket
+    res = await db.execute(select(Ticket).where(Ticket.ticket_id == ticket_id))
+    ticket = res.scalar_one_or_none()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found.")
+
+    # Create comment about escalation
+    esc_comment = f"Escalated to HOD/Admin {body.admin_name} ({body.admin_email})."
+    if body.comment:
+        esc_comment += f" Notes: {body.comment}"
+
+    comment = Comment(
+        ticket_id=ticket.id,
+        author_name=user.name,
+        author_role="lecturer" if is_lecturer else "admin",
+        message=esc_comment,
+    )
+    db.add(comment)
+    
+    # Update ticket status to reflect escalation
+    ticket.status = "Under Departmental Processing"
+    await db.commit()
+
+    # Send escalation email notification to the HOD/Admin
+    from app.services.email_service import send_admin_escalation_notification
+    import asyncio
+    asyncio.create_task(
+        send_admin_escalation_notification(
+            admin_email=body.admin_email.lower().strip(),
+            admin_name=body.admin_name.strip(),
+            ticket_id=ticket.ticket_id,
+            unit_code=ticket.unit_code,
+            student_name=user.name,
+            comment=body.comment,
+        )
+    )
+
+    return {"status": "ok", "message": "Ticket escalated successfully."}

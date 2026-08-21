@@ -75,7 +75,10 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
   const [newComment, setNewComment] = useState('');
   const [verifiedScoreInput, setVerifiedScoreInput] = useState('');
   const [selectedStatusInput, setSelectedStatusInput] = useState('');
-  const [submittingReview, setSubmittingReview] = useState(false);
+  const [showEscalateForm, setShowEscalateForm] = useState(false);
+  const [escalateName, setEscalateName] = useState('');
+  const [escalateEmail, setEscalateEmail] = useState('');
+  const [escalateComment, setEscalateComment] = useState('');
 
   // Lightbox State
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
@@ -172,6 +175,35 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
       fetchReviewTicketDetails(reviewTicket.ticket_id);
     } catch (err) {
       toast.error('Failed to add comment');
+    }
+  };
+
+  const handleEscalateSubmit = async () => {
+    if (!reviewTicket || !escalateName.trim() || !escalateEmail.trim()) return;
+
+    setSubmittingReview(true);
+    try {
+      await ticketService.escalateTicket(
+        reviewTicket.ticket_id,
+        escalateName.trim(),
+        escalateEmail.trim().toLowerCase(),
+        escalateComment.trim() || undefined
+      );
+      toast.success(`Ticket escalated to HOD ${escalateName}`);
+      
+      // Reset inputs & close escalation form
+      setEscalateName('');
+      setEscalateEmail('');
+      setEscalateComment('');
+      setShowEscalateForm(false);
+      
+      // Reload main table & update local drawer content
+      await loadTickets();
+      await fetchReviewTicketDetails(reviewTicket.ticket_id);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to escalate ticket');
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -419,80 +451,153 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
           </div>
         </div>
 
-        {/* Action form */}
-        <form onSubmit={handleUpdateStatusAndScore} className="space-y-3 border-t border-slate-100 dark:border-slate-850 pt-4">
-          <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            Update Claim & Verify Mark
-          </h4>
-          
-          <div className="grid grid-cols-2 gap-3">
+        {/* Escalation Form / Action Form */}
+        {showEscalateForm ? (
+          <div className="space-y-3 border-t border-slate-100 dark:border-slate-850 pt-4">
+            <div className="flex justify-between items-center">
+              <h4 className="text-[10px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                Escalate to HOD / Department Admin
+              </h4>
+              <button 
+                type="button" 
+                onClick={() => setShowEscalateForm(false)} 
+                className="text-[9px] font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  HOD/Admin Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Prof. J. Kaleb"
+                  value={escalateName}
+                  onChange={(e) => setEscalateName(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-850 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  HOD/Admin Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="e.g. kaleb@uonbi.ac.ke"
+                  value={escalateEmail}
+                  onChange={(e) => setEscalateEmail(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-850 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Verified Score
+                Reason for Escalation
               </label>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                placeholder="verified marks..."
-                value={verifiedScoreInput}
-                onChange={(e) => setVerifiedScoreInput(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-850 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+              <textarea
+                placeholder="Explain why this requires department admin / HOD review..."
+                value={escalateComment}
+                onChange={(e) => setEscalateComment(e.target.value)}
+                rows={2}
+                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
               />
             </div>
 
-            <div>
-              <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Workflow Status
-              </label>
-              <select
-                value={selectedStatusInput}
-                onChange={(e) => setSelectedStatusInput(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer"
-              >
-                <option value="Submitted to Department/Lecturer">Submitted to Dept/Lecturer</option>
-                <option value="Under Departmental Processing">Under Dept Processing</option>
-                <option value="Awaiting Student Response">Awaiting Student Response</option>
-                <option value="Rejected — Insufficient Proof">Rejected — Insufficient Proof</option>
-                <option value="Cleared for SMS Update">Cleared for SMS Update</option>
-                <option value="Verified on SMS">Verified on SMS</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Comment textarea */}
-          <div>
-            <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Comment / Resolution Notes
-            </label>
-            <textarea
-              placeholder="Type details for the student, lecturer logs, or reason for rejection/approval..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              rows={3}
-              className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
-            />
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-2 pt-1">
             <button
               type="button"
-              onClick={handleAddDrawerComment}
-              disabled={!newComment.trim()}
-              className="px-4 py-2 border border-slate-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-all cursor-pointer disabled:opacity-50 text-[10px]"
+              onClick={handleEscalateSubmit}
+              disabled={submittingReview || !escalateName.trim() || !escalateEmail.trim()}
+              className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all cursor-pointer text-center text-[10px] shadow-sm disabled:opacity-50"
             >
-              Send Message Only
-            </button>
-            <button
-              type="submit"
-              disabled={submittingReview}
-              className="flex-1 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl transition-all cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-sm text-[10px]"
-            >
-              {submittingReview ? 'Updating...' : 'Submit Resolution'}
+              {submittingReview ? 'Escalating...' : 'Confirm Escalation & Invite HOD'}
             </button>
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleUpdateStatusAndScore} className="space-y-3 border-t border-slate-100 dark:border-slate-850 pt-4">
+            <h4 className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Update Claim & Verify Mark
+            </h4>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  Verified Score
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="verified marks..."
+                  value={verifiedScoreInput}
+                  onChange={(e) => setVerifiedScoreInput(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-850 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  Workflow Status
+                </label>
+                <select
+                  value={selectedStatusInput}
+                  onChange={(e) => setSelectedStatusInput(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer"
+                >
+                  <option value="Submitted to Department/Lecturer">Submitted to Dept/Lecturer</option>
+                  <option value="Under Departmental Processing">Under Dept Processing</option>
+                  <option value="Awaiting Student Response">Awaiting Student Response</option>
+                  <option value="Rejected — Insufficient Proof">Rejected — Insufficient Proof</option>
+                  <option value="Cleared for SMS Update">Approved (Pending Portal Update)</option>
+                  <option value="Verified on SMS">Resolved (Updated in Portal)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Comment textarea */}
+            <div>
+              <label className="block text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                Comment / Resolution Notes
+              </label>
+              <textarea
+                placeholder="Type details for the student, lecturer logs, or reason for rejection/approval..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                rows={3}
+                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
+              />
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleAddDrawerComment}
+                disabled={!newComment.trim()}
+                className="px-4 py-2 border border-slate-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-all cursor-pointer disabled:opacity-50 text-[10px]"
+              >
+                Send Message Only
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowEscalateForm(true)}
+                className="px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-bold rounded-xl transition-all cursor-pointer text-[10px]"
+              >
+                Escalate to HOD
+              </button>
+              <button
+                type="submit"
+                disabled={submittingReview}
+                className="flex-1 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl transition-all cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-sm text-[10px]"
+              >
+                {submittingReview ? 'Updating...' : 'Submit Resolution'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     );
   };
@@ -752,7 +857,7 @@ export default function LecturerPortalView({ user, onTicketClick }: LecturerPort
                               ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-450 border border-amber-100/50 dark:border-amber-900/30'
                               : 'bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-450 border border-blue-100/50 dark:border-blue-900/30'
                           }`}>
-                            {t.status.replace('Submitted to Department/Lecturer', 'SUBMITTED').replace('Under Departmental Processing', 'PROCESSING').replace('Cleared for SMS Update', 'CLEARED FOR SMS').replace('Verified on SMS', 'VERIFIED ON SMS').replace('Rejected — Insufficient Proof', 'REJECTED - PROOF').replace('Awaiting Student Response', 'AWAITING STUDENT')}
+                            {t.status.replace('Submitted to Department/Lecturer', 'SUBMITTED').replace('Under Departmental Processing', 'PROCESSING').replace('Cleared for SMS Update', 'APPROVED (PENDING PORTAL UPDATE)').replace('Verified on SMS', 'RESOLVED (UPDATED IN PORTAL)').replace('Rejected — Insufficient Proof', 'REJECTED - PROOF').replace('Awaiting Student Response', 'AWAITING STUDENT')}
                           </span>
                         </td>
                         <td className="py-3 px-2.5 text-center">

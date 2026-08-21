@@ -235,7 +235,7 @@ export default function FloatingSupportButton() {
                                   ? 'bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 border-purple-100 dark:border-purple-900/40'
                                   : 'bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/40'
                               }`}>
-                                {msg.target_recipient === 'developer' ? 'Technical Dev' : 'ONUSS Leader'}
+                                {msg.target_recipient === 'developer' ? 'Technical Dev' : 'Student Rep'}
                               </span>
                               <span className={`text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
                                 msg.status === 'resolved'

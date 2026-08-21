@@ -2,6 +2,7 @@
 Email service — welcome & payment receipt emails rebranded for Student Affairs.
 """
 
+from typing import Optional
 import logging
 from email.message import EmailMessage
 try:
@@ -232,4 +233,39 @@ async def check_and_send_debounced_lecturer_notifications(lec_email: str, lec_na
         for p in pending:
             await db.delete(p)
         await db.commit()
+
+
+async def send_admin_escalation_notification(
+    admin_email: str,
+    admin_name: str,
+    ticket_id: str,
+    unit_code: str,
+    student_name: str,
+    comment: Optional[str] = None
+):
+    """Sends an email notification to a department administrator/HOD about an escalated ticket, with an auto-onboarding CTA."""
+    subject = f"Escalated Academic Grievance: {ticket_id}"
+    
+    # CTA Link for auto-onboarding as admin
+    onboard_url = f"{settings.BACKEND_URL}/api/auth/onboard?email={admin_email}&name={admin_name}&role=admin"
+    
+    notes_html = f"<p><strong>Escalation Notes:</strong> {comment}</p>" if comment else ""
+    
+    body = f"""
+    <p>Hello HOD/Administrator {admin_name},</p>
+    <p>A grade discrepancy claim has been escalated to your department for administrative review:</p>
+    <ul style='padding-left: 20px; color: #d4d4d8; font-size: 15px;'>
+        <li><strong>Ticket ID:</strong> {ticket_id}</li>
+        <li><strong>Course Unit:</strong> {unit_code}</li>
+    </ul>
+    {notes_html}
+    <p>Please click the button below to instantly access/log in as a department administrator to review this claim.</p>
+    """
+    html_content = _generate_html_template(
+        "Escalated Claim Review Request",
+        body,
+        "Access Registrar Portal",
+        onboard_url
+    )
+    await _send_smtp_email(admin_email, subject, html_content)
 

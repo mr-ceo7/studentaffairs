@@ -13,6 +13,7 @@ import os
 import string
 import uuid
 
+from typing import Optional
 from app.database import AsyncSessionLocal
 from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.models.user import User, UserSession
@@ -602,6 +603,7 @@ async def onboard_lecturer(
     name: str,
     request: Request,
     response: Response,
+    role: Optional[str] = None,
     db: AsyncSession = Depends(get_db)
 ):
     email = email.lower().strip()
@@ -618,8 +620,8 @@ async def onboard_lecturer(
             name=name,
             email=email,
             password=hash_password(rand_pass),
-            subscription_tier="premium",  # Staff/lecturers get premium tier privileges
-            is_admin=False,
+            subscription_tier="premium",  # Staff/lecturers/admins get premium tier privileges
+            is_admin=True if role == "admin" else False,
             is_active=True,
             email_verified_at=datetime.now(UTC).replace(tzinfo=None),
             profile_picture=f"https://api.dicebear.com/7.x/initials/svg?seed={name}",

@@ -94,6 +94,21 @@ export const ticketService = {
     return response.data;
   },
 
+  async escalateTicket(
+    ticketId: string,
+    adminName: string,
+    adminEmail: string,
+    comment?: string
+  ): Promise<{ status: string; message: string }> {
+    const payload = {
+      admin_name: adminName,
+      admin_email: adminEmail,
+      comment
+    };
+    const response = await apiClient.post<{ status: string; message: string }>(`/tickets/${ticketId}/escalate`, payload);
+    return response.data;
+  },
+
   async uploadFiles(files: FileList | File[]): Promise<{ url: string; name: string }[]> {
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {

@@ -51,17 +51,17 @@ const CATEGORIES = [
 const HERO_SLIDES = [
   {
     image: '/onuss_claims_hero.jpg',
-    title: 'ONUSS Marks Discrepancy & Claims Clearinghouse',
-    subtitle: 'Submit, track, and resolve missing marks and grade disputes through the official ONUSS digital pipeline.',
+    title: 'Student Affairs Grievance Clearinghouse',
+    subtitle: 'Submit, track, and resolve missing marks and grade disputes through the official Student Affairs digital pipeline.',
   },
   {
     image: '/onuss_kaleb_poster.jpg',
-    title: 'Championed by ONUSS Executive Leadership',
-    subtitle: 'Kaleb Wambua & ONUSS Academic Secretaries are dedicated to resolving your grade grievances efficiently.',
+    title: 'Championed by Student Affairs Leadership',
+    subtitle: 'Kaleb Wambua & Academic Secretaries are dedicated to resolving your grade grievances efficiently.',
   },
   {
     image: '/onuss_poster_banner.jpg',
-    title: 'ONUSS Academic Advocacy & Grade Clearinghouse',
+    title: 'Student Affairs Academic Advocacy & Grade Clearinghouse',
     subtitle: 'Grade transparency, Senate appeals, and faculty HOD follow-ups for all UoN science students.',
   },
 ];
@@ -469,7 +469,7 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
         </p>
       </div>
 
-      {/* ONUSS Claims Hero Carousel */}
+      {/* Student Affairs Claims Hero Carousel */}
       <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-xl aspect-[21/9] sm:aspect-[3/1] group">
         <AnimatePresence mode="wait">
           <motion.div
@@ -1215,7 +1215,11 @@ export default function StudentPortalView({ user, onTicketClick }: StudentPortal
                               ? 'text-red-650 dark:text-red-400'
                               : 'text-blue-700 dark:text-blue-400'
                         }`}>
-                          {t.status.toUpperCase()}
+                          {t.status === 'Cleared for SMS Update'
+                            ? 'APPROVED (PENDING PORTAL UPDATE)'
+                            : t.status === 'Verified on SMS'
+                              ? 'RESOLVED (UPDATED IN PORTAL)'
+                              : t.status.toUpperCase()}
                         </span>
                       </div>
                     </div>

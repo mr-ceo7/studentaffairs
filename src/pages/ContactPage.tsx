@@ -35,18 +35,18 @@ const CONTACT_INFO = {
 const CAROUSEL_SLIDES = [
   {
     image: '/onuss_kaleb_poster.jpg',
-    title: 'ONUSS Official Academic Clearinghouse Initiative',
-    subtitle: 'Championed by Kaleb Wambua & ONUSS Executive Leadership to solve missing marks and streamline Senate clearance.',
+    title: 'Official Academic Grievance Clearinghouse Initiative',
+    subtitle: 'Championed by Kaleb Wambua & Student Affairs Leadership to solve missing marks and streamline Senate clearance.',
   },
   {
     image: '/onuss_poster_banner.jpg',
-    title: 'ONUSS Academic Advocacy & Grade Clearinghouse',
+    title: 'Academic Advocacy & Grade Clearinghouse',
     subtitle: 'Advocating for student rights, grade transparency, and Senate academic appeals across all UoN science faculties.',
   },
   {
     image: '/unsa_academic_sec.jpg',
     title: 'Dedicated Science Student Representation',
-    subtitle: 'Connect directly with ONUSS Academic Secretaries for missing mark escalations and faculty HOD follow-ups.',
+    subtitle: 'Connect directly with Student Affairs Representatives for missing mark escalations and faculty HOD follow-ups.',
   },
 ];
 
@@ -115,7 +115,7 @@ export default function ContactPage() {
   };
 
   useEffect(() => {
-    document.title = 'ONUSS Support & Advocacy Desk - UoN Clearinghouse';
+    document.title = 'Student Support & Advocacy Desk - UoN Clearinghouse';
     autoFillProfile();
   }, [user]);
 
@@ -127,7 +127,7 @@ export default function ContactPage() {
       setSubject('Technical Issue Report');
     } else {
       setCategory('Missing Mark Delay');
-      setSubject('ONUSS Academic Advocacy & Grade Discrepancy');
+      setSubject('Academic Advocacy & Grade Discrepancy');
     }
   };
 
@@ -174,7 +174,7 @@ export default function ContactPage() {
     toast.info(
       activeModal === 'developer'
         ? 'In-app developer support ticket submission is currently archived. Please email us directly.'
-        : 'In-app ONUSS Rep ticket submission is currently archived. Please email us directly.'
+        : 'In-app student leader ticket submission is currently archived. Please email us directly.'
     );
     closeModal();
   };
@@ -188,10 +188,10 @@ export default function ContactPage() {
           <img src="/uon_crest.jpg" className="w-full h-full object-cover" alt="UoN Crest" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-900 dark:text-slate-100">
-          ONUSS Academic Support Desk
+          Student Affairs Academic Support Desk
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
-          Need assistance with a grade grievance or clearance issues? ONUSS Student Leadership is here to advocate for you.
+          Need assistance with a grade grievance or clearance issues? Student Affairs Leadership is here to advocate for you.
         </p>
       </div>
 
@@ -233,7 +233,7 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* Pillar 2: ONUSS Student Leaders for Academic Affairs */}
+        {/* Pillar 2: Student Leaders for Academic Affairs */}
         <div className="clay-card p-6 border border-emerald-200/60 dark:border-emerald-900/40 bg-gradient-to-b from-emerald-50/40 to-transparent dark:from-emerald-950/20 dark:to-transparent space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -241,16 +241,16 @@ export default function ContactPage() {
                 <UserCheck size={20} />
               </div>
               <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                Advocacy (ONUSS)
+                Student Advocacy
               </span>
             </div>
 
             <div>
               <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">
-                ONUSS Student Leaders (Academic Affairs)
+                Student Leaders (Academic Affairs)
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Connect with ONUSS Academic Secretaries and Student Reps for grade dispute advocacy, missing mark delays, and Senate appeals.
+                Connect with Student Representatives for grade dispute advocacy, missing mark delays, and Senate appeals.
               </p>
             </div>
           </div>
@@ -260,7 +260,7 @@ export default function ContactPage() {
               onClick={() => openModal('student_leader')}
               className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm text-center"
             >
-              <MessageSquarePlus size={15} /> Contact ONUSS Academic Reps
+              <MessageSquarePlus size={15} /> Contact Student Reps
             </button>
             <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold text-center py-1">
               Official Email: {CONTACT_INFO.LEADERS_EMAIL}
@@ -331,12 +331,12 @@ export default function ContactPage() {
                   <h2 className="text-sm md:text-base font-bold text-white leading-tight">
                     {activeModal === 'developer'
                       ? 'Developer Technical Support Desk'
-                      : 'ONUSS Academic Advocacy Workspace'}
+                      : 'Student Academic Advocacy Workspace'}
                   </h2>
                   <p className="text-[11px] text-slate-400">
                     {activeModal === 'developer'
                       ? 'Direct channel to engineering support'
-                      : 'Direct channel to ONUSS Academic Representatives'}
+                      : 'Direct channel to Student Representatives'}
                   </p>
                 </div>
               </div>
@@ -349,7 +349,7 @@ export default function ContactPage() {
                     onClick={() => {
                       setActiveModal('student_leader');
                       setCategory('Missing Mark Delay');
-                      setSubject('ONUSS Academic Advocacy & Grade Discrepancy');
+                      setSubject('Academic Advocacy & Grade Discrepancy');
                     }}
                     className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
                       activeModal === 'student_leader'
@@ -357,7 +357,7 @@ export default function ContactPage() {
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <UserCheck size={12} /> ONUSS Reps
+                    <UserCheck size={12} /> Student Reps
                   </button>
                   <button
                     type="button"
@@ -416,7 +416,7 @@ export default function ContactPage() {
                   <div className="absolute inset-x-0 bottom-0 p-4 space-y-1 z-10">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-600/80 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-widest border border-blue-400/30">
                       <GraduationCap size={11} />
-                      ONUSS Student Leadership
+                      Student Leadership
                     </div>
                     <h3 className="text-sm font-bold text-white leading-snug">
                       {CAROUSEL_SLIDES[currentSlide].title}
@@ -558,7 +558,7 @@ export default function ContactPage() {
                       placeholder={
                         activeModal === 'developer'
                           ? 'Describe the bug or error message step-by-step. What happened, what did you expect to happen, and which browser/device were you using?'
-                          : 'Provide complete details regarding your academic grievance. Mention the unit code, lecturer name, exam date, and what assistance you need from ONUSS student leaders...'
+                          : 'Provide complete details regarding your academic grievance. Mention the unit code, lecturer name, exam date, and what assistance you need from student leaders...'
                       }
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs leading-relaxed focus:outline-none focus:border-blue-500 transition-all resize-y min-h-[120px]"
                     />
@@ -639,7 +639,7 @@ export default function ContactPage() {
             <div className="p-4 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-lg">
               <div className="flex items-center gap-2 font-bold text-white text-xs shrink-0">
                 <Shield size={16} className="text-emerald-400" />
-                ONUSS Representative Helpdesk
+                Student Representative Helpdesk
               </div>
 
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-slate-300">

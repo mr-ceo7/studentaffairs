@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Shield, 
   Filter, 
@@ -72,7 +72,7 @@ const STATUS_CLASS: Record<string, string> = {
 
 export default function AdminPortalView({ user, onTicketClick }: AdminPortalProps) {
   const navigate = useNavigate();
-  const [activeTab] = useState<'clearance'>('clearance');
+  const [activeTab, setActiveTab] = useState<'clearance' | 'lecturers'>('clearance');
 
   // Clearance Tickets
   const [tickets, setTickets] = useState<TicketData[]>([]);
@@ -103,6 +103,56 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
 
   // Lightbox State
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+
+  const [lecturerSearch, setLecturerSearch] = useState('');
+
+  // Dynamically group tickets by lecturer to generate metrics
+  const lecturerStats = useMemo(() => {
+    const groups: Record<string, {
+      name: string;
+      email: string;
+      total: number;
+      pending: number;
+      resolved: number;
+      tickets: TicketData[];
+    }> = {};
+
+    tickets.forEach(t => {
+      const email = t.lecturer_email?.toLowerCase().trim() || 'unassigned@uonbi.ac.ke';
+      const name = t.lecturer_name?.trim() || 'Unassigned Lecturer';
+      
+      if (!groups[email]) {
+        groups[email] = {
+          name,
+          email,
+          total: 0,
+          pending: 0,
+          resolved: 0,
+          tickets: []
+        };
+      }
+      
+      const stats = groups[email];
+      stats.total += 1;
+      stats.tickets.push(t);
+      
+      const isResolved = ['Verified on SMS', 'Rejected — Insufficient Proof'].includes(t.status);
+      if (isResolved) {
+        stats.resolved += 1;
+      } else {
+        stats.pending += 1;
+      }
+    });
+
+    const list = Object.values(groups);
+    if (!lecturerSearch.trim()) return list;
+
+    const term = lecturerSearch.toLowerCase();
+    return list.filter(l => 
+      l.name.toLowerCase().includes(term) || 
+      l.email.toLowerCase().includes(term)
+    );
+  }, [tickets, lecturerSearch]);
 
   useEffect(() => {
     loadTickets();
@@ -315,17 +365,39 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
       <div className="reveal active flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl shadow-sm">
         <div className="space-y-1">
           <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest block">
-            Registrar &amp; Leadership Portal
+            Department Admin &amp; Leadership Portal
           </span>
           <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Clearance &amp; Support Master Board
+            Academic Grievance Clearance Board
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs leading-none">
-            Manage academic grievances, view clearance analytics, and respond to developer &amp; ONUSS support messages.
+            Manage academic grievances, track lecturer response rates, and coordinate clearance operations.
           </p>
         </div>
 
-        {/* Support Inbox Switcher Archived */}
+        {/* Tab switcher */}
+        <div className="flex gap-1.5 bg-slate-50 dark:bg-slate-950 p-1.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shrink-0 self-start md:self-center">
+          <button
+            onClick={() => setActiveTab('clearance')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'clearance'
+                ? 'bg-white dark:bg-slate-900 text-slate-850 dark:text-white shadow-sm border border-slate-200/50 dark:border-slate-800/50'
+                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            Claims Board
+          </button>
+          <button
+            onClick={() => setActiveTab('lecturers')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'lecturers'
+                ? 'bg-white dark:bg-slate-900 text-slate-850 dark:text-white shadow-sm border border-slate-200/50 dark:border-slate-800/50'
+                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            Lecturers &amp; Metrics
+          </button>
+        </div>
       </div>
 
       <AnimatePresence mode="wait">
@@ -463,7 +535,13 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                     >
                       <option value="" className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">All Statuses</option>
                       {Object.keys(STATUS_CLASS).map(st => (
-                        <option key={st} value={st} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">{st}</option>
+                        <option key={st} value={st} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-250">
+                          {st === 'Cleared for SMS Update'
+                            ? 'Approved (Pending Portal Update)'
+                            : st === 'Verified on SMS'
+                              ? 'Resolved (Updated in Portal)'
+                              : st}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -509,7 +587,11 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                           <td className="py-3.5 px-4 text-center font-black text-blue-700 dark:text-blue-450">{t.verified_score !== null && t.verified_score !== undefined ? t.verified_score : '—'}</td>
                           <td className="py-3.5 px-4">
                             <span className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold border uppercase tracking-wide inline-block ${STATUS_CLASS[t.status]}`}>
-                              {t.status}
+                              {t.status === 'Cleared for SMS Update'
+                                ? 'Approved (Pending Portal Update)'
+                                : t.status === 'Verified on SMS'
+                                  ? 'Resolved (Updated in Portal)'
+                                  : t.status}
                             </span>
                           </td>
                           <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">
@@ -550,6 +632,126 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                 </div>
               )}
             </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'lecturers' && (
+          <motion.div
+            key="lecturers-tab"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            {/* Lecturer List Header / Filter */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl shadow-sm">
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Lecturer Response Directory</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Track and review grading workload and ticket response metrics per lecturer.</p>
+              </div>
+              
+              <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 max-w-sm w-full">
+                <Filter size={12} className="text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search lecturer name or email..."
+                  value={lecturerSearch}
+                  onChange={(e) => setLecturerSearch(e.target.value)}
+                  className="bg-transparent text-xs text-slate-700 dark:text-slate-350 focus:outline-none placeholder-slate-400 w-full"
+                />
+              </div>
+            </div>
+
+            {/* Lecturers Grid */}
+            {lecturerStats.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {lecturerStats.map((lec) => {
+                  const rate = lec.total > 0 ? (lec.resolved / lec.total) * 100 : 0;
+                  const initials = lec.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  
+                  // Extract taught unit codes
+                  const units = Array.from(new Set(lec.tickets.map(t => t.unit_code.split(' — ')[0])));
+                  
+                  return (
+                    <div key={lec.email} className="clay-card p-5 space-y-4 hover:shadow-md transition-all flex flex-col justify-between border border-slate-200/50 dark:border-slate-800">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex gap-3 items-center">
+                          <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-xs shrink-0">
+                            {initials}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{lec.name}</h4>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">{lec.email}</span>
+                          </div>
+                        </div>
+                        
+                        {lec.pending > 0 ? (
+                          <span className="px-2 py-0.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 rounded-md text-[9px] font-extrabold uppercase tracking-wide">
+                            {lec.pending} Pending
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-450 border border-emerald-500/25 rounded-md text-[9px] font-extrabold uppercase tracking-wide">
+                            Clear
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Taught units list */}
+                      <div className="space-y-1.5">
+                        <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider block">Assigned Course Units</span>
+                        <div className="flex flex-wrap gap-1">
+                          {units.map(unit => (
+                            <span key={unit} className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 border border-slate-250/60 dark:border-slate-800/80 rounded text-[9px] text-slate-700 dark:text-slate-350 font-bold">
+                              {unit}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Progress Metrics bar */}
+                      <div className="space-y-2 pt-1">
+                        <div className="flex justify-between text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          <span>Resolution Progress ({lec.resolved}/{lec.total})</span>
+                          <span>{rate.toFixed(0)}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full transition-all ${
+                              rate > 75 
+                                ? 'bg-emerald-500' 
+                                : rate > 40 
+                                  ? 'bg-amber-500' 
+                                  : 'bg-red-500'
+                            }`}
+                            style={{ width: `${rate}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Quick Action to filter and inspect claims */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setClearanceSearch(lec.email);
+                          setActiveTab('clearance');
+                        }}
+                        className="w-full mt-2 py-2 bg-slate-50 dark:bg-slate-800/80 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/20 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 text-slate-750 dark:text-slate-300 font-bold rounded-xl text-[10px] transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        Inspect Lecturer's Queue
+                        <ArrowRight size={11} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <AlertCircle className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+                <h3 className="font-bold text-slate-700 dark:text-slate-350 text-sm">No Lecturers Found</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">There are no lecturers matching your search criteria.</p>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -810,8 +1012,8 @@ export default function AdminPortalView({ user, onTicketClick }: AdminPortalProp
                             <option value="Under Departmental Processing">Under Dept Processing</option>
                             <option value="Awaiting Student Response">Awaiting Student Response</option>
                             <option value="Rejected — Insufficient Proof">Rejected — Insufficient Proof</option>
-                            <option value="Cleared for SMS Update">Cleared for SMS Update</option>
-                            <option value="Verified on SMS">Verified on SMS</option>
+                            <option value="Cleared for SMS Update">Approved (Pending Portal Update)</option>
+                            <option value="Verified on SMS">Resolved (Updated in Portal)</option>
                           </select>
                         </div>
                       </div>

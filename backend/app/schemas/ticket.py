@@ -81,3 +81,9 @@ class PaginatedTicketsResponse(BaseModel):
     page: int
     per_page: int
     total_pages: int
+
+
+class TicketEscalate(BaseModel):
+    admin_name: str
+    admin_email: str
+    comment: Optional[str] = None

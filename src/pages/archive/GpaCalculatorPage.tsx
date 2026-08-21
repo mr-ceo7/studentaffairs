@@ -21,8 +21,8 @@ const HERO_SLIDES = [
   {
     image: '/onuss_advocacy_slide.jpg',
     category: 'Student Advocacy',
-    title: 'Clearing missing marks with ONUSS',
-    subtitle: 'ONUSS Student Leaders and HODs working in partnerships to fast-track script retrievals and grade changes.',
+    title: 'Clearing missing marks with Student Affairs',
+    subtitle: 'Student Affairs representatives and HODs working in partnership to fast-track script retrievals and grade changes.',
   }
 ];
 
