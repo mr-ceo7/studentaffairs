@@ -22,3 +22,11 @@ backend/winvirahisi.db
 backend/bettertips.db
 .vercel
 .env*.local
+
+# Runtime data: databases hold users' details, uploads hold students' proof documents
+*.db
+*.sqlite
+*.sqlite3
+backend/media/
+# Personal photos kept outside the app's assets
+kaleb_wambua-*.jpg
