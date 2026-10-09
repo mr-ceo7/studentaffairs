@@ -10,7 +10,8 @@ from pydantic import field_validator
 class Settings(BaseSettings):
     # ── Database ──────────────────────────────────────────────
     DATABASE_URL: str = "sqlite+aiosqlite:///./uon_clearinghouse.db"
-    DEBUG: bool = True
+    # Development mode: enables /api/auth/mock-sso (sign in as any UoN address). Never on in production.
+    DEBUG: bool = False
 
     # ── JWT ───────────────────────────────────────────────────
     JWT_SECRET_KEY: str = "uon-clearinghouse-dev-secret-change-in-production"
@@ -44,6 +45,10 @@ class Settings(BaseSettings):
 
     # ── Auth ─────────────────────────────────────────────────
     GOOGLE_CLIENT_ID: str = ""
+
+    # ── SMS (AdvantaSMS, for phone sign-in codes) ────────────
+    ADVANTA_SMS_API_KEY: str = ""
+    ADVANTA_SMS_PARTNER_ID: str = ""
 
     # ── Frontend URL (for payment redirects) ─────────────────
     FRONTEND_URL: str = "http://localhost:3000"

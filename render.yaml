@@ -62,6 +62,10 @@ services:
         sync: false
       - key: PAYSTACK_PUBLIC_KEY
         sync: false
+      - key: ADVANTA_SMS_API_KEY
+        sync: false
+      - key: ADVANTA_SMS_PARTNER_ID
+        sync: false
       - key: SMTP_SERVER
         value: smtp.gmail.com
       - key: SMTP_PORT

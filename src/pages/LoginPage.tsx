@@ -829,7 +829,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Collapsible Demo/Quick Login panel */}
+          {/* Collapsible Demo/Quick Login panel: development builds only (mock-sso is disabled in production) */}
+          {(import.meta as any).env.DEV && (
           <div className="border-t border-slate-200 dark:border-slate-850 pt-4">
             <button
               type="button"
@@ -957,6 +958,7 @@ export default function LoginPage() {
               )}
             </AnimatePresence>
           </div>
+          )}
         </div>
       </div>
     </div>

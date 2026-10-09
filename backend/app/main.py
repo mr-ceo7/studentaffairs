@@ -263,6 +263,9 @@ app = FastAPI(
 @app.middleware("http")
 async def dynamic_cors_middleware(request: Request, call_next):
     origin = request.headers.get("origin")
+    # Only the sites in ALLOWED_ORIGINS may call the API from a browser with the sign-in cookies
+    if origin and origin not in settings.cors_origins:
+        origin = None
     # Echo back whatever headers the browser asks for
     requested_headers = request.headers.get("access-control-request-headers", "content-type, authorization")
     

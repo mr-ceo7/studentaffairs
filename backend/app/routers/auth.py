@@ -243,6 +243,9 @@ async def google_auth(body: GoogleLoginRequest, request: Request, response: Resp
 
 @router.post("/mock-sso")
 async def mock_sso_login(body: MockSSOLoginRequest, request: Request, response: Response, db: AsyncSession = Depends(get_db)):
+    # Signs anyone in as any UoN address without proof of identity: development and demos only.
+    if not settings.DEBUG:
+        raise HTTPException(status_code=404, detail="Not Found")
     email = body.email.lower().strip()
     name = body.name.strip()
     picture = body.profile_picture
@@ -258,8 +261,8 @@ async def mock_sso_login(body: MockSSOLoginRequest, request: Request, response: 
     is_student = email.endswith("@student.uonbi.ac.ke")
     is_admin = False
     
-    # If the user selected admin or if email matches admin@uonbi.ac.ke or Kassim's email
-    if body.role == "admin" or email == "admin@uonbi.ac.ke" or email == "kassimmusa322@gmail.com":
+    # Admin rights are never taken from the request; only this development address starts as an admin
+    if email == "admin@uonbi.ac.ke":
         is_admin = True
     
     result = await db.execute(select(User).where(User.email == email))
@@ -288,8 +291,7 @@ async def mock_sso_login(body: MockSSOLoginRequest, request: Request, response: 
         await db.commit()
         await db.refresh(user)
     else:
-        user.name = name
-        user.is_admin = is_admin
+        user.name = name  # is_admin is left as stored
         if picture:
             user.profile_picture = picture
         if email == "new.student@student.uonbi.ac.ke":
@@ -349,10 +351,14 @@ async def _send_otp_sms(phone: str, code: str, db: AsyncSession):
         site_url = settings.FRONTEND_URL.replace("http://", "").replace("https://", "")
         sms_message = sms_template.replace("{code}", code).replace("{url}", site_url)
         
+        if not settings.ADVANTA_SMS_API_KEY or not settings.ADVANTA_SMS_PARTNER_ID:
+            print("[Student Affairs] SMS not configured (ADVANTA_SMS_API_KEY / ADVANTA_SMS_PARTNER_ID); OTP not sent")
+            return
+
         sms_url = "https://quicksms.advantasms.com/api/services/sendotp/"
         params = {
-            "apikey": "7218b12ef227065935349cc18da61ea7",
-            "partnerID": "2872",
+            "apikey": settings.ADVANTA_SMS_API_KEY,
+            "partnerID": settings.ADVANTA_SMS_PARTNER_ID,
             "mobile": stripped_phone,
             "message": sms_message,
             "shortcode": sms_src
